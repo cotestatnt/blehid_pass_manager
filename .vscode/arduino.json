@@ -1,0 +1,6 @@
+{
+    "sketch": "blehid_keyboard.ino",
+    "port": "COM17",
+    "board": "Seeeduino:nrf52:xiaonRF52840Sense",
+    "configuration": "softdevice=s140v6,debug=l0"
+}
