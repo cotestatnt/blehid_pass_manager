@@ -1,18 +1,5 @@
-/*********************************************************************
- This is an example for our nRF52 based Bluefruit LE modules
-
- Pick one up today in the adafruit shop!
-
- Adafruit invests time and resources providing this open source code,
- please support Adafruit and open-source hardware by purchasing
- products from Adafruit!
-
- MIT license, check LICENSE for more information
- All text above, and the splash screen below must be included in
- any redistribution
-*********************************************************************/
 #include <bluefruit.h>
-#include "keycodes.h"
+#include "hid_it.h"
 
 BLEBas  blebas;   // BLE Battery service
 BLEDis bledis;
@@ -28,7 +15,7 @@ bool hasKeyPressed = false;
 #define BATTERY_FULL_SCALE (MAX_BAT_VOLTAGE - MIN_BAT_VOLTAGE)
 
 // Stringhe personalizzabili per il test
-String stringa_a = "-|-£=?;'";
+String stringa_a = "-|=?;'";
 String stringa_b = "àèéìòù";
 String stringa_c = "£='?#^@";
 // String stringa_c = "Test numeri e lettere: 1234567890 ABCDEFGHIJKLMNOPQRSTUVWXYZ.";
@@ -215,18 +202,9 @@ void handleSerial() {
         sendString(stringa_c.c_str());
         break;      
         
-      case 's':
-        Serial.print("Stato connessione: ");
-        if (Bluefruit.connected()) {
-          Serial.println("CONNESSO");
-        } else {
-          Serial.println("DISCONNESSO");
-        }
-        break;
-        
       default:        
         String ss = String(ch);
-        sendString(ss);        
+        sendString(ss.c_str());        
         break;
     }
   }
