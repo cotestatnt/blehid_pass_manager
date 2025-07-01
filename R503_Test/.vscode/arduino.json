@@ -1,0 +1,5 @@
+{
+    "configuration": "softdevice=s140v6,debug=l0",
+    "board": "Seeeduino:nrf52:xiaonRF52840",
+    "sketch": "R503_Test.ino"
+}
