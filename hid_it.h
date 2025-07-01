@@ -175,14 +175,11 @@ void sendString(const char* str) {
       continue;
     }
 
-    Serial.print(" ");
-    Serial.print(c, HEX);
+    // Serial.print(" ");
+    // Serial.print(c, HEX);
 
     hid_keyboard_report_t report;
     varclr(&report);
-
-    // àèéìòù
-    // òèèà\ù
 
     switch (codepoint) {
       case 0x00B0: report.modifier = IT_MOD_SHIFT; report.keycode[0] = HID_KEY_APOSTROPHE; break;   // °
@@ -206,26 +203,3 @@ void sendString(const char* str) {
     delay(1);
   }
 }
-
-
-// void sendString(const char* str) {
-//   while (*str) {
-//     hid_keyboard_report_t report;
-//     varclr(&report);
-
-//     char ch = *str++;
-//     report.modifier = hid_ascii_to_keycode_it[(uint8_t)ch][0];
-//     report.keycode[0] = hid_ascii_to_keycode_it[(uint8_t)ch][1];
-
-//     Serial.print(" ");
-//     Serial.print(ch, HEX);
-
-//     if (report.keycode[0] == 0) 
-//       continue;
-    
-//     blehid.keyboardReport(BLE_CONN_HANDLE_INVALID, &report);
-//     delay(2);
-//     blehid.keyRelease();
-//     delay(1);
-//   }
-// }
