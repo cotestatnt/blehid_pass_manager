@@ -176,21 +176,23 @@ void sendString(const char* str) {
     }
 
     Serial.print(" ");
-    Serial.print(c);
+    Serial.print(c, HEX);
 
-    // Qui il tuo switch/case su codepoint
     hid_keyboard_report_t report;
     varclr(&report);
 
+    // àèéìòù
+    // òèèà\ù
+
     switch (codepoint) {
-      case 0x00B0: report.modifier = IT_MOD_SHIFT; report.keycode[0] = HID_KEY_APOSTROPHE; break; // °
-      case 0x00E7: report.modifier = IT_MOD_SHIFT; report.keycode[0] = HID_KEY_GRAVE; break;      // ç
-      case 0x00E0: report.keycode[0] = HID_KEY_SEMICOLON; break;                                 // à
-      case 0x00E8: report.keycode[0] = HID_KEY_BRACKET_LEFT; break;                              // è
+      case 0x00B0: report.modifier = IT_MOD_SHIFT; report.keycode[0] = HID_KEY_APOSTROPHE; break;   // °
+      case 0x00E7: report.modifier = IT_MOD_SHIFT; report.keycode[0] = HID_KEY_GRAVE; break;        // ç
+      case 0x00E0: report.keycode[0] = HID_KEY_APOSTROPHE; break;                                   // à
+      case 0x00E8: report.keycode[0] = HID_KEY_BRACKET_LEFT; break;                                 // è
       case 0x00E9: report.modifier = IT_MOD_SHIFT; report.keycode[0] = HID_KEY_BRACKET_LEFT; break; // é
-      case 0x00EC: report.keycode[0] = HID_KEY_APOSTROPHE; break;                                // ì
-      case 0x00F2: report.keycode[0] = HID_KEY_GRAVE; break;                                     // ò
-      case 0x00F9: report.keycode[0] = HID_KEY_BACKSLASH; break;                                 // ù
+      case 0x00EC: report.keycode[0] = HID_KEY_EQUAL; break;                                        // ì
+      case 0x00F2: report.keycode[0] = HID_KEY_SEMICOLON; break;                                    // ò
+      case 0x00F9: report.keycode[0] = HID_KEY_BACKSLASH; break;                                    // ù
       default:
         report.modifier = hid_ascii_to_keycode_it[(uint8_t)codepoint][0];
         report.keycode[0] = hid_ascii_to_keycode_it[(uint8_t)codepoint][1];
@@ -199,8 +201,31 @@ void sendString(const char* str) {
 
     if (report.keycode[0] == 0) continue;
     blehid.keyboardReport(BLE_CONN_HANDLE_INVALID, &report);
-    delay(5);
-    blehid.keyRelease();
     delay(2);
+    blehid.keyRelease();
+    delay(1);
   }
 }
+
+
+// void sendString(const char* str) {
+//   while (*str) {
+//     hid_keyboard_report_t report;
+//     varclr(&report);
+
+//     char ch = *str++;
+//     report.modifier = hid_ascii_to_keycode_it[(uint8_t)ch][0];
+//     report.keycode[0] = hid_ascii_to_keycode_it[(uint8_t)ch][1];
+
+//     Serial.print(" ");
+//     Serial.print(ch, HEX);
+
+//     if (report.keycode[0] == 0) 
+//       continue;
+    
+//     blehid.keyboardReport(BLE_CONN_HANDLE_INVALID, &report);
+//     delay(2);
+//     blehid.keyRelease();
+//     delay(1);
+//   }
+// }

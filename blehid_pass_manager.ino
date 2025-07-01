@@ -15,11 +15,10 @@ bool hasKeyPressed = false;
 #define BATTERY_FULL_SCALE (MAX_BAT_VOLTAGE - MIN_BAT_VOLTAGE)
 
 // Stringhe personalizzabili per il test
-String stringa_a = "-|=?;'";
+String stringa_a = "-|=?;'°";
 String stringa_b = "àèéìòù";
 String stringa_c = "£='?#^@";
 // String stringa_c = "Test numeri e lettere: 1234567890 ABCDEFGHIJKLMNOPQRSTUVWXYZ.";
-
 
 /**
  * Callback invoked when central connects

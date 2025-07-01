@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+inols.log
+inols-err.log
+inols-clangd-err.log
+inols-clangd.log
