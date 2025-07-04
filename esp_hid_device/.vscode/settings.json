@@ -1,0 +1,23 @@
+{
+  "idf.openOcdConfigs": [
+    "board/esp32c3-builtin.cfg"
+  ],
+  "idf.customExtraVars": {
+    "OPENOCD_SCRIPTS": "d:\\Espressif\\tools\\tools\\openocd-esp32\\v0.12.0-esp32-20240318/openocd-esp32/share/openocd/scripts",
+    "IDF_CCACHE_ENABLE": "1",
+    "ESP_ROM_ELF_DIR": "d:\\Espressif\\tools\\tools\\esp-rom-elfs\\20240305/",
+    "IDF_TARGET": "esp32c3"
+  },
+  "clangd.path": "d:\\Espressif\\tools\\tools\\esp-clang\\esp-18.1.2_20240912\\esp-clang\\bin\\clangd.exe",
+  "clangd.arguments": [
+    "--background-index",
+    "--query-driver=d:\\Espressif\\tools\\tools\\riscv32-esp-elf\\esp-14.2.0_20241119\\riscv32-esp-elf\\bin\\riscv32-esp-elf-gcc.exe",
+    "--compile-commands-dir=d:\\Espressif\\v5.4.2\\esp-idf\\examples\\bluetooth\\esp_hid_device\\build"
+  ],
+  "idf.portWin": "COM17",
+  "idf.flashType": "UART",
+  "files.associations": {
+    "sdkconfig.h": "c",
+    "esp_hid_gap.h": "c"
+  }
+}

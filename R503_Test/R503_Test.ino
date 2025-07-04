@@ -1,15 +1,11 @@
 
-#include <Adafruit_TinyUSB.h>
 #include "src/R503Lib/R503Lib.h"
 
-#define PIN_INTERRUPT D0  // D5 sul XIAO nRF52840
-
-// Set to true to enable debug output
-#define R503_DEBUG true
+#define PIN_INTERRUPT 4  // D5 sul XIAO nRF52840
 
 // Set this to the serial port you are using
 #define fpsSerial Serial1
-R503Lib fps(&fpsSerial, 16, 8, 0xFFFFFFFF);
+R503Lib fps(&fpsSerial, 8, 9, 0xFFFFFFFF);
 
 // Template buffer
 uint8_t templateData[1792] = { 0 };
@@ -46,9 +42,10 @@ void printMenu() {
 }
 
 void setup() {
+  pinMode(PIN_INTERRUPT, INPUT);
+
   Serial.begin(115200);
-  while (!Serial)
-    ;
+  while (!Serial) ;
   Serial.printf("\n\n=========================================\n");
   Serial.printf("== Fingerprint Sensor R503 Example ======\n");
   Serial.printf("=========================================\n\n");
@@ -66,10 +63,10 @@ void setup() {
     Serial.println(" >> Sensor 1 found!");
   }
 
-  pinMode(PIN_INTERRUPT, INPUT);
   
-  //fps.printDeviceInfo();
-  //fps.printParameters();
+  
+  fps.printDeviceInfo();
+  fps.printParameters();
 
   printMenu();
 }
@@ -231,7 +228,7 @@ void searchFinger() {
       continue;
     } else if (ret == R503_OK) {
       Serial.printf(" >> Image taken \n");
-      fp->setAuraLED(aLEDBreathing, aLEDYellow, 150, 255);
+      fp->setAuraLED(aLEDFlash, aLEDWhite, 150, 255);
       break;
     } else {
       Serial.printf("[X] Could not take image (code: 0x%02X)\n", ret);

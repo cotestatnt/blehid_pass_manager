@@ -161,7 +161,7 @@ private:
 
 #if defined ESP32
 #define HEAP_AVAILABLE() ESP.getFreeHeap()
-#define DEBUG_ESP_PORT 1
+#define DEBUG_ESP_PORT Serial
 #define R503_LOG_FORMAT(letter, format) "[" #letter "][%s:%u][H:%u] %s(): " format "\r\n", __FILE__, __LINE__, HEAP_AVAILABLE(), __FUNCTION__
 #else
 #define R503_LOG_FORMAT(letter, format) "[" #letter "][%s:%u][H:%u] %s(): " format "\r\n", __FILE__, __LINE__, __FUNCTION__

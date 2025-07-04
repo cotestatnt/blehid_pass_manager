@@ -68,9 +68,8 @@ uint8_t R503Lib::begin(long baudrate, uint32_t passwd)
     pinMode(fpsRxPin, INPUT);
     pinMode(fpsTxPin, OUTPUT);
     
-    
-    //fpsSerial->setPins(fpsRxPin, fpsTxPin);
-    fpsSerial->begin(fpsBaudrate, SERIAL_8N1);
+    // Initialize the serial port with the specified baudrate and pins
+    fpsSerial->begin(fpsBaudrate, SERIAL_8N1, fpsRxPin, fpsTxPin);
 
     // Check Password
     int retVal = verifyPassword();
@@ -80,7 +79,6 @@ uint8_t R503Lib::begin(long baudrate, uint32_t passwd)
 #if R503_DEBUG
         r503_log_e("error verifying password (code: 0x%02X)\n", retVal);
 #endif
-
         return retVal;
     }
 
@@ -93,7 +91,6 @@ uint8_t R503Lib::begin(long baudrate, uint32_t passwd)
 #if R503_DEBUG
         r503_log_e("error reading parameters from sensor (code: 0x%02X)\n", retVal);
 #endif
-
         return retVal;
     }
 
@@ -110,7 +107,6 @@ uint8_t R503Lib::begin(long baudrate, uint32_t passwd)
 #if R503_DEBUG
         r503_log_e("error reading device info from sensor (code: 0x%02X)\n", retVal);
 #endif
-
         return retVal;
     }
 
