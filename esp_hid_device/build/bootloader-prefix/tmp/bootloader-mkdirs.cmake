@@ -10,18 +10,18 @@ if(NOT EXISTS "D:/Espressif/v5.4.2/esp-idf/components/bootloader/subproject")
   file(MAKE_DIRECTORY "D:/Espressif/v5.4.2/esp-idf/components/bootloader/subproject")
 endif()
 file(MAKE_DIRECTORY
-  "C:/Users/Tolentino/Desktop/esp_hid_device/build/bootloader"
-  "C:/Users/Tolentino/Desktop/esp_hid_device/build/bootloader-prefix"
-  "C:/Users/Tolentino/Desktop/esp_hid_device/build/bootloader-prefix/tmp"
-  "C:/Users/Tolentino/Desktop/esp_hid_device/build/bootloader-prefix/src/bootloader-stamp"
-  "C:/Users/Tolentino/Desktop/esp_hid_device/build/bootloader-prefix/src"
-  "C:/Users/Tolentino/Desktop/esp_hid_device/build/bootloader-prefix/src/bootloader-stamp"
+  "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/bootloader"
+  "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/bootloader-prefix"
+  "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/bootloader-prefix/tmp"
+  "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/bootloader-prefix/src/bootloader-stamp"
+  "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/bootloader-prefix/src"
+  "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/bootloader-prefix/src/bootloader-stamp"
 )
 
 set(configSubDirs )
 foreach(subDir IN LISTS configSubDirs)
-    file(MAKE_DIRECTORY "C:/Users/Tolentino/Desktop/esp_hid_device/build/bootloader-prefix/src/bootloader-stamp/${subDir}")
+    file(MAKE_DIRECTORY "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/bootloader-prefix/src/bootloader-stamp/${subDir}")
 endforeach()
 if(cfgdir)
-  file(MAKE_DIRECTORY "C:/Users/Tolentino/Desktop/esp_hid_device/build/bootloader-prefix/src/bootloader-stamp${cfgdir}") # cfgdir has leading slash
+  file(MAKE_DIRECTORY "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/bootloader-prefix/src/bootloader-stamp${cfgdir}") # cfgdir has leading slash
 endif()

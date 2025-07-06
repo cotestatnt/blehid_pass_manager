@@ -1,8 +1,18 @@
-set(srcs "esp_hid_device_main.c"
-         "esp_hid_gap.c")
-set(include_dirs ".")
+set(srcs 
+    "shared_data.c"
+    "main.cpp"
+)
 
-idf_component_register(SRCS "${srcs}"
-                       INCLUDE_DIRS "${include_dirs}"
-                       REQUIRES esp_hid
-                       PRIV_REQUIRES nvs_flash)
+set(include_dirs 
+    "." 
+)
+
+idf_component_register(
+    SRCS "${srcs}"
+    INCLUDE_DIRS "${include_dirs}"
+    REQUIRES esp_hid mbedtls hid_keyboard oled r503lib ble_battery
+    PRIV_REQUIRES nvs_flash
+)
+
+idf_build_set_property(COMPILE_OPTIONS "-Wno-missing-field-initializers" APPEND)
+

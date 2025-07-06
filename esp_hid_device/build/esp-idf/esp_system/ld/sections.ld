@@ -1,6 +1,6 @@
 /* Automatically generated file; DO NOT EDIT */
 /* Espressif IoT Development Framework Linker Script */
-/* Generated from: C:\Users\Tolentino\Desktop\esp_hid_device\build\esp-idf\esp_system\ld\sections.ld.in */
+/* Generated from: D:\Dropbox\blehid_pass_manager\esp_hid_device\build\esp-idf\esp_system\ld\sections.ld.in */
 
 /*
 

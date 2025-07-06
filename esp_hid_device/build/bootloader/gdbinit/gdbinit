@@ -1,2 +1,2 @@
-source C:/Users/Tolentino/Desktop/esp_hid_device/build/bootloader/gdbinit/symbols
-source C:/Users/Tolentino/Desktop/esp_hid_device/build/bootloader/gdbinit/connect
+source D:/Dropbox/blehid_pass_manager/esp_hid_device/build/bootloader/gdbinit/symbols
+source D:/Dropbox/blehid_pass_manager/esp_hid_device/build/bootloader/gdbinit/connect

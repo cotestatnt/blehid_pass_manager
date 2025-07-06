@@ -1,13 +1,13 @@
 {
     "version":            "1.2",
     "project_name":       "esp_hid_device",
-    "project_version":    "1",
-    "project_path":       "C:/Users/Tolentino/Desktop/esp_hid_device",
+    "project_version":    "ae9987d-dirty",
+    "project_path":       "D:/Dropbox/blehid_pass_manager/esp_hid_device",
     "idf_path":           "D:/Espressif/v5.4.2/esp-idf",
-    "build_dir":          "C:/Users/Tolentino/Desktop/esp_hid_device/build",
-    "config_file":        "C:/Users/Tolentino/Desktop/esp_hid_device/sdkconfig",
-    "config_defaults":    "C:/Users/Tolentino/Desktop/esp_hid_device/sdkconfig.defaults",
-    "bootloader_elf":     "C:/Users/Tolentino/Desktop/esp_hid_device/build/bootloader/bootloader.elf",
+    "build_dir":          "D:/Dropbox/blehid_pass_manager/esp_hid_device/build",
+    "config_file":        "D:/Dropbox/blehid_pass_manager/esp_hid_device/sdkconfig",
+    "config_defaults":    "D:/Dropbox/blehid_pass_manager/esp_hid_device/sdkconfig.defaults",
+    "bootloader_elf":     "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/bootloader/bootloader.elf",
     "app_elf":            "esp_hid_device.elf",
     "app_bin":            "esp_hid_device.bin",
     "build_type":         "flash_app",
@@ -21,12 +21,12 @@
     "monitor_toolprefix": "riscv32-esp-elf-",
     "c_compiler":         "D:/Espressif/tools/tools/riscv32-esp-elf/esp-14.2.0_20241119/riscv32-esp-elf/bin/riscv32-esp-elf-gcc.exe",
     "config_environment" : {
-        "COMPONENT_KCONFIGS" : "D:/Espressif/v5.4.2/esp-idf/components/app_trace/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/bt/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/console/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/driver/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/efuse/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp-tls/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_adc/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_coex/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_common/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_driver_ana_cmpr/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_driver_cam/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_driver_dac/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_driver_gpio/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_driver_gptimer/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_driver_i2c/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_driver_i2s/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_driver_isp/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_driver_jpeg/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_driver_ledc/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_driver_mcpwm/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_driver_parlio/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_driver_pcnt/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_driver_rmt/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_driver_sdm/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_driver_spi/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_driver_touch_sens/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_driver_tsens/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_driver_uart/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_driver_usb_serial_jtag/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_eth/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_event/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_gdbstub/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_hid/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_http_client/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_http_server/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_https_ota/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_https_server/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_lcd/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_mm/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_netif/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_partition/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_phy/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_pm/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_psram/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_ringbuf/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_security/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_system/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_timer/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_wifi/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/espcoredump/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/fatfs/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/freertos/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/hal/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/heap/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/ieee802154/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/log/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/lwip/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/mbedtls/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/mqtt/esp-mqtt/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/newlib/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/nvs_flash/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/nvs_sec_provider/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/openthread/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/protocomm/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/pthread/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/soc/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/spi_flash/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/spiffs/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/tcp_transport/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/ulp/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/unity/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/usb/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/vfs/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/wear_levelling/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/wifi_provisioning/Kconfig",
-        "COMPONENT_KCONFIGS_PROJBUILD" : "D:/Espressif/v5.4.2/esp-idf/components/bootloader/Kconfig.projbuild;D:/Espressif/v5.4.2/esp-idf/components/esp_app_format/Kconfig.projbuild;D:/Espressif/v5.4.2/esp-idf/components/esp_rom/Kconfig.projbuild;D:/Espressif/v5.4.2/esp-idf/components/esptool_py/Kconfig.projbuild;D:/Espressif/v5.4.2/esp-idf/components/partition_table/Kconfig.projbuild;C:/Users/Tolentino/Desktop/esp_hid_device/main/Kconfig.projbuild"
+        "COMPONENT_KCONFIGS" : "D:/Espressif/v5.4.2/esp-idf/components/app_trace/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/bt/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/console/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/driver/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/efuse/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp-tls/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_adc/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_coex/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_common/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_driver_ana_cmpr/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_driver_cam/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_driver_dac/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_driver_gpio/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_driver_gptimer/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_driver_i2c/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_driver_i2s/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_driver_isp/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_driver_jpeg/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_driver_ledc/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_driver_mcpwm/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_driver_parlio/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_driver_pcnt/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_driver_rmt/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_driver_sdm/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_driver_spi/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_driver_touch_sens/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_driver_tsens/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_driver_uart/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_driver_usb_serial_jtag/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_eth/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_event/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_gdbstub/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_hid/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_http_client/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_http_server/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_https_ota/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_https_server/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_lcd/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_mm/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_netif/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_partition/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_phy/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_pm/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_psram/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_ringbuf/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_security/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_system/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_timer/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/esp_wifi/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/espcoredump/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/fatfs/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/freertos/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/hal/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/heap/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/ieee802154/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/log/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/lwip/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/mbedtls/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/mqtt/esp-mqtt/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/newlib/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/nvs_flash/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/nvs_sec_provider/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/openthread/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/protocomm/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/pthread/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/soc/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/spi_flash/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/spiffs/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/tcp_transport/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/ulp/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/unity/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/usb/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/vfs/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/wear_levelling/Kconfig;D:/Espressif/v5.4.2/esp-idf/components/wifi_provisioning/Kconfig;D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/Kconfig",
+        "COMPONENT_KCONFIGS_PROJBUILD" : "D:/Espressif/v5.4.2/esp-idf/components/bootloader/Kconfig.projbuild;D:/Espressif/v5.4.2/esp-idf/components/esp_app_format/Kconfig.projbuild;D:/Espressif/v5.4.2/esp-idf/components/esp_rom/Kconfig.projbuild;D:/Espressif/v5.4.2/esp-idf/components/esptool_py/Kconfig.projbuild;D:/Espressif/v5.4.2/esp-idf/components/partition_table/Kconfig.projbuild;D:/Dropbox/blehid_pass_manager/esp_hid_device/main/Kconfig.projbuild"
     },
     "common_component_reqs": [ "cxx", "newlib", "freertos", "esp_hw_support", "heap", "log", "soc", "hal", "esp_rom", "esp_common", "esp_system", "riscv" ],
-    "build_components" : [ "app_trace", "app_update", "bootloader", "bootloader_support", "bt", "cmock", "console", "cxx", "driver", "efuse", "esp-tls", "esp_adc", "esp_app_format", "esp_bootloader_format", "esp_coex", "esp_common", "esp_driver_ana_cmpr", "esp_driver_cam", "esp_driver_dac", "esp_driver_gpio", "esp_driver_gptimer", "esp_driver_i2c", "esp_driver_i2s", "esp_driver_isp", "esp_driver_jpeg", "esp_driver_ledc", "esp_driver_mcpwm", "esp_driver_parlio", "esp_driver_pcnt", "esp_driver_ppa", "esp_driver_rmt", "esp_driver_sdio", "esp_driver_sdm", "esp_driver_sdmmc", "esp_driver_sdspi", "esp_driver_spi", "esp_driver_touch_sens", "esp_driver_tsens", "esp_driver_uart", "esp_driver_usb_serial_jtag", "esp_eth", "esp_event", "esp_gdbstub", "esp_hid", "esp_http_client", "esp_http_server", "esp_https_ota", "esp_https_server", "esp_hw_support", "esp_lcd", "esp_local_ctrl", "esp_mm", "esp_netif", "esp_netif_stack", "esp_partition", "esp_phy", "esp_pm", "esp_psram", "esp_ringbuf", "esp_rom", "esp_security", "esp_system", "esp_timer", "esp_vfs_console", "esp_wifi", "espcoredump", "esptool_py", "fatfs", "freertos", "hal", "heap", "http_parser", "idf_test", "ieee802154", "json", "log", "lwip", "main", "mbedtls", "mqtt", "newlib", "nvs_flash", "nvs_sec_provider", "openthread", "partition_table", "protobuf-c", "protocomm", "pthread", "riscv", "rt", "sdmmc", "soc", "spi_flash", "spiffs", "tcp_transport", "ulp", "unity", "usb", "vfs", "wear_levelling", "wifi_provisioning", "wpa_supplicant", "" ],
-    "build_component_paths" : [ "D:/Espressif/v5.4.2/esp-idf/components/app_trace", "D:/Espressif/v5.4.2/esp-idf/components/app_update", "D:/Espressif/v5.4.2/esp-idf/components/bootloader", "D:/Espressif/v5.4.2/esp-idf/components/bootloader_support", "D:/Espressif/v5.4.2/esp-idf/components/bt", "D:/Espressif/v5.4.2/esp-idf/components/cmock", "D:/Espressif/v5.4.2/esp-idf/components/console", "D:/Espressif/v5.4.2/esp-idf/components/cxx", "D:/Espressif/v5.4.2/esp-idf/components/driver", "D:/Espressif/v5.4.2/esp-idf/components/efuse", "D:/Espressif/v5.4.2/esp-idf/components/esp-tls", "D:/Espressif/v5.4.2/esp-idf/components/esp_adc", "D:/Espressif/v5.4.2/esp-idf/components/esp_app_format", "D:/Espressif/v5.4.2/esp-idf/components/esp_bootloader_format", "D:/Espressif/v5.4.2/esp-idf/components/esp_coex", "D:/Espressif/v5.4.2/esp-idf/components/esp_common", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_ana_cmpr", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_cam", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_dac", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_gpio", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_gptimer", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_i2c", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_i2s", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_isp", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_jpeg", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_ledc", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_mcpwm", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_parlio", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_pcnt", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_ppa", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_rmt", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_sdio", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_sdm", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_sdmmc", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_sdspi", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_spi", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_touch_sens", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_tsens", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_uart", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_usb_serial_jtag", "D:/Espressif/v5.4.2/esp-idf/components/esp_eth", "D:/Espressif/v5.4.2/esp-idf/components/esp_event", "D:/Espressif/v5.4.2/esp-idf/components/esp_gdbstub", "D:/Espressif/v5.4.2/esp-idf/components/esp_hid", "D:/Espressif/v5.4.2/esp-idf/components/esp_http_client", "D:/Espressif/v5.4.2/esp-idf/components/esp_http_server", "D:/Espressif/v5.4.2/esp-idf/components/esp_https_ota", "D:/Espressif/v5.4.2/esp-idf/components/esp_https_server", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support", "D:/Espressif/v5.4.2/esp-idf/components/esp_lcd", "D:/Espressif/v5.4.2/esp-idf/components/esp_local_ctrl", "D:/Espressif/v5.4.2/esp-idf/components/esp_mm", "D:/Espressif/v5.4.2/esp-idf/components/esp_netif", "D:/Espressif/v5.4.2/esp-idf/components/esp_netif_stack", "D:/Espressif/v5.4.2/esp-idf/components/esp_partition", "D:/Espressif/v5.4.2/esp-idf/components/esp_phy", "D:/Espressif/v5.4.2/esp-idf/components/esp_pm", "D:/Espressif/v5.4.2/esp-idf/components/esp_psram", "D:/Espressif/v5.4.2/esp-idf/components/esp_ringbuf", "D:/Espressif/v5.4.2/esp-idf/components/esp_rom", "D:/Espressif/v5.4.2/esp-idf/components/esp_security", "D:/Espressif/v5.4.2/esp-idf/components/esp_system", "D:/Espressif/v5.4.2/esp-idf/components/esp_timer", "D:/Espressif/v5.4.2/esp-idf/components/esp_vfs_console", "D:/Espressif/v5.4.2/esp-idf/components/esp_wifi", "D:/Espressif/v5.4.2/esp-idf/components/espcoredump", "D:/Espressif/v5.4.2/esp-idf/components/esptool_py", "D:/Espressif/v5.4.2/esp-idf/components/fatfs", "D:/Espressif/v5.4.2/esp-idf/components/freertos", "D:/Espressif/v5.4.2/esp-idf/components/hal", "D:/Espressif/v5.4.2/esp-idf/components/heap", "D:/Espressif/v5.4.2/esp-idf/components/http_parser", "D:/Espressif/v5.4.2/esp-idf/components/idf_test", "D:/Espressif/v5.4.2/esp-idf/components/ieee802154", "D:/Espressif/v5.4.2/esp-idf/components/json", "D:/Espressif/v5.4.2/esp-idf/components/log", "D:/Espressif/v5.4.2/esp-idf/components/lwip", "C:/Users/Tolentino/Desktop/esp_hid_device/main", "D:/Espressif/v5.4.2/esp-idf/components/mbedtls", "D:/Espressif/v5.4.2/esp-idf/components/mqtt", "D:/Espressif/v5.4.2/esp-idf/components/newlib", "D:/Espressif/v5.4.2/esp-idf/components/nvs_flash", "D:/Espressif/v5.4.2/esp-idf/components/nvs_sec_provider", "D:/Espressif/v5.4.2/esp-idf/components/openthread", "D:/Espressif/v5.4.2/esp-idf/components/partition_table", "D:/Espressif/v5.4.2/esp-idf/components/protobuf-c", "D:/Espressif/v5.4.2/esp-idf/components/protocomm", "D:/Espressif/v5.4.2/esp-idf/components/pthread", "D:/Espressif/v5.4.2/esp-idf/components/riscv", "D:/Espressif/v5.4.2/esp-idf/components/rt", "D:/Espressif/v5.4.2/esp-idf/components/sdmmc", "D:/Espressif/v5.4.2/esp-idf/components/soc", "D:/Espressif/v5.4.2/esp-idf/components/spi_flash", "D:/Espressif/v5.4.2/esp-idf/components/spiffs", "D:/Espressif/v5.4.2/esp-idf/components/tcp_transport", "D:/Espressif/v5.4.2/esp-idf/components/ulp", "D:/Espressif/v5.4.2/esp-idf/components/unity", "D:/Espressif/v5.4.2/esp-idf/components/usb", "D:/Espressif/v5.4.2/esp-idf/components/vfs", "D:/Espressif/v5.4.2/esp-idf/components/wear_levelling", "D:/Espressif/v5.4.2/esp-idf/components/wifi_provisioning", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant", "" ],
+    "build_components" : [ "app_trace", "app_update", "ble_battery", "bootloader", "bootloader_support", "bt", "cmock", "console", "cxx", "driver", "efuse", "esp-tls", "esp_adc", "esp_app_format", "esp_bootloader_format", "esp_coex", "esp_common", "esp_driver_ana_cmpr", "esp_driver_cam", "esp_driver_dac", "esp_driver_gpio", "esp_driver_gptimer", "esp_driver_i2c", "esp_driver_i2s", "esp_driver_isp", "esp_driver_jpeg", "esp_driver_ledc", "esp_driver_mcpwm", "esp_driver_parlio", "esp_driver_pcnt", "esp_driver_ppa", "esp_driver_rmt", "esp_driver_sdio", "esp_driver_sdm", "esp_driver_sdmmc", "esp_driver_sdspi", "esp_driver_spi", "esp_driver_touch_sens", "esp_driver_tsens", "esp_driver_uart", "esp_driver_usb_serial_jtag", "esp_eth", "esp_event", "esp_gdbstub", "esp_hid", "esp_http_client", "esp_http_server", "esp_https_ota", "esp_https_server", "esp_hw_support", "esp_lcd", "esp_local_ctrl", "esp_mm", "esp_netif", "esp_netif_stack", "esp_partition", "esp_phy", "esp_pm", "esp_psram", "esp_ringbuf", "esp_rom", "esp_security", "esp_system", "esp_timer", "esp_vfs_console", "esp_wifi", "espcoredump", "espressif__esp_lvgl_port", "esptool_py", "fatfs", "freertos", "hal", "heap", "hid_keyboard", "http_parser", "idf_test", "ieee802154", "json", "log", "lvgl__lvgl", "lwip", "main", "mbedtls", "mqtt", "newlib", "nvs_flash", "nvs_sec_provider", "oled", "openthread", "partition_table", "protobuf-c", "protocomm", "pthread", "r503lib", "riscv", "rt", "sdmmc", "soc", "spi_flash", "spiffs", "tcp_transport", "ulp", "unity", "usb", "vfs", "wear_levelling", "wifi_provisioning", "wpa_supplicant", "" ],
+    "build_component_paths" : [ "D:/Espressif/v5.4.2/esp-idf/components/app_trace", "D:/Espressif/v5.4.2/esp-idf/components/app_update", "D:/Dropbox/blehid_pass_manager/esp_hid_device/components/ble_battery", "D:/Espressif/v5.4.2/esp-idf/components/bootloader", "D:/Espressif/v5.4.2/esp-idf/components/bootloader_support", "D:/Espressif/v5.4.2/esp-idf/components/bt", "D:/Espressif/v5.4.2/esp-idf/components/cmock", "D:/Espressif/v5.4.2/esp-idf/components/console", "D:/Espressif/v5.4.2/esp-idf/components/cxx", "D:/Espressif/v5.4.2/esp-idf/components/driver", "D:/Espressif/v5.4.2/esp-idf/components/efuse", "D:/Espressif/v5.4.2/esp-idf/components/esp-tls", "D:/Espressif/v5.4.2/esp-idf/components/esp_adc", "D:/Espressif/v5.4.2/esp-idf/components/esp_app_format", "D:/Espressif/v5.4.2/esp-idf/components/esp_bootloader_format", "D:/Espressif/v5.4.2/esp-idf/components/esp_coex", "D:/Espressif/v5.4.2/esp-idf/components/esp_common", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_ana_cmpr", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_cam", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_dac", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_gpio", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_gptimer", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_i2c", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_i2s", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_isp", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_jpeg", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_ledc", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_mcpwm", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_parlio", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_pcnt", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_ppa", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_rmt", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_sdio", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_sdm", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_sdmmc", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_sdspi", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_spi", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_touch_sens", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_tsens", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_uart", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_usb_serial_jtag", "D:/Espressif/v5.4.2/esp-idf/components/esp_eth", "D:/Espressif/v5.4.2/esp-idf/components/esp_event", "D:/Espressif/v5.4.2/esp-idf/components/esp_gdbstub", "D:/Espressif/v5.4.2/esp-idf/components/esp_hid", "D:/Espressif/v5.4.2/esp-idf/components/esp_http_client", "D:/Espressif/v5.4.2/esp-idf/components/esp_http_server", "D:/Espressif/v5.4.2/esp-idf/components/esp_https_ota", "D:/Espressif/v5.4.2/esp-idf/components/esp_https_server", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support", "D:/Espressif/v5.4.2/esp-idf/components/esp_lcd", "D:/Espressif/v5.4.2/esp-idf/components/esp_local_ctrl", "D:/Espressif/v5.4.2/esp-idf/components/esp_mm", "D:/Espressif/v5.4.2/esp-idf/components/esp_netif", "D:/Espressif/v5.4.2/esp-idf/components/esp_netif_stack", "D:/Espressif/v5.4.2/esp-idf/components/esp_partition", "D:/Espressif/v5.4.2/esp-idf/components/esp_phy", "D:/Espressif/v5.4.2/esp-idf/components/esp_pm", "D:/Espressif/v5.4.2/esp-idf/components/esp_psram", "D:/Espressif/v5.4.2/esp-idf/components/esp_ringbuf", "D:/Espressif/v5.4.2/esp-idf/components/esp_rom", "D:/Espressif/v5.4.2/esp-idf/components/esp_security", "D:/Espressif/v5.4.2/esp-idf/components/esp_system", "D:/Espressif/v5.4.2/esp-idf/components/esp_timer", "D:/Espressif/v5.4.2/esp-idf/components/esp_vfs_console", "D:/Espressif/v5.4.2/esp-idf/components/esp_wifi", "D:/Espressif/v5.4.2/esp-idf/components/espcoredump", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/espressif__esp_lvgl_port", "D:/Espressif/v5.4.2/esp-idf/components/esptool_py", "D:/Espressif/v5.4.2/esp-idf/components/fatfs", "D:/Espressif/v5.4.2/esp-idf/components/freertos", "D:/Espressif/v5.4.2/esp-idf/components/hal", "D:/Espressif/v5.4.2/esp-idf/components/heap", "D:/Dropbox/blehid_pass_manager/esp_hid_device/components/hid_keyboard", "D:/Espressif/v5.4.2/esp-idf/components/http_parser", "D:/Espressif/v5.4.2/esp-idf/components/idf_test", "D:/Espressif/v5.4.2/esp-idf/components/ieee802154", "D:/Espressif/v5.4.2/esp-idf/components/json", "D:/Espressif/v5.4.2/esp-idf/components/log", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl", "D:/Espressif/v5.4.2/esp-idf/components/lwip", "D:/Dropbox/blehid_pass_manager/esp_hid_device/main", "D:/Espressif/v5.4.2/esp-idf/components/mbedtls", "D:/Espressif/v5.4.2/esp-idf/components/mqtt", "D:/Espressif/v5.4.2/esp-idf/components/newlib", "D:/Espressif/v5.4.2/esp-idf/components/nvs_flash", "D:/Espressif/v5.4.2/esp-idf/components/nvs_sec_provider", "D:/Dropbox/blehid_pass_manager/esp_hid_device/components/oled", "D:/Espressif/v5.4.2/esp-idf/components/openthread", "D:/Espressif/v5.4.2/esp-idf/components/partition_table", "D:/Espressif/v5.4.2/esp-idf/components/protobuf-c", "D:/Espressif/v5.4.2/esp-idf/components/protocomm", "D:/Espressif/v5.4.2/esp-idf/components/pthread", "D:/Dropbox/blehid_pass_manager/esp_hid_device/components/r503lib", "D:/Espressif/v5.4.2/esp-idf/components/riscv", "D:/Espressif/v5.4.2/esp-idf/components/rt", "D:/Espressif/v5.4.2/esp-idf/components/sdmmc", "D:/Espressif/v5.4.2/esp-idf/components/soc", "D:/Espressif/v5.4.2/esp-idf/components/spi_flash", "D:/Espressif/v5.4.2/esp-idf/components/spiffs", "D:/Espressif/v5.4.2/esp-idf/components/tcp_transport", "D:/Espressif/v5.4.2/esp-idf/components/ulp", "D:/Espressif/v5.4.2/esp-idf/components/unity", "D:/Espressif/v5.4.2/esp-idf/components/usb", "D:/Espressif/v5.4.2/esp-idf/components/vfs", "D:/Espressif/v5.4.2/esp-idf/components/wear_levelling", "D:/Espressif/v5.4.2/esp-idf/components/wifi_provisioning", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant", "" ],
     "build_component_info" : {
         "app_trace": {
             "alias": "idf::app_trace",
@@ -39,7 +39,7 @@
             "priv_reqs": [ "esp_driver_gptimer", "esp_driver_gpio", "esp_driver_uart" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/app_trace/libapp_trace.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/app_trace/libapp_trace.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/app_trace/app_trace.c", "D:/Espressif/v5.4.2/esp-idf/components/app_trace/app_trace_util.c", "D:/Espressif/v5.4.2/esp-idf/components/app_trace/host_file_io.c", "D:/Espressif/v5.4.2/esp-idf/components/app_trace/port/port_uart.c" ],
             "include_dirs": [ "include" ]
         },
@@ -54,9 +54,24 @@
             "priv_reqs": [ "esptool_py", "efuse", "spi_flash" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/app_update/libapp_update.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/app_update/libapp_update.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/app_update/esp_ota_ops.c", "D:/Espressif/v5.4.2/esp-idf/components/app_update/esp_ota_app_desc.c" ],
             "include_dirs": [ "include" ]
+        },
+        "ble_battery": {
+            "alias": "idf::ble_battery",
+            "target": "___idf_ble_battery",
+            "prefix": "idf",
+            "dir": "D:/Dropbox/blehid_pass_manager/esp_hid_device/components/ble_battery",
+            "type": "LIBRARY",
+            "lib": "__idf_ble_battery",
+            "reqs": [ "driver", "esp_hid", "esp_adc" ],
+            "priv_reqs": [],
+            "managed_reqs": [],
+            "managed_priv_reqs": [],
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/ble_battery/libble_battery.a",
+            "sources": [ "D:/Dropbox/blehid_pass_manager/esp_hid_device/components/ble_battery/ble_battery.c" ],
+            "include_dirs": [ "." ]
         },
         "bootloader": {
             "alias": "idf::bootloader",
@@ -84,7 +99,7 @@
             "priv_reqs": [ "spi_flash", "mbedtls", "efuse", "heap", "esp_bootloader_format", "esp_app_format" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/bootloader_support/libbootloader_support.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/bootloader_support/libbootloader_support.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/bootloader_support/src/bootloader_common.c", "D:/Espressif/v5.4.2/esp-idf/components/bootloader_support/src/bootloader_common_loader.c", "D:/Espressif/v5.4.2/esp-idf/components/bootloader_support/src/bootloader_clock_init.c", "D:/Espressif/v5.4.2/esp-idf/components/bootloader_support/src/bootloader_mem.c", "D:/Espressif/v5.4.2/esp-idf/components/bootloader_support/src/bootloader_random.c", "D:/Espressif/v5.4.2/esp-idf/components/bootloader_support/src/bootloader_efuse.c", "D:/Espressif/v5.4.2/esp-idf/components/bootloader_support/src/flash_encrypt.c", "D:/Espressif/v5.4.2/esp-idf/components/bootloader_support/src/secure_boot.c", "D:/Espressif/v5.4.2/esp-idf/components/bootloader_support/src/bootloader_random_esp32c3.c", "D:/Espressif/v5.4.2/esp-idf/components/bootloader_support/bootloader_flash/src/bootloader_flash.c", "D:/Espressif/v5.4.2/esp-idf/components/bootloader_support/bootloader_flash/src/flash_qio_mode.c", "D:/Espressif/v5.4.2/esp-idf/components/bootloader_support/bootloader_flash/src/bootloader_flash_config_esp32c3.c", "D:/Espressif/v5.4.2/esp-idf/components/bootloader_support/src/bootloader_utility.c", "D:/Espressif/v5.4.2/esp-idf/components/bootloader_support/src/flash_partitions.c", "D:/Espressif/v5.4.2/esp-idf/components/bootloader_support/src/esp_image_format.c", "D:/Espressif/v5.4.2/esp-idf/components/bootloader_support/src/idf/bootloader_sha.c", "D:/Espressif/v5.4.2/esp-idf/components/bootloader_support/src/esp32c3/secure_boot_secure_features.c" ],
             "include_dirs": [ "include", "bootloader_flash/include" ]
         },
@@ -99,7 +114,7 @@
             "priv_reqs": [ "nvs_flash", "soc", "esp_pm", "esp_phy", "esp_coex", "mbedtls", "esp_driver_uart", "vfs", "esp_ringbuf", "esp_driver_spi", "esp_driver_gpio", "esp_gdbstub" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/bt/libbt.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/bt/libbt.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/bt/controller/esp32c3/bt.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/common/btc/core/btc_alarm.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/common/api/esp_blufi_api.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/common/hci_log/bt_hci_log.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/common/btc/core/btc_manage.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/common/btc/core/btc_task.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/common/btc/profile/esp/blufi/blufi_prf.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/common/btc/profile/esp/blufi/blufi_protocol.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/common/osi/alarm.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/common/osi/allocator.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/common/osi/buffer.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/common/osi/config.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/common/osi/fixed_queue.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/common/osi/pkt_queue.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/common/osi/fixed_pkt_queue.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/common/osi/future.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/common/osi/hash_functions.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/common/osi/hash_map.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/common/osi/list.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/common/osi/mutex.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/common/osi/thread.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/common/osi/osi.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/common/osi/semaphore.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/porting/mem/bt_osi_mem.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/common/ble_log/ble_log_spi_out.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/transport/src/transport.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/util/src/addr.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/services/gatt/src/ble_svc_gatt.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/services/tps/src/ble_svc_tps.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/services/ias/src/ble_svc_ias.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/services/ipss/src/ble_svc_ipss.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/services/ans/src/ble_svc_ans.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/services/hr/src/ble_svc_hr.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/services/htp/src/ble_svc_htp.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/services/gap/src/ble_svc_gap.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/services/bas/src/ble_svc_bas.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/services/dis/src/ble_svc_dis.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/services/lls/src/ble_svc_lls.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/services/prox/src/ble_svc_prox.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/services/cts/src/ble_svc_cts.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/services/hid/src/ble_svc_hid.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/services/sps/src/ble_svc_sps.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/services/cte/src/ble_svc_cte.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_hs_conn.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_store_util.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_sm.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_hs_shutdown.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_l2cap_sig_cmd.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_hs_hci_cmd.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_hs_id.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_att_svr.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_gatts_lcl.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_ibeacon.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_hs_atomic.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_sm_alg.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_hs_stop.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_hs.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_hs_hci_evt.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_hs_mqueue.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_hs_periodic_sync.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_att.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_ead.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_aes_ccm.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_gattc.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_store.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_sm_lgcy.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_hs_cfg.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_att_clt.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_l2cap_coc.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_hs_mbuf.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_att_cmd.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_hs_log.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_eddystone.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_hs_startup.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_l2cap_sig.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_gap.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_sm_cmd.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_uuid.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_hs_pvcy.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_hs_flow.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_l2cap.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_sm_sc.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_hs_misc.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_gatts.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_hs_adv.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_hs_hci.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_hs_hci_util.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_hs_resolv.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/store/ram/src/ble_store_ram.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/store/config/src/ble_store_config.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/store/config/src/ble_store_nvs.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_gattc_cache.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_gattc_cache_conn.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/host/src/ble_eatt.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/porting/nimble/src/nimble_port.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/porting/npl/freertos/src/nimble_port_freertos.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/port/src/nvs_port.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/porting/nimble/src/endian.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/porting/nimble/src/os_mempool.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/porting/nimble/src/mem.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/porting/nimble/src/os_mbuf.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/porting/nimble/src/os_msys_init.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/porting/npl/freertos/src/npl_os_freertos.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/esp-hci/src/esp_nimble_hci.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/host/nimble/nimble/nimble/transport/esp_ipc_legacy/src/hci_esp_ipc_legacy.c", "D:/Espressif/v5.4.2/esp-idf/components/bt/common/btc/profile/esp/blufi/nimble_host/esp_blufi.c" ],
             "include_dirs": [ "include/esp32c3/include", "common/osi/include", "common/api/include/api", "common/btc/profile/esp/blufi/include", "common/btc/profile/esp/include", "common/hci_log/include", "common/ble_log/include", "host/nimble/nimble/nimble/host/include", "host/nimble/nimble/nimble/include", "host/nimble/nimble/nimble/host/services/ans/include", "host/nimble/nimble/nimble/host/services/bas/include", "host/nimble/nimble/nimble/host/services/dis/include", "host/nimble/nimble/nimble/host/services/gap/include", "host/nimble/nimble/nimble/host/services/gatt/include", "host/nimble/nimble/nimble/host/services/hr/include", "host/nimble/nimble/nimble/host/services/htp/include", "host/nimble/nimble/nimble/host/services/ias/include", "host/nimble/nimble/nimble/host/services/ipss/include", "host/nimble/nimble/nimble/host/services/lls/include", "host/nimble/nimble/nimble/host/services/prox/include", "host/nimble/nimble/nimble/host/services/cts/include", "host/nimble/nimble/nimble/host/services/tps/include", "host/nimble/nimble/nimble/host/services/hid/include", "host/nimble/nimble/nimble/host/services/sps/include", "host/nimble/nimble/nimble/host/services/cte/include", "host/nimble/nimble/nimble/host/util/include", "host/nimble/nimble/nimble/host/store/ram/include", "host/nimble/nimble/nimble/host/store/config/include", "host/nimble/nimble/porting/nimble/include", "host/nimble/port/include", "host/nimble/nimble/nimble/transport/include", "host/nimble/nimble/nimble/include", "porting/include", "host/nimble/nimble/porting/npl/freertos/include", "host/nimble/esp-hci/include" ]
         },
@@ -114,7 +129,7 @@
             "priv_reqs": [],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/cmock/libcmock.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/cmock/libcmock.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/cmock/CMock/src/cmock.c" ],
             "include_dirs": [ "CMock/src" ]
         },
@@ -129,7 +144,7 @@
             "priv_reqs": [ "esp_driver_uart", "esp_driver_usb_serial_jtag" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/console/libconsole.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/console/libconsole.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/console/commands.c", "D:/Espressif/v5.4.2/esp-idf/components/console/esp_console_common.c", "D:/Espressif/v5.4.2/esp-idf/components/console/split_argv.c", "D:/Espressif/v5.4.2/esp-idf/components/console/linenoise/linenoise.c", "D:/Espressif/v5.4.2/esp-idf/components/console/esp_console_repl_chip.c", "D:/Espressif/v5.4.2/esp-idf/components/console/argtable3/arg_cmd.c", "D:/Espressif/v5.4.2/esp-idf/components/console/argtable3/arg_date.c", "D:/Espressif/v5.4.2/esp-idf/components/console/argtable3/arg_dbl.c", "D:/Espressif/v5.4.2/esp-idf/components/console/argtable3/arg_dstr.c", "D:/Espressif/v5.4.2/esp-idf/components/console/argtable3/arg_end.c", "D:/Espressif/v5.4.2/esp-idf/components/console/argtable3/arg_file.c", "D:/Espressif/v5.4.2/esp-idf/components/console/argtable3/arg_hashtable.c", "D:/Espressif/v5.4.2/esp-idf/components/console/argtable3/arg_int.c", "D:/Espressif/v5.4.2/esp-idf/components/console/argtable3/arg_lit.c", "D:/Espressif/v5.4.2/esp-idf/components/console/argtable3/arg_rem.c", "D:/Espressif/v5.4.2/esp-idf/components/console/argtable3/arg_rex.c", "D:/Espressif/v5.4.2/esp-idf/components/console/argtable3/arg_str.c", "D:/Espressif/v5.4.2/esp-idf/components/console/argtable3/arg_utils.c", "D:/Espressif/v5.4.2/esp-idf/components/console/argtable3/argtable3.c" ],
             "include_dirs": [ "D:/Espressif/v5.4.2/esp-idf/components/console" ]
         },
@@ -144,7 +159,7 @@
             "priv_reqs": [ "pthread", "esp_system" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/cxx/libcxx.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/cxx/libcxx.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/cxx/cxx_exception_stubs.cpp", "D:/Espressif/v5.4.2/esp-idf/components/cxx/cxx_guards.cpp", "D:/Espressif/v5.4.2/esp-idf/components/cxx/cxx_init.cpp" ],
             "include_dirs": []
         },
@@ -159,7 +174,7 @@
             "priv_reqs": [ "efuse", "esp_timer", "esp_mm" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/driver/libdriver.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/driver/libdriver.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/driver/deprecated/adc_legacy.c", "D:/Espressif/v5.4.2/esp-idf/components/driver/deprecated/adc_dma_legacy.c", "D:/Espressif/v5.4.2/esp-idf/components/driver/deprecated/timer_legacy.c", "D:/Espressif/v5.4.2/esp-idf/components/driver/i2c/i2c.c", "D:/Espressif/v5.4.2/esp-idf/components/driver/deprecated/i2s_legacy.c", "D:/Espressif/v5.4.2/esp-idf/components/driver/deprecated/rmt_legacy.c", "D:/Espressif/v5.4.2/esp-idf/components/driver/deprecated/sigma_delta_legacy.c", "D:/Espressif/v5.4.2/esp-idf/components/driver/deprecated/rtc_temperature_legacy.c", "D:/Espressif/v5.4.2/esp-idf/components/driver/twai/twai.c" ],
             "include_dirs": [ "deprecated", "i2c/include", "touch_sensor/include", "twai/include" ]
         },
@@ -174,7 +189,7 @@
             "priv_reqs": [ "bootloader_support", "soc", "spi_flash", "esp_system", "esp_partition", "esp_app_format" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/efuse/libefuse.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/efuse/libefuse.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/efuse/esp32c3/esp_efuse_table.c", "D:/Espressif/v5.4.2/esp-idf/components/efuse/esp32c3/esp_efuse_fields.c", "D:/Espressif/v5.4.2/esp-idf/components/efuse/esp32c3/esp_efuse_rtc_calib.c", "D:/Espressif/v5.4.2/esp-idf/components/efuse/esp32c3/esp_efuse_utility.c", "D:/Espressif/v5.4.2/esp-idf/components/efuse/src/esp_efuse_api.c", "D:/Espressif/v5.4.2/esp-idf/components/efuse/src/esp_efuse_fields.c", "D:/Espressif/v5.4.2/esp-idf/components/efuse/src/esp_efuse_utility.c", "D:/Espressif/v5.4.2/esp-idf/components/efuse/src/efuse_controller/keys/with_key_purposes/esp_efuse_api_key.c", "D:/Espressif/v5.4.2/esp-idf/components/efuse/src/esp_efuse_startup.c" ],
             "include_dirs": [ "include", "esp32c3/include" ]
         },
@@ -189,7 +204,7 @@
             "priv_reqs": [ "http_parser", "esp_timer", "lwip" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/esp-tls/libesp-tls.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/esp-tls/libesp-tls.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/esp-tls/esp_tls.c", "D:/Espressif/v5.4.2/esp-idf/components/esp-tls/esp-tls-crypto/esp_tls_crypto.c", "D:/Espressif/v5.4.2/esp-idf/components/esp-tls/esp_tls_error_capture.c", "D:/Espressif/v5.4.2/esp-idf/components/esp-tls/esp_tls_platform_port.c", "D:/Espressif/v5.4.2/esp-idf/components/esp-tls/esp_tls_mbedtls.c" ],
             "include_dirs": [ "D:/Espressif/v5.4.2/esp-idf/components/esp-tls", "esp-tls-crypto" ]
         },
@@ -204,7 +219,7 @@
             "priv_reqs": [ "driver", "esp_driver_gpio", "efuse", "esp_pm", "esp_ringbuf", "esp_mm" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/esp_adc/libesp_adc.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/esp_adc/libesp_adc.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/esp_adc/adc_oneshot.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_adc/adc_common.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_adc/adc_cali.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_adc/adc_cali_curve_fitting.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_adc/deprecated/esp_adc_cal_common_legacy.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_adc/adc_continuous.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_adc/adc_monitor.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_adc/gdma/adc_dma.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_adc/adc_filter.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_adc/esp32c3/curve_fitting_coefficients.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_adc/deprecated/esp32c3/esp_adc_cal_legacy.c" ],
             "include_dirs": [ "include", "interface", "esp32c3/include", "deprecated/include" ]
         },
@@ -219,7 +234,7 @@
             "priv_reqs": [],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/esp_app_format/libesp_app_format.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/esp_app_format/libesp_app_format.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/esp_app_format/esp_app_desc.c" ],
             "include_dirs": [ "include" ]
         },
@@ -234,7 +249,7 @@
             "priv_reqs": [],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/esp_bootloader_format/libesp_bootloader_format.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/esp_bootloader_format/libesp_bootloader_format.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/esp_bootloader_format/esp_bootloader_desc.c" ],
             "include_dirs": [ "include" ]
         },
@@ -249,7 +264,7 @@
             "priv_reqs": [ "esp_timer", "driver", "esp_event" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/esp_coex/libesp_coex.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/esp_coex/libesp_coex.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/esp_coex/src/coexist.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_coex/src/lib_printf.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_coex/esp32c3/esp_coex_adapter.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_coex/src/coexist_debug_diagram.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_coex/src/coexist_debug.c" ],
             "include_dirs": [ "include" ]
         },
@@ -264,7 +279,7 @@
             "priv_reqs": [],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/esp_common/libesp_common.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/esp_common/libesp_common.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/esp_common/src/esp_err_to_name.c" ],
             "include_dirs": [ "include" ]
         },
@@ -294,7 +309,7 @@
             "priv_reqs": [ "esp_driver_gpio" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/esp_driver_cam/libesp_driver_cam.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/esp_driver_cam/libesp_driver_cam.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_cam/esp_cam_ctlr.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_cam/dvp_share_ctrl.c" ],
             "include_dirs": [ "include", "interface" ]
         },
@@ -324,7 +339,7 @@
             "priv_reqs": [ "esp_pm" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/esp_driver_gpio/libesp_driver_gpio.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/esp_driver_gpio/libesp_driver_gpio.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_gpio/src/gpio.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_gpio/src/gpio_glitch_filter_ops.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_gpio/src/rtc_io.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_gpio/src/dedic_gpio.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_gpio/src/gpio_pin_glitch_filter.c" ],
             "include_dirs": [ "include" ]
         },
@@ -339,7 +354,7 @@
             "priv_reqs": [],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/esp_driver_gptimer/libesp_driver_gptimer.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/esp_driver_gptimer/libesp_driver_gptimer.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_gptimer/src/gptimer.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_gptimer/src/gptimer_common.c" ],
             "include_dirs": [ "include" ]
         },
@@ -354,7 +369,7 @@
             "priv_reqs": [ "esp_driver_gpio", "esp_pm", "esp_ringbuf" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/esp_driver_i2c/libesp_driver_i2c.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/esp_driver_i2c/libesp_driver_i2c.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_i2c/i2c_master.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_i2c/i2c_common.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_i2c/i2c_slave.c" ],
             "include_dirs": [ "include" ]
         },
@@ -369,7 +384,7 @@
             "priv_reqs": [ "esp_driver_gpio", "esp_pm", "esp_mm" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/esp_driver_i2s/libesp_driver_i2s.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/esp_driver_i2s/libesp_driver_i2s.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_i2s/i2s_common.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_i2s/i2s_std.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_i2s/i2s_pdm.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_i2s/i2s_tdm.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_i2s/i2s_platform.c" ],
             "include_dirs": [ "include" ]
         },
@@ -414,7 +429,7 @@
             "priv_reqs": [ "esp_pm", "esp_driver_gpio" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/esp_driver_ledc/libesp_driver_ledc.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/esp_driver_ledc/libesp_driver_ledc.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_ledc/src/ledc.c" ],
             "include_dirs": [ "include" ]
         },
@@ -489,7 +504,7 @@
             "priv_reqs": [ "esp_pm", "esp_driver_gpio", "esp_mm" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/esp_driver_rmt/libesp_driver_rmt.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/esp_driver_rmt/libesp_driver_rmt.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_rmt/src/rmt_common.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_rmt/src/rmt_encoder.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_rmt/src/rmt_rx.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_rmt/src/rmt_tx.c" ],
             "include_dirs": [ "include" ]
         },
@@ -519,7 +534,7 @@
             "priv_reqs": [ "esp_pm", "esp_driver_gpio" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/esp_driver_sdm/libesp_driver_sdm.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/esp_driver_sdm/libesp_driver_sdm.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_sdm/src/sdm.c" ],
             "include_dirs": [ "include" ]
         },
@@ -549,7 +564,7 @@
             "priv_reqs": [ "esp_timer" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/esp_driver_sdspi/libesp_driver_sdspi.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/esp_driver_sdspi/libesp_driver_sdspi.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_sdspi/src/sdspi_crc.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_sdspi/src/sdspi_host.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_sdspi/src/sdspi_transaction.c" ],
             "include_dirs": [ "include" ]
         },
@@ -564,7 +579,7 @@
             "priv_reqs": [ "esp_timer", "esp_mm", "esp_driver_gpio", "esp_ringbuf" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/esp_driver_spi/libesp_driver_spi.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/esp_driver_spi/libesp_driver_spi.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_spi/src/gpspi/spi_common.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_spi/src/gpspi/spi_master.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_spi/src/gpspi/spi_slave.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_spi/src/gpspi/spi_dma.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_spi/src/gpspi/spi_slave_hd.c" ],
             "include_dirs": [ "include" ]
         },
@@ -594,7 +609,7 @@
             "priv_reqs": [ "efuse" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/esp_driver_tsens/libesp_driver_tsens.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/esp_driver_tsens/libesp_driver_tsens.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_tsens/src/temperature_sensor.c" ],
             "include_dirs": [ "include" ]
         },
@@ -609,7 +624,7 @@
             "priv_reqs": [ "esp_pm", "esp_driver_gpio", "esp_ringbuf" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/esp_driver_uart/libesp_driver_uart.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/esp_driver_uart/libesp_driver_uart.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_uart/src/uart.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_uart/src/uart_vfs.c" ],
             "include_dirs": [ "include" ]
         },
@@ -624,7 +639,7 @@
             "priv_reqs": [ "esp_driver_gpio", "esp_ringbuf", "esp_pm", "esp_timer" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/esp_driver_usb_serial_jtag/libesp_driver_usb_serial_jtag.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/esp_driver_usb_serial_jtag/libesp_driver_usb_serial_jtag.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_usb_serial_jtag/src/usb_serial_jtag.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_usb_serial_jtag/src/usb_serial_jtag_connection_monitor.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_driver_usb_serial_jtag/src/usb_serial_jtag_vfs.c" ],
             "include_dirs": [ "include" ]
         },
@@ -639,7 +654,7 @@
             "priv_reqs": [ "log", "esp_timer", "esp_driver_spi", "esp_driver_gpio" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/esp_eth/libesp_eth.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/esp_eth/libesp_eth.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/esp_eth/src/esp_eth.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_eth/src/phy/esp_eth_phy_802_3.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_eth/src/esp_eth_netif_glue.c" ],
             "include_dirs": [ "include" ]
         },
@@ -654,7 +669,7 @@
             "priv_reqs": [ "esp_timer" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/esp_event/libesp_event.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/esp_event/libesp_event.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/esp_event/default_event_loop.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_event/esp_event.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_event/esp_event_private.c" ],
             "include_dirs": [ "include" ]
         },
@@ -669,7 +684,7 @@
             "priv_reqs": [ "soc", "esp_rom", "esp_system" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/esp_gdbstub/libesp_gdbstub.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/esp_gdbstub/libesp_gdbstub.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/esp_gdbstub/src/gdbstub.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_gdbstub/src/gdbstub_transport.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_gdbstub/src/packet.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_gdbstub/src/port/riscv/gdbstub_riscv.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_gdbstub/src/port/riscv/rv_decode.c" ],
             "include_dirs": [ "include" ]
         },
@@ -684,7 +699,7 @@
             "priv_reqs": [],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/esp_hid/libesp_hid.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/esp_hid/libesp_hid.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/esp_hid/src/esp_hidd.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hid/src/esp_hidh.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hid/src/esp_hid_common.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hid/src/nimble_hidd.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hid/src/nimble_hidh.c" ],
             "include_dirs": [ "include" ]
         },
@@ -699,7 +714,7 @@
             "priv_reqs": [ "tcp_transport", "http_parser" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/esp_http_client/libesp_http_client.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/esp_http_client/libesp_http_client.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/esp_http_client/esp_http_client.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_http_client/lib/http_auth.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_http_client/lib/http_header.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_http_client/lib/http_utils.c" ],
             "include_dirs": [ "include" ]
         },
@@ -714,7 +729,7 @@
             "priv_reqs": [ "mbedtls", "lwip", "esp_timer" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/esp_http_server/libesp_http_server.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/esp_http_server/libesp_http_server.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/esp_http_server/src/httpd_main.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_http_server/src/httpd_parse.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_http_server/src/httpd_sess.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_http_server/src/httpd_txrx.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_http_server/src/httpd_uri.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_http_server/src/httpd_ws.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_http_server/src/util/ctrl_sock.c" ],
             "include_dirs": [ "include" ]
         },
@@ -729,7 +744,7 @@
             "priv_reqs": [ "log", "app_update" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/esp_https_ota/libesp_https_ota.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/esp_https_ota/libesp_https_ota.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/esp_https_ota/src/esp_https_ota.c" ],
             "include_dirs": [ "include" ]
         },
@@ -744,7 +759,7 @@
             "priv_reqs": [ "lwip" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/esp_https_server/libesp_https_server.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/esp_https_server/libesp_https_server.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/esp_https_server/src/https_server.c" ],
             "include_dirs": [ "include" ]
         },
@@ -759,7 +774,7 @@
             "priv_reqs": [ "efuse", "spi_flash", "bootloader_support", "esp_security", "esp_driver_gpio", "esp_timer", "esp_pm", "esp_mm" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/esp_hw_support/libesp_hw_support.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/esp_hw_support/libesp_hw_support.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/cpu.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/port/esp32c3/esp_cpu_intr.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/esp_memory_utils.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/port/esp32c3/cpu_region_protect.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/esp_clk.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/clk_ctrl_os.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/hw_random.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/intr_alloc.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/mac_addr.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/periph_ctrl.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/revision.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/rtc_module.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/sleep_modem.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/sleep_modes.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/sleep_console.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/sleep_usb.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/sleep_gpio.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/sleep_event.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/regi2c_ctrl.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/esp_gpio_reserve.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/sar_periph_ctrl_common.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/port/esp32c3/io_mux.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/port/esp32c3/esp_clk_tree.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/port/esp_clk_tree_common.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/dma/esp_dma_utils.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/dma/gdma_link.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/spi_share_hw_ctrl.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/spi_bus_lock.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/clk_utils.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/adc_share_hw_ctrl.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/dma/gdma.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/deprecated/gdma_legacy.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/dma/esp_async_memcpy.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/dma/async_memcpy_gdma.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/port/esp32c3/systimer.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/mspi_timing_tuning.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/sleep_wake_stub.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/esp_clock_output.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/port/esp32c3/rtc_clk_init.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/port/esp32c3/rtc_clk.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/port/esp32c3/rtc_init.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/port/esp32c3/rtc_sleep.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/port/esp32c3/rtc_time.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/port/esp32c3/chip_info.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/port/esp32c3/sar_periph_ctrl.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/port/esp32c3/adc2_init_cal.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/port/esp32c3/esp_memprot.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/port/esp_memprot_conv.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_hw_support/lowpower/port/esp32c3/sleep_cpu.c" ],
             "include_dirs": [ "include", "include/soc", "include/soc/esp32c3", "dma/include", "ldo/include", "debug_probe/include" ]
         },
@@ -774,7 +789,7 @@
             "priv_reqs": [ "esp_mm", "esp_psram", "esp_pm", "esp_driver_i2s" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/esp_lcd/libesp_lcd.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/esp_lcd/libesp_lcd.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/esp_lcd/src/esp_lcd_common.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_lcd/src/esp_lcd_panel_io.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_lcd/src/esp_lcd_panel_nt35510.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_lcd/src/esp_lcd_panel_ssd1306.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_lcd/src/esp_lcd_panel_st7789.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_lcd/src/esp_lcd_panel_ops.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_lcd/i2c/esp_lcd_panel_io_i2c_v1.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_lcd/i2c/esp_lcd_panel_io_i2c_v2.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_lcd/spi/esp_lcd_panel_io_spi.c" ],
             "include_dirs": [ "include", "interface" ]
         },
@@ -789,7 +804,7 @@
             "priv_reqs": [ "protobuf-c" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/esp_local_ctrl/libesp_local_ctrl.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/esp_local_ctrl/libesp_local_ctrl.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/esp_local_ctrl/src/esp_local_ctrl.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_local_ctrl/src/esp_local_ctrl_handler.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_local_ctrl/proto-c/esp_local_ctrl.pb-c.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_local_ctrl/src/esp_local_ctrl_transport_ble.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_local_ctrl/src/esp_local_ctrl_transport_httpd.c" ],
             "include_dirs": [ "include" ]
         },
@@ -804,7 +819,7 @@
             "priv_reqs": [ "heap", "spi_flash" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/esp_mm/libesp_mm.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/esp_mm/libesp_mm.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/esp_mm/esp_mmu_map.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_mm/port/esp32c3/ext_mem_layout.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_mm/esp_cache.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_mm/heap_align_hw.c" ],
             "include_dirs": [ "include" ]
         },
@@ -819,7 +834,7 @@
             "priv_reqs": [ "esp_netif_stack" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/esp_netif/libesp_netif.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/esp_netif/libesp_netif.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/esp_netif/esp_netif_handlers.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_netif/esp_netif_objects.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_netif/esp_netif_defaults.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_netif/lwip/esp_netif_lwip.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_netif/lwip/esp_netif_sntp.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_netif/lwip/esp_netif_lwip_defaults.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_netif/lwip/netif/wlanif.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_netif/lwip/netif/ethernetif.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_netif/lwip/netif/esp_pbuf_ref.c" ],
             "include_dirs": [ "include" ]
         },
@@ -849,7 +864,7 @@
             "priv_reqs": [ "esp_system", "spi_flash", "partition_table", "bootloader_support", "app_update" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/esp_partition/libesp_partition.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/esp_partition/libesp_partition.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/esp_partition/partition.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_partition/partition_target.c" ],
             "include_dirs": [ "include" ]
         },
@@ -864,7 +879,7 @@
             "priv_reqs": [ "nvs_flash", "driver", "efuse", "esp_timer", "esp_wifi" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/esp_phy/libesp_phy.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/esp_phy/libesp_phy.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/esp_phy/src/phy_override.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_phy/src/lib_printf.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_phy/src/phy_common.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_phy/src/phy_init.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_phy/esp32c3/phy_init_data.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_phy/src/btbb_init.c" ],
             "include_dirs": [ "include", "esp32c3/include" ]
         },
@@ -879,7 +894,7 @@
             "priv_reqs": [ "esp_system", "esp_driver_gpio", "esp_timer" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/esp_pm/libesp_pm.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/esp_pm/libesp_pm.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/esp_pm/pm_locks.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_pm/pm_trace.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_pm/pm_impl.c" ],
             "include_dirs": [ "include" ]
         },
@@ -909,7 +924,7 @@
             "priv_reqs": [],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/esp_ringbuf/libesp_ringbuf.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/esp_ringbuf/libesp_ringbuf.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/esp_ringbuf/ringbuf.c" ],
             "include_dirs": [ "include" ]
         },
@@ -924,7 +939,7 @@
             "priv_reqs": [ "soc", "hal" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/esp_rom/libesp_rom.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/esp_rom/libesp_rom.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/esp_rom/patches/esp_rom_sys.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_rom/patches/esp_rom_print.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_rom/patches/esp_rom_crc.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_rom/patches/esp_rom_uart.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_rom/patches/esp_rom_spiflash.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_rom/patches/esp_rom_efuse.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_rom/patches/esp_rom_gpio.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_rom/patches/esp_rom_systimer.c" ],
             "include_dirs": [ "include", "esp32c3/include", "esp32c3/include/esp32c3", "esp32c3" ]
         },
@@ -939,7 +954,7 @@
             "priv_reqs": [ "efuse", "esp_hw_support", "esp_system", "esp_timer" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/esp_security/libesp_security.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/esp_security/libesp_security.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/esp_security/src/init.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_security/src/esp_hmac.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_security/src/esp_ds.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_security/src/esp_crypto_lock.c" ],
             "include_dirs": [ "include" ]
         },
@@ -954,7 +969,7 @@
             "priv_reqs": [ "spi_flash", "esp_timer", "esp_mm", "bootloader_support", "esp_pm" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/esp_system/libesp_system.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/esp_system/libesp_system.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/esp_system/esp_err.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_system/crosscore_int.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_system/esp_ipc.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_system/freertos_hooks.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_system/int_wdt.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_system/panic.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_system/esp_system.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_system/startup.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_system/startup_funcs.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_system/system_time.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_system/stack_check.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_system/ubsan.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_system/xt_wdt.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_system/task_wdt/task_wdt.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_system/task_wdt/task_wdt_impl_timergroup.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_system/hw_stack_guard.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_system/port/cpu_start.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_system/port/panic_handler.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_system/port/esp_system_chip.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_system/port/image_process.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_system/port/brownout.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_system/port/arch/riscv/expression_with_stack.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_system/port/arch/riscv/panic_arch.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_system/port/arch/riscv/debug_helpers.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_system/port/arch/riscv/debug_stubs.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_system/port/soc/esp32c3/clk.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_system/port/soc/esp32c3/reset_reason.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_system/port/soc/esp32c3/system_internal.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_system/port/soc/esp32c3/cache_err_int.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_system/port/soc/esp32c3/apb_backup_dma.c" ],
             "include_dirs": [ "include" ]
         },
@@ -969,7 +984,7 @@
             "priv_reqs": [],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/esp_timer/libesp_timer.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/esp_timer/libesp_timer.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/esp_timer/src/esp_timer.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_timer/src/esp_timer_init.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_timer/src/ets_timer_legacy.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_timer/src/system_time.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_timer/src/esp_timer_impl_common.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_timer/src/esp_timer_impl_systimer.c" ],
             "include_dirs": [ "include" ]
         },
@@ -984,7 +999,7 @@
             "priv_reqs": [ "vfs", "esp_driver_uart", "esp_driver_usb_serial_jtag" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/esp_vfs_console/libesp_vfs_console.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/esp_vfs_console/libesp_vfs_console.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/esp_vfs_console/vfs_console.c" ],
             "include_dirs": [ "include" ]
         },
@@ -999,7 +1014,7 @@
             "priv_reqs": [ "driver", "esptool_py", "esp_pm", "esp_timer", "nvs_flash", "wpa_supplicant", "hal", "lwip", "esp_coex" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/esp_wifi/libesp_wifi.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/esp_wifi/libesp_wifi.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/esp_wifi/src/lib_printf.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_wifi/src/mesh_event.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_wifi/src/smartconfig.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_wifi/src/wifi_init.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_wifi/src/wifi_default.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_wifi/src/wifi_netif.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_wifi/src/wifi_default_ap.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_wifi/esp32c3/esp_adapter.c", "D:/Espressif/v5.4.2/esp-idf/components/esp_wifi/src/smartconfig_ack.c" ],
             "include_dirs": [ "include", "include/local", "wifi_apps/include", "wifi_apps/nan_app/include" ]
         },
@@ -1014,9 +1029,24 @@
             "priv_reqs": [ "esp_partition", "spi_flash", "bootloader_support", "mbedtls", "esp_rom", "soc", "esp_system", "esp_driver_gpio", "driver" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/espcoredump/libespcoredump.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/espcoredump/libespcoredump.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/espcoredump/src/core_dump_init.c", "D:/Espressif/v5.4.2/esp-idf/components/espcoredump/src/core_dump_common.c", "D:/Espressif/v5.4.2/esp-idf/components/espcoredump/src/core_dump_flash.c", "D:/Espressif/v5.4.2/esp-idf/components/espcoredump/src/core_dump_uart.c", "D:/Espressif/v5.4.2/esp-idf/components/espcoredump/src/core_dump_elf.c", "D:/Espressif/v5.4.2/esp-idf/components/espcoredump/src/core_dump_binary.c", "D:/Espressif/v5.4.2/esp-idf/components/espcoredump/src/core_dump_sha.c", "D:/Espressif/v5.4.2/esp-idf/components/espcoredump/src/core_dump_crc.c", "D:/Espressif/v5.4.2/esp-idf/components/espcoredump/src/port/riscv/core_dump_port.c" ],
             "include_dirs": [ "include", "include/port/riscv" ]
+        },
+        "espressif__esp_lvgl_port": {
+            "alias": "idf::espressif__esp_lvgl_port",
+            "target": "___idf_espressif__esp_lvgl_port",
+            "prefix": "idf",
+            "dir": "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/espressif__esp_lvgl_port",
+            "type": "LIBRARY",
+            "lib": "__idf_espressif__esp_lvgl_port",
+            "reqs": [ "esp_lcd", "lvgl__lvgl" ],
+            "priv_reqs": [ "esp_timer" ],
+            "managed_reqs": [ "lvgl__lvgl" ],
+            "managed_priv_reqs": [],
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/espressif__esp_lvgl_port/libespressif__esp_lvgl_port.a",
+            "sources": [ "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/espressif__esp_lvgl_port/esp_lvgl_port.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/espressif__esp_lvgl_port/images/img_cursor.c" ],
+            "include_dirs": [ "include" ]
         },
         "esptool_py": {
             "alias": "idf::esptool_py",
@@ -1044,7 +1074,7 @@
             "priv_reqs": [ "vfs", "esp_driver_gpio" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/fatfs/libfatfs.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/fatfs/libfatfs.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/fatfs/diskio/diskio.c", "D:/Espressif/v5.4.2/esp-idf/components/fatfs/diskio/diskio_rawflash.c", "D:/Espressif/v5.4.2/esp-idf/components/fatfs/diskio/diskio_wl.c", "D:/Espressif/v5.4.2/esp-idf/components/fatfs/src/ff.c", "D:/Espressif/v5.4.2/esp-idf/components/fatfs/src/ffunicode.c", "D:/Espressif/v5.4.2/esp-idf/components/fatfs/port/freertos/ffsystem.c", "D:/Espressif/v5.4.2/esp-idf/components/fatfs/diskio/diskio_sdmmc.c", "D:/Espressif/v5.4.2/esp-idf/components/fatfs/vfs/vfs_fat.c", "D:/Espressif/v5.4.2/esp-idf/components/fatfs/vfs/vfs_fat_sdmmc.c", "D:/Espressif/v5.4.2/esp-idf/components/fatfs/vfs/vfs_fat_spiflash.c" ],
             "include_dirs": [ "diskio", "src", "vfs" ]
         },
@@ -1059,7 +1089,7 @@
             "priv_reqs": [],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/freertos/libfreertos.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/freertos/libfreertos.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/freertos/heap_idf.c", "D:/Espressif/v5.4.2/esp-idf/components/freertos/app_startup.c", "D:/Espressif/v5.4.2/esp-idf/components/freertos/port_common.c", "D:/Espressif/v5.4.2/esp-idf/components/freertos/port_systick.c", "D:/Espressif/v5.4.2/esp-idf/components/freertos/FreeRTOS-Kernel/list.c", "D:/Espressif/v5.4.2/esp-idf/components/freertos/FreeRTOS-Kernel/queue.c", "D:/Espressif/v5.4.2/esp-idf/components/freertos/FreeRTOS-Kernel/tasks.c", "D:/Espressif/v5.4.2/esp-idf/components/freertos/FreeRTOS-Kernel/timers.c", "D:/Espressif/v5.4.2/esp-idf/components/freertos/FreeRTOS-Kernel/event_groups.c", "D:/Espressif/v5.4.2/esp-idf/components/freertos/FreeRTOS-Kernel/stream_buffer.c", "D:/Espressif/v5.4.2/esp-idf/components/freertos/FreeRTOS-Kernel/portable/riscv/port.c", "D:/Espressif/v5.4.2/esp-idf/components/freertos/FreeRTOS-Kernel/portable/riscv/portasm.S", "D:/Espressif/v5.4.2/esp-idf/components/freertos/esp_additions/freertos_compatibility.c", "D:/Espressif/v5.4.2/esp-idf/components/freertos/esp_additions/idf_additions_event_groups.c", "D:/Espressif/v5.4.2/esp-idf/components/freertos/esp_additions/idf_additions.c" ],
             "include_dirs": [ "config/include", "config/include/freertos", "config/riscv/include", "FreeRTOS-Kernel/include", "FreeRTOS-Kernel/portable/riscv/include", "FreeRTOS-Kernel/portable/riscv/include/freertos", "esp_additions/include" ]
         },
@@ -1074,7 +1104,7 @@
             "priv_reqs": [],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/hal/libhal.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/hal/libhal.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/hal/hal_utils.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/efuse_hal.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/esp32c3/efuse_hal.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/wdt_hal_iram.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/mmu_hal.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/cache_hal.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/color_hal.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/spi_flash_hal.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/spi_flash_hal_iram.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/spi_flash_encrypt_hal_iram.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/esp32c3/clk_tree_hal.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/systimer_hal.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/uart_hal.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/uart_hal_iram.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/gpio_hal.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/timer_hal.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/ledc_hal.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/ledc_hal_iram.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/i2c_hal.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/i2c_hal_iram.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/rmt_hal.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/twai_hal.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/twai_hal_iram.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/gdma_hal_top.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/gdma_hal_ahb_v1.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/i2s_hal.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/sdm_hal.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/adc_hal_common.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/adc_oneshot_hal.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/adc_hal.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/mpi_hal.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/sha_hal.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/aes_hal.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/brownout_hal.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/spi_hal.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/spi_hal_iram.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/spi_slave_hal.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/spi_slave_hal_iram.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/spi_slave_hd_hal.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/spi_flash_hal_gpspi.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/hmac_hal.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/ds_hal.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/usb_serial_jtag_hal.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/xt_wdt_hal.c", "D:/Espressif/v5.4.2/esp-idf/components/hal/esp32c3/rtc_cntl_hal.c" ],
             "include_dirs": [ "platform_port/include", "esp32c3/include", "include" ]
         },
@@ -1089,9 +1119,24 @@
             "priv_reqs": [ "soc" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/heap/libheap.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/heap/libheap.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/heap/heap_caps_base.c", "D:/Espressif/v5.4.2/esp-idf/components/heap/heap_caps.c", "D:/Espressif/v5.4.2/esp-idf/components/heap/heap_caps_init.c", "D:/Espressif/v5.4.2/esp-idf/components/heap/multi_heap.c", "D:/Espressif/v5.4.2/esp-idf/components/heap/tlsf/tlsf.c", "D:/Espressif/v5.4.2/esp-idf/components/heap/port/memory_layout_utils.c", "D:/Espressif/v5.4.2/esp-idf/components/heap/port/esp32c3/memory_layout.c" ],
             "include_dirs": [ "include", "tlsf" ]
+        },
+        "hid_keyboard": {
+            "alias": "idf::hid_keyboard",
+            "target": "___idf_hid_keyboard",
+            "prefix": "idf",
+            "dir": "D:/Dropbox/blehid_pass_manager/esp_hid_device/components/hid_keyboard",
+            "type": "LIBRARY",
+            "lib": "__idf_hid_keyboard",
+            "reqs": [ "esp_hid", "ble_battery" ],
+            "priv_reqs": [],
+            "managed_reqs": [],
+            "managed_priv_reqs": [],
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/hid_keyboard/libhid_keyboard.a",
+            "sources": [ "D:/Dropbox/blehid_pass_manager/esp_hid_device/components/hid_keyboard/hid_keyboard.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/components/hid_keyboard/hid_gap.c" ],
+            "include_dirs": [ "." ]
         },
         "http_parser": {
             "alias": "idf::http_parser",
@@ -1104,7 +1149,7 @@
             "priv_reqs": [],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/http_parser/libhttp_parser.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/http_parser/libhttp_parser.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/http_parser/http_parser.c" ],
             "include_dirs": [ "." ]
         },
@@ -1149,7 +1194,7 @@
             "priv_reqs": [],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/json/libjson.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/json/libjson.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/json/cJSON/cJSON.c", "D:/Espressif/v5.4.2/esp-idf/components/json/cJSON/cJSON_Utils.c" ],
             "include_dirs": [ "cJSON" ]
         },
@@ -1164,9 +1209,24 @@
             "priv_reqs": [ "soc", "hal", "esp_hw_support" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/log/liblog.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/log/liblog.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/log/src/os/log_timestamp.c", "D:/Espressif/v5.4.2/esp-idf/components/log/src/log_timestamp_common.c", "D:/Espressif/v5.4.2/esp-idf/components/log/src/os/log_lock.c", "D:/Espressif/v5.4.2/esp-idf/components/log/src/os/log_write.c", "D:/Espressif/v5.4.2/esp-idf/components/log/src/buffer/log_buffers.c", "D:/Espressif/v5.4.2/esp-idf/components/log/src/util.c", "D:/Espressif/v5.4.2/esp-idf/components/log/src/log_level/log_level.c", "D:/Espressif/v5.4.2/esp-idf/components/log/src/log_level/tag_log_level/tag_log_level.c", "D:/Espressif/v5.4.2/esp-idf/components/log/src/log_level/tag_log_level/linked_list/log_linked_list.c", "D:/Espressif/v5.4.2/esp-idf/components/log/src/log_level/tag_log_level/cache/log_binary_heap.c" ],
             "include_dirs": [ "include" ]
+        },
+        "lvgl__lvgl": {
+            "alias": "idf::lvgl__lvgl",
+            "target": "___idf_lvgl__lvgl",
+            "prefix": "idf",
+            "dir": "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl",
+            "type": "LIBRARY",
+            "lib": "__idf_lvgl__lvgl",
+            "reqs": [],
+            "priv_reqs": [],
+            "managed_reqs": [],
+            "managed_priv_reqs": [],
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/lvgl__lvgl/liblvgl__lvgl.a",
+            "sources": [ "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/core/lv_disp.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/core/lv_event.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/core/lv_group.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/core/lv_indev.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/core/lv_indev_scroll.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/core/lv_obj.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/core/lv_obj_class.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/core/lv_obj_draw.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/core/lv_obj_pos.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/core/lv_obj_scroll.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/core/lv_obj_style.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/core/lv_obj_style_gen.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/core/lv_obj_tree.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/core/lv_refr.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/core/lv_theme.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/arm2d/lv_gpu_arm2d.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/lv_draw.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/lv_draw_arc.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/lv_draw_img.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/lv_draw_label.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/lv_draw_layer.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/lv_draw_line.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/lv_draw_mask.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/lv_draw_rect.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/lv_draw_transform.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/lv_draw_triangle.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/lv_img_buf.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/lv_img_cache.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/lv_img_decoder.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/nxp/lv_gpu_nxp.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/nxp/pxp/lv_draw_pxp_blend.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/nxp/pxp/lv_gpu_nxp_pxp.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/nxp/pxp/lv_gpu_nxp_pxp_osa.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/nxp/vglite/lv_draw_vglite_arc.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/nxp/vglite/lv_draw_vglite_blend.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/nxp/vglite/lv_draw_vglite_rect.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/nxp/vglite/lv_gpu_nxp_vglite.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/sdl/lv_draw_sdl.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/sdl/lv_draw_sdl_arc.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/sdl/lv_draw_sdl_bg.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/sdl/lv_draw_sdl_composite.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/sdl/lv_draw_sdl_img.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/sdl/lv_draw_sdl_label.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/sdl/lv_draw_sdl_layer.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/sdl/lv_draw_sdl_line.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/sdl/lv_draw_sdl_mask.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/sdl/lv_draw_sdl_polygon.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/sdl/lv_draw_sdl_rect.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/sdl/lv_draw_sdl_stack_blur.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/sdl/lv_draw_sdl_texture_cache.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/sdl/lv_draw_sdl_utils.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/stm32_dma2d/lv_gpu_stm32_dma2d.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/sw/lv_draw_sw.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/sw/lv_draw_sw_arc.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/sw/lv_draw_sw_blend.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/sw/lv_draw_sw_dither.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/sw/lv_draw_sw_gradient.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/sw/lv_draw_sw_img.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/sw/lv_draw_sw_layer.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/sw/lv_draw_sw_letter.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/sw/lv_draw_sw_line.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/sw/lv_draw_sw_polygon.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/sw/lv_draw_sw_rect.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/sw/lv_draw_sw_transform.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/draw/swm341_dma2d/lv_gpu_swm341_dma2d.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/layouts/flex/lv_flex.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/layouts/grid/lv_grid.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/libs/bmp/lv_bmp.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/libs/ffmpeg/lv_ffmpeg.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/libs/freetype/lv_freetype.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/libs/fsdrv/lv_fs_fatfs.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/libs/fsdrv/lv_fs_posix.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/libs/fsdrv/lv_fs_stdio.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/libs/fsdrv/lv_fs_win32.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/libs/gif/gifdec.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/libs/gif/lv_gif.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/libs/png/lodepng.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/libs/png/lv_png.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/libs/qrcode/lv_qrcode.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/libs/qrcode/qrcodegen.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/libs/rlottie/lv_rlottie.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/libs/sjpg/lv_sjpg.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/libs/sjpg/tjpgd.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/lv_extra.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/others/fragment/lv_fragment.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/others/fragment/lv_fragment_manager.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/others/gridnav/lv_gridnav.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/others/ime/lv_ime_pinyin.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/others/imgfont/lv_imgfont.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/others/monkey/lv_monkey.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/others/msg/lv_msg.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/others/snapshot/lv_snapshot.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/themes/basic/lv_theme_basic.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/themes/default/lv_theme_default.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/themes/mono/lv_theme_mono.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/widgets/animimg/lv_animimg.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/widgets/calendar/lv_calendar.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/widgets/calendar/lv_calendar_header_arrow.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/widgets/calendar/lv_calendar_header_dropdown.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/widgets/chart/lv_chart.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/widgets/colorwheel/lv_colorwheel.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/widgets/imgbtn/lv_imgbtn.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/widgets/keyboard/lv_keyboard.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/widgets/led/lv_led.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/widgets/list/lv_list.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/widgets/menu/lv_menu.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/widgets/meter/lv_meter.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/widgets/msgbox/lv_msgbox.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/widgets/span/lv_span.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/widgets/spinbox/lv_spinbox.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/widgets/spinner/lv_spinner.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/widgets/tabview/lv_tabview.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/widgets/tileview/lv_tileview.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/extra/widgets/win/lv_win.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/font/lv_font.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/font/lv_font_dejavu_16_persian_hebrew.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/font/lv_font_fmt_txt.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/font/lv_font_loader.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/font/lv_font_montserrat_10.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/font/lv_font_montserrat_12.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/font/lv_font_montserrat_12_subpx.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/font/lv_font_montserrat_14.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/font/lv_font_montserrat_16.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/font/lv_font_montserrat_18.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/font/lv_font_montserrat_20.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/font/lv_font_montserrat_22.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/font/lv_font_montserrat_24.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/font/lv_font_montserrat_26.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/font/lv_font_montserrat_28.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/font/lv_font_montserrat_28_compressed.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/font/lv_font_montserrat_30.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/font/lv_font_montserrat_32.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/font/lv_font_montserrat_34.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/font/lv_font_montserrat_36.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/font/lv_font_montserrat_38.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/font/lv_font_montserrat_40.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/font/lv_font_montserrat_42.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/font/lv_font_montserrat_44.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/font/lv_font_montserrat_46.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/font/lv_font_montserrat_48.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/font/lv_font_montserrat_8.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/font/lv_font_simsun_16_cjk.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/font/lv_font_unscii_16.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/font/lv_font_unscii_8.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/hal/lv_hal_disp.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/hal/lv_hal_indev.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/hal/lv_hal_tick.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/misc/lv_anim.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/misc/lv_anim_timeline.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/misc/lv_area.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/misc/lv_async.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/misc/lv_bidi.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/misc/lv_color.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/misc/lv_fs.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/misc/lv_gc.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/misc/lv_ll.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/misc/lv_log.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/misc/lv_lru.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/misc/lv_math.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/misc/lv_mem.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/misc/lv_printf.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/misc/lv_style.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/misc/lv_style_gen.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/misc/lv_templ.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/misc/lv_timer.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/misc/lv_tlsf.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/misc/lv_txt.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/misc/lv_txt_ap.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/misc/lv_utils.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/widgets/lv_arc.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/widgets/lv_bar.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/widgets/lv_btn.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/widgets/lv_btnmatrix.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/widgets/lv_canvas.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/widgets/lv_checkbox.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/widgets/lv_dropdown.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/widgets/lv_img.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/widgets/lv_label.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/widgets/lv_line.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/widgets/lv_objx_templ.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/widgets/lv_roller.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/widgets/lv_slider.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/widgets/lv_switch.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/widgets/lv_table.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src/widgets/lv_textarea.c" ],
+            "include_dirs": [ "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/../" ]
         },
         "lwip": {
             "alias": "idf::lwip",
@@ -1179,7 +1239,7 @@
             "priv_reqs": [ "vfs" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/lwip/liblwip.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/lwip/liblwip.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/lwip/apps/sntp/sntp.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/api/api_lib.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/api/api_msg.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/api/err.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/api/if_api.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/api/netbuf.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/api/netdb.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/api/netifapi.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/api/sockets.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/api/tcpip.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/apps/sntp/sntp.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/apps/netbiosns/netbiosns.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/core/def.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/core/dns.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/core/inet_chksum.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/core/init.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/core/ip.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/core/mem.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/core/memp.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/core/netif.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/core/pbuf.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/core/raw.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/core/stats.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/core/sys.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/core/tcp.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/core/tcp_in.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/core/tcp_out.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/core/timeouts.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/core/udp.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/core/ipv4/autoip.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/core/ipv4/dhcp.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/core/ipv4/etharp.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/core/ipv4/icmp.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/core/ipv4/igmp.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/core/ipv4/ip4.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/core/ipv4/ip4_napt.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/core/ipv4/ip4_addr.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/core/ipv4/ip4_frag.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/core/ipv6/dhcp6.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/core/ipv6/ethip6.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/core/ipv6/icmp6.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/core/ipv6/inet6.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/core/ipv6/ip6.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/core/ipv6/ip6_addr.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/core/ipv6/ip6_frag.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/core/ipv6/mld6.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/core/ipv6/nd6.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/netif/ethernet.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/netif/bridgeif.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/netif/bridgeif_fdb.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/netif/slipif.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/netif/ppp/auth.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/netif/ppp/ccp.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/netif/ppp/chap-md5.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/netif/ppp/chap-new.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/netif/ppp/chap_ms.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/netif/ppp/demand.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/netif/ppp/eap.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/netif/ppp/ecp.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/netif/ppp/eui64.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/netif/ppp/fsm.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/netif/ppp/ipcp.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/netif/ppp/ipv6cp.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/netif/ppp/lcp.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/netif/ppp/magic.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/netif/ppp/mppe.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/netif/ppp/multilink.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/netif/ppp/ppp.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/netif/ppp/pppapi.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/netif/ppp/pppcrypt.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/netif/ppp/pppoe.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/netif/ppp/pppol2tp.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/netif/ppp/pppos.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/netif/ppp/upap.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/netif/ppp/utils.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/netif/ppp/vj.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/port/hooks/tcp_isn_default.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/port/hooks/lwip_default_hooks.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/port/debug/lwip_debug.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/port/sockets_ext.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/port/freertos/sys_arch.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/port/acd_dhcp_check.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/port/esp32xx/vfs_lwip.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/apps/ping/esp_ping.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/apps/ping/ping.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/apps/ping/ping_sock.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/netif/ppp/polarssl/arc4.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/netif/ppp/polarssl/des.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/netif/ppp/polarssl/md4.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/netif/ppp/polarssl/md5.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/lwip/src/netif/ppp/polarssl/sha1.c", "D:/Espressif/v5.4.2/esp-idf/components/lwip/apps/dhcpserver/dhcpserver.c" ],
             "include_dirs": [ "include", "include/apps", "include/apps/sntp", "lwip/src/include", "port/include", "port/freertos/include/", "port/esp32xx/include", "port/esp32xx/include/arch", "port/esp32xx/include/sys" ]
         },
@@ -1187,15 +1247,15 @@
             "alias": "idf::main",
             "target": "___idf_main",
             "prefix": "idf",
-            "dir": "C:/Users/Tolentino/Desktop/esp_hid_device/main",
+            "dir": "D:/Dropbox/blehid_pass_manager/esp_hid_device/main",
             "type": "LIBRARY",
             "lib": "__idf_main",
-            "reqs": [ "esp_hid" ],
-            "priv_reqs": [ "nvs_flash" ],
+            "reqs": [ "esp_hid", "mbedtls", "hid_keyboard", "oled", "r503lib", "ble_battery" ],
+            "priv_reqs": [ "nvs_flash", "espressif__esp_lvgl_port", "lvgl__lvgl" ],
             "managed_reqs": [],
-            "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/main/libmain.a",
-            "sources": [ "C:/Users/Tolentino/Desktop/esp_hid_device/main/esp_hid_device_main.c", "C:/Users/Tolentino/Desktop/esp_hid_device/main/esp_hid_gap.c" ],
+            "managed_priv_reqs": [ "espressif__esp_lvgl_port", "lvgl__lvgl" ],
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/main/libmain.a",
+            "sources": [ "D:/Dropbox/blehid_pass_manager/esp_hid_device/main/shared_data.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/main/main.cpp" ],
             "include_dirs": [ "." ]
         },
         "mbedtls": {
@@ -1209,8 +1269,8 @@
             "priv_reqs": [ "soc", "esp_hw_support", "esp_pm" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/mbedtls/libmbedtls.a",
-            "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/mbedtls/esp_crt_bundle/esp_crt_bundle.c", "C:/Users/Tolentino/Desktop/esp_hid_device/build/x509_crt_bundle.S" ],
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/mbedtls/libmbedtls.a",
+            "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/mbedtls/esp_crt_bundle/esp_crt_bundle.c", "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/x509_crt_bundle.S" ],
             "include_dirs": [ "port/include", "mbedtls/include", "mbedtls/library", "esp_crt_bundle/include" ]
         },
         "mqtt": {
@@ -1224,7 +1284,7 @@
             "priv_reqs": [ "esp_timer", "http_parser", "esp_hw_support", "heap" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/mqtt/libmqtt.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/mqtt/libmqtt.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/mqtt/esp-mqtt/mqtt_client.c", "D:/Espressif/v5.4.2/esp-idf/components/mqtt/esp-mqtt/lib/mqtt_msg.c", "D:/Espressif/v5.4.2/esp-idf/components/mqtt/esp-mqtt/lib/mqtt_outbox.c", "D:/Espressif/v5.4.2/esp-idf/components/mqtt/esp-mqtt/lib/platform_esp32_idf.c" ],
             "include_dirs": [ "D:/Espressif/v5.4.2/esp-idf/components/mqtt/esp-mqtt/include" ]
         },
@@ -1239,7 +1299,7 @@
             "priv_reqs": [ "soc", "spi_flash" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/newlib/libnewlib.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/newlib/libnewlib.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/newlib/abort.c", "D:/Espressif/v5.4.2/esp-idf/components/newlib/assert.c", "D:/Espressif/v5.4.2/esp-idf/components/newlib/heap.c", "D:/Espressif/v5.4.2/esp-idf/components/newlib/flockfile.c", "D:/Espressif/v5.4.2/esp-idf/components/newlib/locks.c", "D:/Espressif/v5.4.2/esp-idf/components/newlib/poll.c", "D:/Espressif/v5.4.2/esp-idf/components/newlib/pthread.c", "D:/Espressif/v5.4.2/esp-idf/components/newlib/random.c", "D:/Espressif/v5.4.2/esp-idf/components/newlib/getentropy.c", "D:/Espressif/v5.4.2/esp-idf/components/newlib/reent_init.c", "D:/Espressif/v5.4.2/esp-idf/components/newlib/newlib_init.c", "D:/Espressif/v5.4.2/esp-idf/components/newlib/syscalls.c", "D:/Espressif/v5.4.2/esp-idf/components/newlib/termios.c", "D:/Espressif/v5.4.2/esp-idf/components/newlib/stdatomic.c", "D:/Espressif/v5.4.2/esp-idf/components/newlib/time.c", "D:/Espressif/v5.4.2/esp-idf/components/newlib/sysconf.c", "D:/Espressif/v5.4.2/esp-idf/components/newlib/realpath.c", "D:/Espressif/v5.4.2/esp-idf/components/newlib/scandir.c", "D:/Espressif/v5.4.2/esp-idf/components/newlib/port/esp_time_impl.c" ],
             "include_dirs": [ "platform_include" ]
         },
@@ -1254,7 +1314,7 @@
             "priv_reqs": [ "spi_flash", "newlib" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/nvs_flash/libnvs_flash.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/nvs_flash/libnvs_flash.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/nvs_flash/src/nvs_api.cpp", "D:/Espressif/v5.4.2/esp-idf/components/nvs_flash/src/nvs_cxx_api.cpp", "D:/Espressif/v5.4.2/esp-idf/components/nvs_flash/src/nvs_item_hash_list.cpp", "D:/Espressif/v5.4.2/esp-idf/components/nvs_flash/src/nvs_page.cpp", "D:/Espressif/v5.4.2/esp-idf/components/nvs_flash/src/nvs_pagemanager.cpp", "D:/Espressif/v5.4.2/esp-idf/components/nvs_flash/src/nvs_storage.cpp", "D:/Espressif/v5.4.2/esp-idf/components/nvs_flash/src/nvs_handle_simple.cpp", "D:/Espressif/v5.4.2/esp-idf/components/nvs_flash/src/nvs_handle_locked.cpp", "D:/Espressif/v5.4.2/esp-idf/components/nvs_flash/src/nvs_partition.cpp", "D:/Espressif/v5.4.2/esp-idf/components/nvs_flash/src/nvs_partition_lookup.cpp", "D:/Espressif/v5.4.2/esp-idf/components/nvs_flash/src/nvs_partition_manager.cpp", "D:/Espressif/v5.4.2/esp-idf/components/nvs_flash/src/nvs_types.cpp", "D:/Espressif/v5.4.2/esp-idf/components/nvs_flash/src/nvs_platform.cpp", "D:/Espressif/v5.4.2/esp-idf/components/nvs_flash/src/nvs_bootloader.c", "D:/Espressif/v5.4.2/esp-idf/components/nvs_flash/src/nvs_encrypted_partition.cpp" ],
             "include_dirs": [ "include" ]
         },
@@ -1269,9 +1329,24 @@
             "priv_reqs": [ "bootloader_support", "efuse", "esp_partition", "nvs_flash" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/nvs_sec_provider/libnvs_sec_provider.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/nvs_sec_provider/libnvs_sec_provider.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/nvs_sec_provider/nvs_sec_provider.c" ],
             "include_dirs": [ "include" ]
+        },
+        "oled": {
+            "alias": "idf::oled",
+            "target": "___idf_oled",
+            "prefix": "idf",
+            "dir": "D:/Dropbox/blehid_pass_manager/esp_hid_device/components/oled",
+            "type": "LIBRARY",
+            "lib": "__idf_oled",
+            "reqs": [ "driver", "esp_timer", "esp_lcd", "espressif__esp_lvgl_port", "main" ],
+            "priv_reqs": [],
+            "managed_reqs": [],
+            "managed_priv_reqs": [],
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/oled/liboled.a",
+            "sources": [ "D:/Dropbox/blehid_pass_manager/esp_hid_device/components/oled/oled.c" ],
+            "include_dirs": [ "." ]
         },
         "openthread": {
             "alias": "idf::openthread",
@@ -1314,7 +1389,7 @@
             "priv_reqs": [],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/protobuf-c/libprotobuf-c.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/protobuf-c/libprotobuf-c.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/protobuf-c/protobuf-c/protobuf-c/protobuf-c.c" ],
             "include_dirs": [ "protobuf-c" ]
         },
@@ -1329,7 +1404,7 @@
             "priv_reqs": [ "protobuf-c", "mbedtls", "console", "esp_http_server", "driver" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/protocomm/libprotocomm.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/protocomm/libprotocomm.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/protocomm/src/common/protocomm.c", "D:/Espressif/v5.4.2/esp-idf/components/protocomm/proto-c/constants.pb-c.c", "D:/Espressif/v5.4.2/esp-idf/components/protocomm/proto-c/sec0.pb-c.c", "D:/Espressif/v5.4.2/esp-idf/components/protocomm/proto-c/sec1.pb-c.c", "D:/Espressif/v5.4.2/esp-idf/components/protocomm/proto-c/sec2.pb-c.c", "D:/Espressif/v5.4.2/esp-idf/components/protocomm/proto-c/session.pb-c.c", "D:/Espressif/v5.4.2/esp-idf/components/protocomm/src/transports/protocomm_console.c", "D:/Espressif/v5.4.2/esp-idf/components/protocomm/src/transports/protocomm_httpd.c", "D:/Espressif/v5.4.2/esp-idf/components/protocomm/src/security/security0.c", "D:/Espressif/v5.4.2/esp-idf/components/protocomm/src/security/security1.c", "D:/Espressif/v5.4.2/esp-idf/components/protocomm/src/security/security2.c", "D:/Espressif/v5.4.2/esp-idf/components/protocomm/src/crypto/srp6a/esp_srp.c", "D:/Espressif/v5.4.2/esp-idf/components/protocomm/src/crypto/srp6a/esp_srp_mpi.c", "D:/Espressif/v5.4.2/esp-idf/components/protocomm/src/transports/protocomm_nimble.c" ],
             "include_dirs": [ "include/common", "include/security", "include/transports", "include/crypto/srp6a", "proto-c" ]
         },
@@ -1344,9 +1419,24 @@
             "priv_reqs": [],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/pthread/libpthread.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/pthread/libpthread.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/pthread/pthread.c", "D:/Espressif/v5.4.2/esp-idf/components/pthread/pthread_cond_var.c", "D:/Espressif/v5.4.2/esp-idf/components/pthread/pthread_local_storage.c", "D:/Espressif/v5.4.2/esp-idf/components/pthread/pthread_rwlock.c", "D:/Espressif/v5.4.2/esp-idf/components/pthread/pthread_semaphore.c" ],
             "include_dirs": [ "include" ]
+        },
+        "r503lib": {
+            "alias": "idf::r503lib",
+            "target": "___idf_r503lib",
+            "prefix": "idf",
+            "dir": "D:/Dropbox/blehid_pass_manager/esp_hid_device/components/r503lib",
+            "type": "LIBRARY",
+            "lib": "__idf_r503lib",
+            "reqs": [ "driver", "esp_timer", "oled" ],
+            "priv_reqs": [],
+            "managed_reqs": [],
+            "managed_priv_reqs": [],
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/r503lib/libr503lib.a",
+            "sources": [ "D:/Dropbox/blehid_pass_manager/esp_hid_device/components/r503lib/r503lib.cpp", "D:/Dropbox/blehid_pass_manager/esp_hid_device/components/r503lib/r503packet.cpp", "D:/Dropbox/blehid_pass_manager/esp_hid_device/components/r503lib/r503.cpp" ],
+            "include_dirs": [ "." ]
         },
         "riscv": {
             "alias": "idf::riscv",
@@ -1359,7 +1449,7 @@
             "priv_reqs": [ "soc" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/riscv/libriscv.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/riscv/libriscv.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/riscv/instruction_decode.c", "D:/Espressif/v5.4.2/esp-idf/components/riscv/interrupt.c", "D:/Espressif/v5.4.2/esp-idf/components/riscv/vectors.S", "D:/Espressif/v5.4.2/esp-idf/components/riscv/interrupt_intc.c", "D:/Espressif/v5.4.2/esp-idf/components/riscv/vectors_intc.S" ],
             "include_dirs": [ "include" ]
         },
@@ -1374,7 +1464,7 @@
             "priv_reqs": [],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/rt/librt.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/rt/librt.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/rt/FreeRTOS_POSIX_mqueue.c", "D:/Espressif/v5.4.2/esp-idf/components/rt/FreeRTOS_POSIX_utils.c" ],
             "include_dirs": [ "include" ]
         },
@@ -1389,7 +1479,7 @@
             "priv_reqs": [ "soc", "esp_timer", "esp_mm" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/sdmmc/libsdmmc.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/sdmmc/libsdmmc.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/sdmmc/sdmmc_cmd.c", "D:/Espressif/v5.4.2/esp-idf/components/sdmmc/sdmmc_common.c", "D:/Espressif/v5.4.2/esp-idf/components/sdmmc/sdmmc_init.c", "D:/Espressif/v5.4.2/esp-idf/components/sdmmc/sdmmc_io.c", "D:/Espressif/v5.4.2/esp-idf/components/sdmmc/sdmmc_mmc.c", "D:/Espressif/v5.4.2/esp-idf/components/sdmmc/sdmmc_sd.c", "D:/Espressif/v5.4.2/esp-idf/components/sdmmc/sd_pwr_ctrl/sd_pwr_ctrl.c" ],
             "include_dirs": [ "include" ]
         },
@@ -1404,7 +1494,7 @@
             "priv_reqs": [],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/soc/libsoc.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/soc/libsoc.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/soc/lldesc.c", "D:/Espressif/v5.4.2/esp-idf/components/soc/dport_access_common.c", "D:/Espressif/v5.4.2/esp-idf/components/soc/esp32c3/interrupts.c", "D:/Espressif/v5.4.2/esp-idf/components/soc/esp32c3/gpio_periph.c", "D:/Espressif/v5.4.2/esp-idf/components/soc/esp32c3/uart_periph.c", "D:/Espressif/v5.4.2/esp-idf/components/soc/esp32c3/adc_periph.c", "D:/Espressif/v5.4.2/esp-idf/components/soc/esp32c3/dedic_gpio_periph.c", "D:/Espressif/v5.4.2/esp-idf/components/soc/esp32c3/gdma_periph.c", "D:/Espressif/v5.4.2/esp-idf/components/soc/esp32c3/spi_periph.c", "D:/Espressif/v5.4.2/esp-idf/components/soc/esp32c3/ledc_periph.c", "D:/Espressif/v5.4.2/esp-idf/components/soc/esp32c3/rmt_periph.c", "D:/Espressif/v5.4.2/esp-idf/components/soc/esp32c3/sdm_periph.c", "D:/Espressif/v5.4.2/esp-idf/components/soc/esp32c3/i2s_periph.c", "D:/Espressif/v5.4.2/esp-idf/components/soc/esp32c3/i2c_periph.c", "D:/Espressif/v5.4.2/esp-idf/components/soc/esp32c3/temperature_sensor_periph.c", "D:/Espressif/v5.4.2/esp-idf/components/soc/esp32c3/timer_periph.c", "D:/Espressif/v5.4.2/esp-idf/components/soc/esp32c3/mpi_periph.c", "D:/Espressif/v5.4.2/esp-idf/components/soc/esp32c3/twai_periph.c", "D:/Espressif/v5.4.2/esp-idf/components/soc/esp32c3/wdt_periph.c" ],
             "include_dirs": [ "include", "esp32c3", "esp32c3/include", "esp32c3/register" ]
         },
@@ -1419,7 +1509,7 @@
             "priv_reqs": [ "bootloader_support", "app_update", "soc", "esp_mm", "esp_driver_gpio" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/spi_flash/libspi_flash.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/spi_flash/libspi_flash.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/spi_flash/flash_brownout_hook.c", "D:/Espressif/v5.4.2/esp-idf/components/spi_flash/spi_flash_chip_drivers.c", "D:/Espressif/v5.4.2/esp-idf/components/spi_flash/spi_flash_chip_generic.c", "D:/Espressif/v5.4.2/esp-idf/components/spi_flash/spi_flash_chip_issi.c", "D:/Espressif/v5.4.2/esp-idf/components/spi_flash/spi_flash_chip_mxic.c", "D:/Espressif/v5.4.2/esp-idf/components/spi_flash/spi_flash_chip_gd.c", "D:/Espressif/v5.4.2/esp-idf/components/spi_flash/spi_flash_chip_winbond.c", "D:/Espressif/v5.4.2/esp-idf/components/spi_flash/spi_flash_chip_boya.c", "D:/Espressif/v5.4.2/esp-idf/components/spi_flash/spi_flash_chip_mxic_opi.c", "D:/Espressif/v5.4.2/esp-idf/components/spi_flash/spi_flash_chip_th.c", "D:/Espressif/v5.4.2/esp-idf/components/spi_flash/memspi_host_driver.c", "D:/Espressif/v5.4.2/esp-idf/components/spi_flash/cache_utils.c", "D:/Espressif/v5.4.2/esp-idf/components/spi_flash/flash_mmap.c", "D:/Espressif/v5.4.2/esp-idf/components/spi_flash/flash_ops.c", "D:/Espressif/v5.4.2/esp-idf/components/spi_flash/spi_flash_wrap.c", "D:/Espressif/v5.4.2/esp-idf/components/spi_flash/esp_flash_api.c", "D:/Espressif/v5.4.2/esp-idf/components/spi_flash/esp_flash_spi_init.c", "D:/Espressif/v5.4.2/esp-idf/components/spi_flash/spi_flash_os_func_app.c", "D:/Espressif/v5.4.2/esp-idf/components/spi_flash/spi_flash_os_func_noos.c" ],
             "include_dirs": [ "include" ]
         },
@@ -1434,7 +1524,7 @@
             "priv_reqs": [ "bootloader_support", "esptool_py", "vfs" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/spiffs/libspiffs.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/spiffs/libspiffs.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/spiffs/spiffs_api.c", "D:/Espressif/v5.4.2/esp-idf/components/spiffs/spiffs/src/spiffs_cache.c", "D:/Espressif/v5.4.2/esp-idf/components/spiffs/spiffs/src/spiffs_check.c", "D:/Espressif/v5.4.2/esp-idf/components/spiffs/spiffs/src/spiffs_gc.c", "D:/Espressif/v5.4.2/esp-idf/components/spiffs/spiffs/src/spiffs_hydrogen.c", "D:/Espressif/v5.4.2/esp-idf/components/spiffs/spiffs/src/spiffs_nucleus.c", "D:/Espressif/v5.4.2/esp-idf/components/spiffs/esp_spiffs.c" ],
             "include_dirs": [ "include" ]
         },
@@ -1449,7 +1539,7 @@
             "priv_reqs": [],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/tcp_transport/libtcp_transport.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/tcp_transport/libtcp_transport.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/tcp_transport/transport.c", "D:/Espressif/v5.4.2/esp-idf/components/tcp_transport/transport_ssl.c", "D:/Espressif/v5.4.2/esp-idf/components/tcp_transport/transport_internal.c", "D:/Espressif/v5.4.2/esp-idf/components/tcp_transport/transport_socks_proxy.c", "D:/Espressif/v5.4.2/esp-idf/components/tcp_transport/transport_ws.c" ],
             "include_dirs": [ "include" ]
         },
@@ -1479,7 +1569,7 @@
             "priv_reqs": [],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/unity/libunity.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/unity/libunity.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/unity/unity/src/unity.c", "D:/Espressif/v5.4.2/esp-idf/components/unity/unity_compat.c", "D:/Espressif/v5.4.2/esp-idf/components/unity/unity_runner.c", "D:/Espressif/v5.4.2/esp-idf/components/unity/unity_utils_freertos.c", "D:/Espressif/v5.4.2/esp-idf/components/unity/unity_utils_cache.c", "D:/Espressif/v5.4.2/esp-idf/components/unity/unity_utils_memory.c", "D:/Espressif/v5.4.2/esp-idf/components/unity/unity_port_esp32.c", "D:/Espressif/v5.4.2/esp-idf/components/unity/port/esp/unity_utils_memory_esp.c" ],
             "include_dirs": [ "include", "unity/src" ]
         },
@@ -1509,7 +1599,7 @@
             "priv_reqs": [ "esp_timer", "esp_driver_uart", "esp_driver_usb_serial_jtag", "esp_vfs_console" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/vfs/libvfs.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/vfs/libvfs.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/vfs/vfs.c", "D:/Espressif/v5.4.2/esp-idf/components/vfs/vfs_eventfd.c", "D:/Espressif/v5.4.2/esp-idf/components/vfs/vfs_semihost.c", "D:/Espressif/v5.4.2/esp-idf/components/vfs/nullfs.c" ],
             "include_dirs": [ "include" ]
         },
@@ -1524,7 +1614,7 @@
             "priv_reqs": [ "spi_flash" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/wear_levelling/libwear_levelling.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/wear_levelling/libwear_levelling.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/wear_levelling/Partition.cpp", "D:/Espressif/v5.4.2/esp-idf/components/wear_levelling/SPI_Flash.cpp", "D:/Espressif/v5.4.2/esp-idf/components/wear_levelling/WL_Ext_Perf.cpp", "D:/Espressif/v5.4.2/esp-idf/components/wear_levelling/WL_Ext_Safe.cpp", "D:/Espressif/v5.4.2/esp-idf/components/wear_levelling/WL_Flash.cpp", "D:/Espressif/v5.4.2/esp-idf/components/wear_levelling/crc32.cpp", "D:/Espressif/v5.4.2/esp-idf/components/wear_levelling/wear_levelling.cpp" ],
             "include_dirs": [ "include" ]
         },
@@ -1539,7 +1629,7 @@
             "priv_reqs": [ "protobuf-c", "bt", "json", "esp_timer", "esp_wifi" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/wifi_provisioning/libwifi_provisioning.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/wifi_provisioning/libwifi_provisioning.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/wifi_provisioning/src/wifi_config.c", "D:/Espressif/v5.4.2/esp-idf/components/wifi_provisioning/src/wifi_scan.c", "D:/Espressif/v5.4.2/esp-idf/components/wifi_provisioning/src/wifi_ctrl.c", "D:/Espressif/v5.4.2/esp-idf/components/wifi_provisioning/src/manager.c", "D:/Espressif/v5.4.2/esp-idf/components/wifi_provisioning/src/handlers.c", "D:/Espressif/v5.4.2/esp-idf/components/wifi_provisioning/src/scheme_console.c", "D:/Espressif/v5.4.2/esp-idf/components/wifi_provisioning/proto-c/wifi_config.pb-c.c", "D:/Espressif/v5.4.2/esp-idf/components/wifi_provisioning/proto-c/wifi_scan.pb-c.c", "D:/Espressif/v5.4.2/esp-idf/components/wifi_provisioning/proto-c/wifi_ctrl.pb-c.c", "D:/Espressif/v5.4.2/esp-idf/components/wifi_provisioning/proto-c/wifi_constants.pb-c.c", "D:/Espressif/v5.4.2/esp-idf/components/wifi_provisioning/src/scheme_softap.c", "D:/Espressif/v5.4.2/esp-idf/components/wifi_provisioning/src/scheme_ble.c" ],
             "include_dirs": [ "include" ]
         },
@@ -1554,7 +1644,7 @@
             "priv_reqs": [ "mbedtls", "esp_timer", "esp_wifi" ],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "file": "C:/Users/Tolentino/Desktop/esp_hid_device/build/esp-idf/wpa_supplicant/libwpa_supplicant.a",
+            "file": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/esp-idf/wpa_supplicant/libwpa_supplicant.a",
             "sources": [ "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/port/os_xtensa.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/port/eloop.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/ap/ap_config.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/ap/ieee802_1x.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/ap/wpa_auth.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/ap/wpa_auth_ie.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/ap/pmksa_cache_auth.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/ap/sta_info.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/ap/ieee802_11.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/ap/comeback_token.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/common/sae.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/common/dragonfly.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/common/wpa_common.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/utils/bitfield.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/crypto/aes-siv.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/crypto/sha256-kdf.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/crypto/ccmp.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/crypto/aes-gcm.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/crypto/crypto_ops.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/crypto/dh_group5.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/crypto/dh_groups.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/crypto/ms_funcs.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/crypto/sha1-tlsprf.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/crypto/sha256-tlsprf.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/crypto/sha384-tlsprf.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/crypto/sha256-prf.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/crypto/sha1-prf.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/crypto/sha384-prf.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/crypto/md4-internal.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/crypto/sha1-tprf.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/eap_common/eap_wsc_common.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/common/ieee802_11_common.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/eap_peer/chap.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/eap_peer/eap.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/eap_peer/eap_common.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/eap_peer/eap_mschapv2.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/eap_peer/eap_peap.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/eap_peer/eap_peap_common.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/eap_peer/eap_tls.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/eap_peer/eap_tls_common.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/eap_peer/eap_ttls.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/eap_peer/mschapv2.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/eap_peer/eap_fast.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/eap_peer/eap_fast_common.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/eap_peer/eap_fast_pac.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/rsn_supp/pmksa_cache.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/rsn_supp/wpa.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/rsn_supp/wpa_ie.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/utils/base64.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/utils/common.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/utils/ext_password.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/utils/uuid.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/utils/wpabuf.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/utils/wpa_debug.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/utils/json.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/wps/wps.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/wps/wps_attr_build.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/wps/wps_attr_parse.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/wps/wps_attr_process.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/wps/wps_common.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/wps/wps_dev_attr.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/wps/wps_enrollee.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/common/sae_pk.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/esp_supplicant/src/esp_eap_client.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/esp_supplicant/src/esp_wpa2_api_port.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/esp_supplicant/src/esp_wpa_main.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/esp_supplicant/src/esp_wpas_glue.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/esp_supplicant/src/esp_common.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/esp_supplicant/src/esp_wps.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/esp_supplicant/src/esp_wpa3.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/esp_supplicant/src/esp_owe.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/esp_supplicant/src/esp_hostap.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/esp_supplicant/src/crypto/tls_mbedtls.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/esp_supplicant/src/crypto/crypto_mbedtls.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/esp_supplicant/src/crypto/crypto_mbedtls-bignum.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/esp_supplicant/src/crypto/crypto_mbedtls-rsa.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/esp_supplicant/src/crypto/crypto_mbedtls-ec.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/esp_supplicant/src/crypto/fastpsk.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/crypto/rc4.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/crypto/des-internal.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/esp_supplicant/src/crypto/fastpbkdf2.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/crypto/aes-wrap.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/crypto/aes-unwrap.c", "D:/Espressif/v5.4.2/esp-idf/components/wpa_supplicant/src/crypto/aes-ccm.c" ],
             "include_dirs": [ "include", "port/include", "esp_supplicant/include" ]
         }
@@ -2824,21 +2914,93 @@
             "alias": "idf::main",
             "target": "___idf_main",
             "prefix": "idf",
-            "dir": "C:/Users/Tolentino/Desktop/esp_hid_device/main",
+            "dir": "D:/Dropbox/blehid_pass_manager/esp_hid_device/main",
             "lib": "__idf_main",
-            "reqs": [ "esp_hid" ],
-            "priv_reqs": [ "nvs_flash" ],
+            "reqs": [ "esp_hid", "mbedtls", "hid_keyboard", "oled", "r503lib", "ble_battery" ],
+            "priv_reqs": [ "nvs_flash", "espressif__esp_lvgl_port", "lvgl__lvgl" ],
+            "managed_reqs": [],
+            "managed_priv_reqs": [ "espressif__esp_lvgl_port", "lvgl__lvgl" ],
+            "include_dirs": [ "." ]
+        },
+        "ble_battery": {
+            "alias": "idf::ble_battery",
+            "target": "___idf_ble_battery",
+            "prefix": "idf",
+            "dir": "D:/Dropbox/blehid_pass_manager/esp_hid_device/components/ble_battery",
+            "lib": "__idf_ble_battery",
+            "reqs": [ "driver", "esp_hid", "esp_adc" ],
+            "priv_reqs": [],
             "managed_reqs": [],
             "managed_priv_reqs": [],
             "include_dirs": [ "." ]
+        },
+        "hid_keyboard": {
+            "alias": "idf::hid_keyboard",
+            "target": "___idf_hid_keyboard",
+            "prefix": "idf",
+            "dir": "D:/Dropbox/blehid_pass_manager/esp_hid_device/components/hid_keyboard",
+            "lib": "__idf_hid_keyboard",
+            "reqs": [ "esp_hid", "ble_battery" ],
+            "priv_reqs": [],
+            "managed_reqs": [],
+            "managed_priv_reqs": [],
+            "include_dirs": [ "." ]
+        },
+        "oled": {
+            "alias": "idf::oled",
+            "target": "___idf_oled",
+            "prefix": "idf",
+            "dir": "D:/Dropbox/blehid_pass_manager/esp_hid_device/components/oled",
+            "lib": "__idf_oled",
+            "reqs": [ "driver", "esp_timer", "esp_lcd", "espressif__esp_lvgl_port", "main" ],
+            "priv_reqs": [],
+            "managed_reqs": [],
+            "managed_priv_reqs": [],
+            "include_dirs": [ "." ]
+        },
+        "r503lib": {
+            "alias": "idf::r503lib",
+            "target": "___idf_r503lib",
+            "prefix": "idf",
+            "dir": "D:/Dropbox/blehid_pass_manager/esp_hid_device/components/r503lib",
+            "lib": "__idf_r503lib",
+            "reqs": [ "driver", "esp_timer", "oled" ],
+            "priv_reqs": [],
+            "managed_reqs": [],
+            "managed_priv_reqs": [],
+            "include_dirs": [ "." ]
+        },
+        "espressif__esp_lvgl_port": {
+            "alias": "idf::espressif__esp_lvgl_port",
+            "target": "___idf_espressif__esp_lvgl_port",
+            "prefix": "idf",
+            "dir": "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/espressif__esp_lvgl_port",
+            "lib": "__idf_espressif__esp_lvgl_port",
+            "reqs": [ "esp_lcd", "lvgl__lvgl" ],
+            "priv_reqs": [ "esp_timer" ],
+            "managed_reqs": [ "lvgl__lvgl" ],
+            "managed_priv_reqs": [],
+            "include_dirs": [ "include" ]
+        },
+        "lvgl__lvgl": {
+            "alias": "idf::lvgl__lvgl",
+            "target": "___idf_lvgl__lvgl",
+            "prefix": "idf",
+            "dir": "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl",
+            "lib": "__idf_lvgl__lvgl",
+            "reqs": [],
+            "priv_reqs": [],
+            "managed_reqs": [],
+            "managed_priv_reqs": [],
+            "include_dirs": [ "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/src", "D:/Dropbox/blehid_pass_manager/esp_hid_device/managed_components/lvgl__lvgl/../" ]
         }
     },
     "debug_prefix_map_gdbinit": "",
     "gdbinit_files": {
-        "01_symbols": "C:/Users/Tolentino/Desktop/esp_hid_device/build/gdbinit/symbols",
-        "02_prefix_map": "C:/Users/Tolentino/Desktop/esp_hid_device/build/gdbinit/prefix_map",
-        "03_py_extensions": "C:/Users/Tolentino/Desktop/esp_hid_device/build/gdbinit/py_extensions",
-        "04_connect": "C:/Users/Tolentino/Desktop/esp_hid_device/build/gdbinit/connect"
+        "01_symbols": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/gdbinit/symbols",
+        "02_prefix_map": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/gdbinit/prefix_map",
+        "03_py_extensions": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/gdbinit/py_extensions",
+        "04_connect": "D:/Dropbox/blehid_pass_manager/esp_hid_device/build/gdbinit/connect"
     },
     "debug_arguments_openocd": "-f board/esp32c3-builtin.cfg"
 }

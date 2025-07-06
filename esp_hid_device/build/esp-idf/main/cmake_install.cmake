@@ -1,4 +1,4 @@
-# Install script for directory: C:/Users/Tolentino/Desktop/esp_hid_device/main
+# Install script for directory: D:/Dropbox/blehid_pass_manager/esp_hid_device/main
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
