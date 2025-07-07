@@ -73,13 +73,13 @@ void userdb_init_test_data() {
     uint8_t pswd[MAX_PASSWORD_LEN];
     size_t len;
 
-    userdb_encrypt_password("31831976", pswd, &len);
+    userdb_encrypt_password("123456789", pswd, &len);
     userdb_add("PIN Banca", pswd, len);
 
-    userdb_encrypt_password("Tnt53cts))", pswd, &len);
+    userdb_encrypt_password("XTA?=XXcts))", pswd, &len);
     userdb_add("CSR Tolentino", pswd, len);
 
-    userdb_encrypt_password("Machebelcastello0?", pswd, &len);
+    userdb_encrypt_password("Ndirondirondello?", pswd, &len);
     userdb_add("Windows11", pswd, len);
 
     // userdb_increment_usage(2);

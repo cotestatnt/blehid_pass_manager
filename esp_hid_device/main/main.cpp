@@ -117,6 +117,7 @@ extern "C" void app_main(void)
     ESP_LOGI(TAG, "BLE HID Keyboard initialized. Waiting for input...");
 
     ble_battery_init();
+    ble_battery_set_level(100);
 
     // Avvia il display OLED
     oled_init();
@@ -130,8 +131,16 @@ extern "C" void app_main(void)
     userdb_load();
     userdb_dump();
 
-    // Main loop libero
-    // while (1) {
-    //     vTaskDelay(pdMS_TO_TICKS(1000));
-    // }
+        
+    while(1) {
+        // Aggiorna il livello della batteria ogni 10 secondi
+        static TickType_t last_battery_update = 0;
+        TickType_t now = xTaskGetTickCount();
+        if (now - last_battery_update > pdMS_TO_TICKS(30000)) {
+            ble_battery_set_level(100);
+            ble_battery_notify_level(100);
+            last_battery_update = now;
+        }
+        vTaskDelay(pdMS_TO_TICKS(100));
+    }
 }
