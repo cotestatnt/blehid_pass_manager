@@ -23,7 +23,6 @@
 #include "host/ble_hs.h"
 #include "nimble/nimble_port.h"
 #include "nimble/nimble_port_freertos.h"
-
 #include "hid_gap.h"
 
 static const char *TAG = "HID_KEYBOARD";
@@ -321,7 +320,7 @@ static void ble_hidd_event_callback(void *handler_args, esp_event_base_t base, i
         break;
     }
     case ESP_HIDD_CONNECT_EVENT: {
-        ESP_LOGI(TAG, "CONNECT");
+        ESP_LOGI(TAG, "CONNECT");        
         break;
     }
     case ESP_HIDD_PROTOCOL_MODE_EVENT: {
@@ -390,6 +389,8 @@ void init_ble_keyboard(void)
     ESP_ERROR_CHECK( ret );
     ESP_LOGI(TAG, "setting ble device");
     ESP_ERROR_CHECK(esp_hidd_dev_init(&ble_hid_config, ESP_HID_TRANSPORT_BLE, ble_hidd_event_callback, &s_ble_hid_param.hid_dev));
+
+
 
     /* XXX Need to have template for store */
     ble_store_config_init();

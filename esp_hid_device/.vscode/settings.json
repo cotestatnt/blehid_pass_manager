@@ -22,6 +22,8 @@
     "esp_lvgl_port.h": "c",
     "shared_data.h": "c",
     "stdio.h": "c",
-    "oled.h": "c"
+    "oled.h": "c",
+    "hid_gap.h": "c",
+    "ble_battery.h": "c"
   }
 }

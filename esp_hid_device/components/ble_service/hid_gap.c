@@ -21,7 +21,6 @@
 
 #include "hid_gap.h"
 
-
 static const char *TAG = "ESP_HID_GAP";
 
 // uncomment to print all devices that were seen during a scan
@@ -38,13 +37,15 @@ static SemaphoreHandle_t ble_hidh_cb_semaphore = NULL;
 
 #define SIZEOF_ARRAY(a) (sizeof(a)/sizeof(*a))
 #define GATT_SVR_SVC_HID_UUID 0x1812
+#define GATT_SVR_SVC_BATTERY_UUID 0x180F
+
 
 extern void ble_hid_task_start_up(void);
 static struct ble_hs_adv_fields fields;
 
 esp_err_t esp_hid_ble_gap_adv_init(uint16_t appearance, const char *device_name)
 {
-    ble_uuid16_t *uuid16, *uuid16_1;
+    ble_uuid16_t *uuid16;
     /**
      *  Set the advertisement data included in our advertisements:
      *     o Flags (indicates advertisement type and other general info).
@@ -74,13 +75,20 @@ esp_err_t esp_hid_ble_gap_adv_init(uint16_t appearance, const char *device_name)
     fields.name_len = strlen(device_name);
     fields.name_is_complete = 1;
 
-    uuid16 = (ble_uuid16_t *)malloc(sizeof(ble_uuid16_t));
-    uuid16_1 = (ble_uuid16_t[]) {
-        BLE_UUID16_INIT(GATT_SVR_SVC_HID_UUID)
+    /* Include HID and Battery service UUIDs */
+    uuid16 = (ble_uuid16_t *)malloc(2 * sizeof(ble_uuid16_t));
+    if (uuid16 == NULL) {
+        ESP_LOGE(TAG, "Failed to allocate memory for UUIDs");
+        return ESP_ERR_NO_MEM;
+    }
+    
+    ble_uuid16_t uuid_list[2] = {
+        BLE_UUID16_INIT(GATT_SVR_SVC_HID_UUID),
+        BLE_UUID16_INIT(GATT_SVR_SVC_BATTERY_UUID)
     };
-    memcpy(uuid16, uuid16_1, sizeof(ble_uuid16_t));
+    memcpy(uuid16, uuid_list, 2 * sizeof(ble_uuid16_t));
     fields.uuids16 = uuid16;
-    fields.num_uuids16 = 1;
+    fields.num_uuids16 = 2;
     fields.uuids16_is_complete = 1;
 
     /* Initialize the security configuration */
@@ -102,17 +110,10 @@ nimble_hid_gap_event(struct ble_gap_event *event, void *arg)
     switch (event->type) {
     case BLE_GAP_EVENT_CONNECT:
         /* A new connection was established or a connection attempt failed. */
-        ESP_LOGI(TAG, "connection %s; status=%d",
-                event->connect.status == 0 ? "established" : "failed",
-                event->connect.status);
-        
-        ble_battery_set_level(100);
-        ble_battery_notify_level(100); 
-        return 0;
-        break;
+        ESP_LOGI(TAG, "connection %s; status=%d", event->connect.status == 0 ? "established" : "failed", event->connect.status);                  
+        return 0;        
     case BLE_GAP_EVENT_DISCONNECT:
-        ESP_LOGI(TAG, "disconnect; reason=%d", event->disconnect.reason);
-
+        ESP_LOGI(TAG, "disconnect; reason=%d", event->disconnect.reason);        
         return 0;
     case BLE_GAP_EVENT_CONN_UPDATE:
         /* The central has updated the connection parameters. */
@@ -127,14 +128,14 @@ nimble_hid_gap_event(struct ble_gap_event *event, void *arg)
 
     case BLE_GAP_EVENT_SUBSCRIBE:
         ESP_LOGI(TAG, "subscribe event; conn_handle=%d attr_handle=%d "
-                "reason=%d prevn=%d curn=%d previ=%d curi=%d\n",
-                event->subscribe.conn_handle,
-                event->subscribe.attr_handle,
-                event->subscribe.reason,
-                event->subscribe.prev_notify,
-                event->subscribe.cur_notify,
-                event->subscribe.prev_indicate,
-                event->subscribe.cur_indicate);
+            "reason=%d prevn=%d curn=%d previ=%d curi=%d",
+            event->subscribe.conn_handle,
+            event->subscribe.attr_handle,
+            event->subscribe.reason,
+            event->subscribe.prev_notify,
+            event->subscribe.cur_notify,
+            event->subscribe.prev_indicate,
+            event->subscribe.cur_indicate);
         return 0;
 
     case BLE_GAP_EVENT_MTU:

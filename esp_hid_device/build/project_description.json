@@ -1,7 +1,7 @@
 {
     "version":            "1.2",
     "project_name":       "esp_hid_device",
-    "project_version":    "b81f8f5-dirty",
+    "project_version":    "7a55448-dirty",
     "project_path":       "C:/Users/BAN_TAG/Documents/Arduino/generated_examples/blehid_keyboard/blehid_pass_manager/esp_hid_device",
     "idf_path":           "C:/Espressif/v5.4.2/esp-idf",
     "build_dir":          "C:/Users/BAN_TAG/Documents/Arduino/generated_examples/blehid_keyboard/blehid_pass_manager/esp_hid_device/build",
@@ -70,7 +70,7 @@
             "managed_reqs": [],
             "managed_priv_reqs": [],
             "file": "C:/Users/BAN_TAG/Documents/Arduino/generated_examples/blehid_keyboard/blehid_pass_manager/esp_hid_device/build/esp-idf/ble_service/libble_service.a",
-            "sources": [ "C:/Users/BAN_TAG/Documents/Arduino/generated_examples/blehid_keyboard/blehid_pass_manager/esp_hid_device/components/ble_service/hid_keyboard.c", "C:/Users/BAN_TAG/Documents/Arduino/generated_examples/blehid_keyboard/blehid_pass_manager/esp_hid_device/components/ble_service/hid_gap.c", "C:/Users/BAN_TAG/Documents/Arduino/generated_examples/blehid_keyboard/blehid_pass_manager/esp_hid_device/components/ble_service/ble_battery.c" ],
+            "sources": [ "C:/Users/BAN_TAG/Documents/Arduino/generated_examples/blehid_keyboard/blehid_pass_manager/esp_hid_device/components/ble_service/hid_keyboard.c", "C:/Users/BAN_TAG/Documents/Arduino/generated_examples/blehid_keyboard/blehid_pass_manager/esp_hid_device/components/ble_service/hid_gap.c" ],
             "include_dirs": [ "." ]
         },
         "bootloader": {

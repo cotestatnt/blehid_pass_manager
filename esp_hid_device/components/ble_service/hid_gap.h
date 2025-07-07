@@ -18,7 +18,6 @@
 #include "esp_bt.h"
 #include "esp_hid_common.h"
 
-#include "ble_battery.h"
 
 #ifdef __cplusplus
 extern "C" {

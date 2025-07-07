@@ -14,5 +14,5 @@ idf_component_register(
     PRIV_REQUIRES nvs_flash
 )
 
-idf_build_set_property(COMPILE_OPTIONS "-Wno-missing-field-initializers" APPEND)
+idf_build_set_property(COMPILE_OPTIONS "-Wno-missing-field-initializers" "-Wno-deprecated-enum-enum-conversion" APPEND)
 
