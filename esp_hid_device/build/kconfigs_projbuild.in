@@ -1,6 +1,0 @@
-source "C:/Espressif/v5.4.2/esp-idf/components/bootloader/Kconfig.projbuild"
-source "C:/Espressif/v5.4.2/esp-idf/components/esp_app_format/Kconfig.projbuild"
-source "C:/Espressif/v5.4.2/esp-idf/components/esp_rom/Kconfig.projbuild"
-source "C:/Espressif/v5.4.2/esp-idf/components/esptool_py/Kconfig.projbuild"
-source "C:/Espressif/v5.4.2/esp-idf/components/partition_table/Kconfig.projbuild"
-source "C:/Users/BAN_TAG/Documents/Arduino/generated_examples/blehid_keyboard/blehid_pass_manager/esp_hid_device/main/Kconfig.projbuild"
