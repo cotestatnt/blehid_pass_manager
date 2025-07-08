@@ -7,6 +7,7 @@
 #include "hidd_le_prf_int.h"
 #include <string.h>
 #include "esp_log.h"
+#include "shared_data.h"
 
 /// characteristic presentation information
 struct prf_char_pres_fmt
@@ -103,6 +104,70 @@ enum
     BAS_IDX_NB,
 };
 
+enum {
+    USER_MGMT_IDX_SVC,
+    USER_MGMT_IDX_CHAR,
+    USER_MGMT_IDX_VAL,
+    USER_MGMT_IDX_CCC,
+    USER_MGMT_IDX_NB,
+};
+
+// User Management Service UUID and Characteristic UUID
+#define USER_MGMT_SERVICE_UUID      0xFFF0
+#define USER_MGMT_CHAR_UUID         0xFFF1
+
+uint16_t user_mgmt_handle[USER_MGMT_IDX_NB];
+static const uint16_t user_mgmt_svc = USER_MGMT_SERVICE_UUID;   
+static const uint16_t user_mgmt_char = USER_MGMT_CHAR_UUID;
+
+// Variabili di stato per l'invio della lista utenti al client BLE
+static int user_mgmt_list_index = 0;
+static uint16_t user_mgmt_conn_id = 0;
+
+#define USER_MGMT_PAYLOAD_LEN  68  // (cmd + user + ':' + password)
+typedef struct {
+    uint8_t cmd;                         // tipo comando
+    char user[33];       // username (null-terminated o fixed)
+    char password[33];   // password (null-terminated o fixed)
+} user_mgmt_payload_t;
+
+static uint8_t user_mgmt_value[USER_MGMT_PAYLOAD_LEN] = {0};
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+void send_next_user_entry(void) {
+    user_mgmt_payload_t payload = {0};
+    payload.cmd = 0x04;
+
+    // Cerca la prossima entry valida
+    while (user_mgmt_list_index < MAX_USERS) {
+        int i = user_mgmt_list_index++;
+        char plain[128];
+        userdb_decrypt_password(user_list[i].password_enc, user_list[i].password_len, plain);
+
+        strcpy(payload.user, user_list[i].label);
+        strcpy(payload.password, plain);
+        break;
+    }
+
+    // Se non abbiamo trovato entry valide, invia entry "vuota"
+    if (payload.user[0] == '\0') {
+        ESP_LOGI(HID_LE_PRF_TAG, "Fine lista utenti");
+    }
+
+    esp_ble_gatts_send_indicate(
+        hidd_le_env.gatt_if,
+        user_mgmt_conn_id,
+        user_mgmt_handle[USER_MGMT_IDX_VAL],
+        sizeof(payload),
+        (uint8_t *)&payload,
+        false  // false = notification, true = indication (usa true se vuoi conferma dal client)
+    );
+}
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #define HI_UINT16(a) (((a) >> 8) & 0xFF)
 #define LO_UINT16(a) ((a) & 0xFF)
 #define PROFILE_NUM 1
@@ -179,13 +244,40 @@ static const uint8_t char_prop_read_write_write_nr = ESP_GATT_CHAR_PROP_BIT_READ
 
 /// battary Service
 static const uint16_t battary_svc = ESP_GATT_UUID_BATTERY_SERVICE_SVC;
-
 static const uint16_t bat_lev_uuid = ESP_GATT_UUID_BATTERY_LEVEL;
 static const uint8_t bat_lev_ccc[2] = {0x00, 0x00};
 static const uint16_t char_format_uuid = ESP_GATT_UUID_CHAR_PRESENT_FORMAT;
-
 static uint8_t battary_lev = 50;
+
+
+
 /// Full HRS Database Description - Used to add attributes into the database
+static const esp_gatts_attr_db_t user_mgmt_att_db[USER_MGMT_IDX_NB] = {
+    // User management Service Declaration
+    [USER_MGMT_IDX_SVC] = {
+        {ESP_GATT_AUTO_RSP},
+        {ESP_UUID_LEN_16, (uint8_t *)&primary_service_uuid,
+        ESP_GATT_PERM_READ, sizeof(uint16_t), sizeof(user_mgmt_svc), (uint8_t *)&user_mgmt_svc}
+    },
+    // Characteristic Declaration
+    [USER_MGMT_IDX_CHAR] = {
+        {ESP_GATT_AUTO_RSP},
+        {ESP_UUID_LEN_16, (uint8_t *)&character_declaration_uuid,
+         ESP_GATT_PERM_READ, CHAR_DECLARATION_SIZE, CHAR_DECLARATION_SIZE, (uint8_t *)&char_prop_read_write_notify}
+    },
+    // Characteristic Value
+    [USER_MGMT_IDX_VAL] = {
+        {ESP_GATT_AUTO_RSP},
+        {ESP_UUID_LEN_16, (uint8_t *)&user_mgmt_char,
+        ESP_GATT_PERM_READ | ESP_GATT_PERM_WRITE, USER_MGMT_PAYLOAD_LEN, USER_MGMT_PAYLOAD_LEN, user_mgmt_value}
+    },
+    [USER_MGMT_IDX_CCC] = {
+        {ESP_GATT_AUTO_RSP},
+        {ESP_UUID_LEN_16, (uint8_t *)&character_client_config_uuid,
+        ESP_GATT_PERM_READ | ESP_GATT_PERM_WRITE, sizeof(uint16_t), sizeof(uint16_t), (uint8_t[]){0x00, 0x00}}
+    },
+};
+/// Full BAS Database Description - Used to add attributes into the database
 static const esp_gatts_attr_db_t bas_att_db[BAS_IDX_NB] =
     {
         // Battary Service Declaration
@@ -224,6 +316,8 @@ static const esp_gatts_attr_db_t bas_att_db[BAS_IDX_NB] =
         },
 };
 
+// HID Device GATT Database
+// This database is used to define the attributes of the HID Device profile.
 static esp_gatts_attr_db_t hidd_le_gatt_db[HIDD_LE_IDX_NB] = {
     // HID Service Declaration
     [HIDD_LE_IDX_SVC] = {
@@ -427,6 +521,22 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,
             cb_param.led_write.data = param->write.value;
             (hidd_le_env.hidd_cb)(ESP_HIDD_EVENT_BLE_LED_REPORT_WRITE_EVT, &cb_param);
         }
+
+        if (param->write.handle == user_mgmt_handle[USER_MGMT_IDX_VAL]) {
+            // Gestisci la scrittura sulla caratteristica custom
+            // Esempio: 
+            // 0x01 per inserimento, 0x02 per modifica, 0x03 per cancellazione, 0x04 per lista completa
+            // <0x01> <username>:<password>
+            printf("Received write on custom characteristic: %.*s\n",  param->write.len, param->write.value);
+            if (param->write.len < 1) break;
+            uint8_t cmd = param->write.value[0];
+            if (cmd == 0x04) {
+                user_mgmt_conn_id = param->write.conn_id;
+                send_next_user_entry();
+                break;
+            }
+        }
+
 #if (SUPPORT_REPORT_VENDOR == true)
         if (param->write.handle == hidd_le_env.hidd_inst.att_tbl[HIDD_LE_IDX_REPORT_VENDOR_OUT_VAL] &&
             hidd_le_env.hidd_cb != NULL)
@@ -461,6 +571,15 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,
             hid_add_id_tbl();
             esp_ble_gatts_start_service(hidd_le_env.hidd_inst.att_tbl[HIDD_LE_IDX_SVC]);
         }
+        // --- SERVIZIO CUSTOM USER MANAGEMENT  ---
+        if (param->add_attr_tab.num_handle == USER_MGMT_IDX_NB &&
+            param->add_attr_tab.svc_uuid.uuid.uuid16 == USER_MGMT_SERVICE_UUID &&
+            param->add_attr_tab.status == ESP_GATT_OK)
+        {
+            memcpy(user_mgmt_handle, param->add_attr_tab.handles, USER_MGMT_IDX_NB * sizeof(uint16_t));
+            ESP_LOGI(HID_LE_PRF_TAG, "UserMgmt svc handle = %x", user_mgmt_handle[USER_MGMT_IDX_SVC]);
+            esp_ble_gatts_start_service(user_mgmt_handle[USER_MGMT_IDX_SVC]);
+        }
         else
         {
             esp_ble_gatts_start_service(param->add_attr_tab.handles[0]);
@@ -478,6 +597,7 @@ void hidd_le_create_service(esp_gatt_if_t gatts_if)
     /* Here should added the battery service first, because the hid service should include the battery service.
        After finish to added the battery service then can added the hid service. */
     esp_ble_gatts_create_attr_tab(bas_att_db, gatts_if, BAS_IDX_NB, 0);
+    esp_ble_gatts_create_attr_tab(user_mgmt_att_db, gatts_if, USER_MGMT_IDX_NB, 0);
 }
 
 void hidd_le_init(void)

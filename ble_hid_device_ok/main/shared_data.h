@@ -21,7 +21,7 @@
 #include <stddef.h>
 
 #define MAX_LABEL_LEN    32
-#define MAX_PASSWORD_LEN 64
+#define MAX_PASSWORD_LEN 32
 #define MAX_USERS        16
 
 typedef struct {

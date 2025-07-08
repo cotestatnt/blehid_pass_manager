@@ -4,7 +4,7 @@ idf_component_register( SRCS
     "hid_device_le_prf.c" 
     "ble_device_main.c"
     INCLUDE_DIRS "."
-    REQUIRES esp_hid 
+    REQUIRES esp_hid main
     PRIV_REQUIRES nvs_flash
 )
 
