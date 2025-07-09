@@ -5,7 +5,7 @@
  */
 
 #include "esp_hidd_prf_api.h"
-#include "hidd_le_prf_int.h"
+#include "hid_device_le_prf.h"
 #include "hid_dev.h"
 #include <stdlib.h>
 #include <string.h>
@@ -29,12 +29,14 @@ esp_err_t esp_hidd_register_callbacks(esp_hidd_event_cb_t callbacks)
     }
 
     if((hidd_status = hidd_register_cb()) != ESP_OK) {
+        ESP_LOGE(HID_LE_PRF_TAG, "Failed to register HID device profile callback, status: %d", hidd_status);
         return hidd_status;
     }
 
     esp_ble_gatts_app_register(BATTRAY_APP_ID);
 
     if((hidd_status = esp_ble_gatts_app_register(HIDD_APP_ID)) != ESP_OK) {
+        ESP_LOGE(HID_LE_PRF_TAG, "Failed to register HID device profile app, status: %d", hidd_status);
         return hidd_status;
     }
 

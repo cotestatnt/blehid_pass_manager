@@ -4,10 +4,11 @@
  * SPDX-License-Identifier: Unlicense OR CC0-1.0
  */
 
-#include "hidd_le_prf_int.h"
+#include "hid_device_le_prf.h"
 #include <string.h>
 #include "esp_log.h"
-#include "shared_data.h"
+
+#include "user_list.h"
 
 /// characteristic presentation information
 struct prf_char_pres_fmt
@@ -104,69 +105,21 @@ enum
     BAS_IDX_NB,
 };
 
-enum {
-    USER_MGMT_IDX_SVC,
-    USER_MGMT_IDX_CHAR,
-    USER_MGMT_IDX_VAL,
-    USER_MGMT_IDX_CCC,
-    USER_MGMT_IDX_NB,
-};
+
 
 // User Management Service UUID and Characteristic UUID
 #define USER_MGMT_SERVICE_UUID      0xFFF0
 #define USER_MGMT_CHAR_UUID         0xFFF1
 
-uint16_t user_mgmt_handle[USER_MGMT_IDX_NB];
 static const uint16_t user_mgmt_svc = USER_MGMT_SERVICE_UUID;   
 static const uint16_t user_mgmt_char = USER_MGMT_CHAR_UUID;
 
-// Variabili di stato per l'invio della lista utenti al client BLE
-static int user_mgmt_list_index = 0;
-static uint16_t user_mgmt_conn_id = 0;
+uint16_t user_mgmt_handle[USER_MGMT_IDX_NB];
+uint16_t user_mgmt_conn_id = 0;
+uint8_t user_mgmt_value[USER_MGMT_PAYLOAD_LEN] = {0};
+int user_list_index = 0;
 
-#define USER_MGMT_PAYLOAD_LEN  68  // (cmd + user + ':' + password)
-typedef struct {
-    uint8_t cmd;                         // tipo comando
-    char user[33];       // username (null-terminated o fixed)
-    char password[33];   // password (null-terminated o fixed)
-} user_mgmt_payload_t;
-
-static uint8_t user_mgmt_value[USER_MGMT_PAYLOAD_LEN] = {0};
-
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-void send_next_user_entry(void) {
-    user_mgmt_payload_t payload = {0};
-    payload.cmd = 0x04;
-
-    // Cerca la prossima entry valida
-    while (user_mgmt_list_index < MAX_USERS) {
-        int i = user_mgmt_list_index++;
-        char plain[128];
-        userdb_decrypt_password(user_list[i].password_enc, user_list[i].password_len, plain);
-
-        strcpy(payload.user, user_list[i].label);
-        strcpy(payload.password, plain);
-        break;
-    }
-
-    // Se non abbiamo trovato entry valide, invia entry "vuota"
-    if (payload.user[0] == '\0') {
-        ESP_LOGI(HID_LE_PRF_TAG, "Fine lista utenti");
-    }
-
-    esp_ble_gatts_send_indicate(
-        hidd_le_env.gatt_if,
-        user_mgmt_conn_id,
-        user_mgmt_handle[USER_MGMT_IDX_VAL],
-        sizeof(payload),
-        (uint8_t *)&payload,
-        false  // false = notification, true = indication (usa true se vuoi conferma dal client)
-    );
-}
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////
 
 #define HI_UINT16(a) (((a) >> 8) & 0xFF)
 #define LO_UINT16(a) ((a) & 0xFF)
@@ -449,13 +402,10 @@ static esp_gatts_attr_db_t hidd_le_gatt_db[HIDD_LE_IDX_NB] = {
 
 static void hid_add_id_tbl(void);
 
-void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,
-                         esp_ble_gatts_cb_param_t *param)
+void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_ble_gatts_cb_param_t *param)
 {
-    switch (event)
-    {
-    case ESP_GATTS_REG_EVT:
-    {
+    switch (event) {
+    case ESP_GATTS_REG_EVT: {
         esp_ble_gap_config_local_icon(ESP_BLE_APPEARANCE_GENERIC_HID);
         esp_hidd_cb_param_t hidd_param;
         hidd_param.init_finish.state = param->reg.status;
@@ -640,7 +590,7 @@ bool hidd_clcb_dealloc(uint16_t conn_id)
     return false;
 }
 
-static struct gatts_profile_inst heart_rate_profile_tab[PROFILE_NUM] = {
+static struct gatts_profile_inst hid_profile_tab [PROFILE_NUM] = {
     [PROFILE_APP_IDX] = {
         .gatts_cb = esp_hidd_prf_cb_hdl,
         .gatts_if = ESP_GATT_IF_NONE, /* Not get the gatt_if, so initial is ESP_GATT_IF_NONE */
@@ -648,40 +598,34 @@ static struct gatts_profile_inst heart_rate_profile_tab[PROFILE_NUM] = {
 
 };
 
-static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,
-                                esp_ble_gatts_cb_param_t *param)
+static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param)
 {
+    if (event == ESP_GATTS_MTU_EVT) {
+        ESP_LOGI(HID_LE_PRF_TAG, "ESP_GATTS_MTU_EVT, MTU %d", param->mtu.mtu);        
+    }
+
     /* If event is register event, store the gatts_if for each profile */
-    if (event == ESP_GATTS_REG_EVT)
-    {
-        if (param->reg.status == ESP_GATT_OK)
-        {
-            heart_rate_profile_tab[PROFILE_APP_IDX].gatts_if = gatts_if;
+    if (event == ESP_GATTS_REG_EVT) {
+        if (param->reg.status == ESP_GATT_OK) {
+            hid_profile_tab [PROFILE_APP_IDX].gatts_if = gatts_if;
+            ESP_LOGI(HID_LE_PRF_TAG, "Reg app success, app_id %04x, gatts_if %d", param->reg.app_id, gatts_if);
         }
         else
         {
-            ESP_LOGI(HID_LE_PRF_TAG, "Reg app failed, app_id %04x, status %d",
-                     param->reg.app_id,
-                     param->reg.status);
+            ESP_LOGI(HID_LE_PRF_TAG, "Reg app failed, app_id %04x, status %d", param->reg.app_id, param->reg.status);
             return;
         }
     }
-
-    do
-    {
-        int idx;
-        for (idx = 0; idx < PROFILE_NUM; idx++)
-        {
-            if (gatts_if == ESP_GATT_IF_NONE || /* ESP_GATT_IF_NONE, not specify a certain gatt_if, need to call every profile cb function */
-                gatts_if == heart_rate_profile_tab[idx].gatts_if)
-            {
-                if (heart_rate_profile_tab[idx].gatts_cb)
-                {
-                    heart_rate_profile_tab[idx].gatts_cb(event, gatts_if, param);
-                }
+    
+    for (int idx = 0; idx < PROFILE_NUM; idx++) {
+        /* ESP_GATT_IF_NONE, not specify a certain gatt_if, need to call every profile cb function */
+        if (gatts_if == ESP_GATT_IF_NONE || gatts_if == hid_profile_tab[idx].gatts_if)   {
+            if (hid_profile_tab[idx].gatts_cb) {
+                hid_profile_tab[idx].gatts_cb(event, gatts_if, param);
             }
         }
-    } while (0);
+    }
+    
 }
 
 esp_err_t hidd_register_cb(void)

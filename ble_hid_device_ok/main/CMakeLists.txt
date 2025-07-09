@@ -1,6 +1,5 @@
 set(srcs     
-    "main.cpp"
-    "shared_data.c"
+    "main.cpp"    
 )
 
 set(include_dirs 
@@ -10,7 +9,7 @@ set(include_dirs
 idf_component_register(
     SRCS "${srcs}"
     INCLUDE_DIRS "${include_dirs}"
-    REQUIRES esp_hid mbedtls ble_device oled r503lib
+    REQUIRES esp_hid mbedtls ble_device oled r503lib user_list
     PRIV_REQUIRES nvs_flash
 )
 

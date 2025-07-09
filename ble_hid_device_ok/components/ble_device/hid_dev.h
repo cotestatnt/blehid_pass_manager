@@ -7,7 +7,7 @@
 #ifndef HID_DEV_H__
 #define HID_DEV_H__
 
-#include "hidd_le_prf_int.h"
+#include "hid_device_le_prf.h"
 
 
 #ifdef __cplusplus

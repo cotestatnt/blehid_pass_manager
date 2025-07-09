@@ -59,6 +59,9 @@ void userdb_init_test_data();
 void userdb_dump();
 void userdb_clear();
 
+// Funzioni per l'invio della lista utenti al client BLE
+void send_next_user_entry();
+
 #ifdef __cplusplus
 }
 #endif

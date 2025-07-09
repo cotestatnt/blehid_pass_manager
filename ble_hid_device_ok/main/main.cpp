@@ -16,9 +16,9 @@
 #include "nvs_flash.h"
 #include "driver/gpio.h"
 
-
+// Local components
 #include "ble_device_main.h"
-#include "shared_data.h"
+#include "user_list.h"
 #include "r503.h"
 #include "oled.h"
 

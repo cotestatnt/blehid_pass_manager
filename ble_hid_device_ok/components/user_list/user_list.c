@@ -4,11 +4,11 @@
 #include "esp_log.h"
 #include "nvs_flash.h"
 #include "nvs.h"
-
 #include "esp_hmac.h"
 #include "mbedtls/aes.h"
 
-#include "shared_data.h"
+#include "hid_device_le_prf.h"
+#include "user_list.h"
 
 user_entry_t user_list[MAX_USERS]; // Lista degli account
 size_t user_count = 0;             // Numero totale degli account memorizzati
@@ -220,3 +220,67 @@ void userdb_clear() {
     nvs_close(handle);
     ESP_LOGI("userdb", "Database utenti cancellato");
 }
+
+
+// Invia il prossimo account all'utente connesso
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+void send_password(uint8_t index) {
+    user_mgmt_payload_t payload = {0};
+    payload.cmd = 0x05;
+    payload.index = index;
+
+    char plain[128];
+    userdb_decrypt_password(user_list[index].password_enc, user_list[index].password_len, plain);        
+    strcpy(payload.data, plain);        
+
+    ESP_LOGI(TAG, "User password: %s\n", plain);
+   
+    esp_ble_gatts_send_indicate(
+        hidd_le_env.gatt_if,
+        user_mgmt_conn_id,
+        user_mgmt_handle[USER_MGMT_IDX_VAL],
+        sizeof(payload),
+        (uint8_t *)&payload,
+        false
+    );
+}
+
+void send_next_user_entry(void) {
+    user_mgmt_payload_t payload = {0};
+    payload.cmd = 0x04;
+    payload.index = user_list_index;
+
+    // Cerca la prossima entry valida
+    if (user_list_index < MAX_USERS) {
+        strcpy(payload.data, user_list[user_list_index].label);        
+    }
+
+    // Se non abbiamo trovato entry valide, invia entry "vuota"
+    if (payload.data[0] == '\0') {
+        ESP_LOGI(TAG, "Fine lista utenti");
+        user_list_index = 0; // Reset index per la prossima richiesta
+    }
+
+    esp_ble_gatts_send_indicate(
+        hidd_le_env.gatt_if,
+        user_mgmt_conn_id,
+        user_mgmt_handle[USER_MGMT_IDX_VAL],
+        sizeof(payload),
+        (uint8_t *)&payload,
+        false  // false = notification, true = indication (usa true se vuoi conferma dal client)
+    );
+
+    // Invia la password solo se l'utente è stato trovato
+    if (payload.data[0] != '\0') {
+        send_password(user_list_index);
+    }
+
+    // Incrementa l'indice per la prossima richiesta
+    user_list_index++;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////

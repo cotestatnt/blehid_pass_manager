@@ -1,5 +1,6 @@
 #include "r503.h"
-#include "shared_data.h"
+#include "user_list.h"
+
 #include "ble_device_main.h"
 
 static const char *TAG = "FingerprintTask";

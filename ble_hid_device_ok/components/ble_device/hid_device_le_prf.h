@@ -91,7 +91,6 @@
 #define HID_REPORT_TYPE_OUTPUT      2
 #define HID_REPORT_TYPE_FEATURE     3
 
-
 /// HID Service Attributes Indexes
 enum {
     HIDD_LE_IDX_SVC,
@@ -313,6 +312,28 @@ typedef struct {
 extern hidd_le_env_t hidd_le_env;
 extern uint8_t hidProtocolMode;
 
+
+// Variabili di stato per l'invio della lista utenti al client BLE
+enum {
+    USER_MGMT_IDX_SVC,
+    USER_MGMT_IDX_CHAR,
+    USER_MGMT_IDX_VAL,
+    USER_MGMT_IDX_CCC,
+    USER_MGMT_IDX_NB,
+};
+
+#define USER_MGMT_PAYLOAD_LEN  20 // <cmd><index><user> | <cmd><index><password>
+typedef struct {
+    uint8_t cmd;         // tipo comando
+    uint8_t index;       // indice dell'elemento
+    char data[18];       // username or password
+} user_mgmt_payload_t;
+
+
+extern int user_list_index;
+extern uint16_t user_mgmt_conn_id;
+extern uint16_t user_mgmt_handle[USER_MGMT_IDX_NB];
+extern uint8_t user_mgmt_value[USER_MGMT_PAYLOAD_LEN];
 
 void hidd_clcb_alloc (uint16_t conn_id, esp_bd_addr_t bda);
 
