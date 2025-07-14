@@ -12,6 +12,7 @@
 #include "freertos/task.h"
 #include "freertos/event_groups.h"
 #include "esp_system.h"
+#include "esp_random.h"
 #include "esp_wifi.h"
 #include "esp_event.h"
 #include "esp_log.h"
@@ -27,6 +28,8 @@
 #include "esp_bt_main.h"
 #include "esp_bt_device.h"
 #include "hid_dev.h"
+
+#include "oled.h"
 
 #define HID_DEMO_TAG "HID_DEMO"
 
@@ -49,6 +52,7 @@
 
 static uint16_t hid_conn_id = 0;
 static bool sec_conn = false;
+uint32_t passkey;
 
 #define CHAR_DECLARATION_SIZE   (sizeof(uint8_t))
 #define CASE(a, b, c)  case a: buffer[0] = b; buffer[2] = c; break;
@@ -109,8 +113,7 @@ static void show_bonded_devices(void)
     ESP_LOGI(HID_DEMO_TAG, "Bonded devices number %d", dev_num);
     for (int i = 0; i < dev_num; i++) {
         ESP_LOGI(HID_DEMO_TAG, "[%u] addr_type %u, addr "ESP_BD_ADDR_STR"",
-                 i, dev_list[i].bd_addr_type, ESP_BD_ADDR_HEX(dev_list[i].bd_addr));
-        // esp_ble_remove_bond_device(dev_list[i].bd_addr); 
+                 i, dev_list[i].bd_addr_type, ESP_BD_ADDR_HEX(dev_list[i].bd_addr));        
     }
     free(dev_list);
 }
@@ -209,6 +212,9 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
         case ESP_GAP_BLE_PASSKEY_NOTIF_EVT:  ///the app will receive this evt when the IO  has Output capability and the peer device IO has Input capability.
             ///show the passkey number to the user to input it in the peer device.
             ESP_LOGI(HID_DEMO_TAG, "Passkey notify, passkey %06" PRIu32, param->ble_security.key_notif.passkey);
+            char passkey_str[7];
+            snprintf(passkey_str, sizeof(passkey_str), "%06" PRIu32, passkey); 
+            oled_write_text(passkey_str);
             break;
         case ESP_GAP_BLE_AUTH_CMPL_EVT: {
             esp_bd_addr_t bd_addr;
@@ -220,6 +226,7 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
                 ESP_LOGI(HID_DEMO_TAG, "Pairing successfully, auth_mode ESP_LE_AUTH_REQ_MITM");
             }
             show_bonded_devices();
+            oled_write_text("BLE PassMan");            
             break;
         }
         case ESP_GAP_BLE_REMOVE_BOND_DEV_COMPLETE_EVT: {
@@ -457,7 +464,10 @@ void ble_device_init(void)
     uint8_t init_key = ESP_BLE_ENC_KEY_MASK | ESP_BLE_ID_KEY_MASK;
     uint8_t rsp_key = ESP_BLE_ENC_KEY_MASK | ESP_BLE_ID_KEY_MASK;
     //set static passkey
-    uint32_t passkey = 123456;
+    // uint32_t passkey = 123456;
+    
+    // Genera una passkey random (tra 000000 e 999999)
+    passkey = esp_random() % 1000000;
     uint8_t auth_option = ESP_BLE_ONLY_ACCEPT_SPECIFIED_AUTH_DISABLE;
     uint8_t oob_support = ESP_BLE_OOB_DISABLE;
     esp_ble_gap_set_security_param(ESP_BLE_SM_SET_STATIC_PASSKEY, &passkey, sizeof(uint32_t));

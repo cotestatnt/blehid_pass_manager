@@ -9,6 +9,8 @@ extern "C" {
 void send_string(const char* str);
 void ble_device_init(void);
 
+extern uint32_t passkey;
+
 #ifdef __cplusplus
 }
 #endif

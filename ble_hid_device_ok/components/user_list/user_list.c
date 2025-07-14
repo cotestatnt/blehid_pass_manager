@@ -248,6 +248,7 @@ void send_password(uint8_t index) {
 }
 
 void send_next_user_entry(void) {
+
     user_mgmt_payload_t payload = {0};
     payload.cmd = 0x04;
     payload.index = user_list_index;
@@ -255,12 +256,6 @@ void send_next_user_entry(void) {
     // Cerca la prossima entry valida
     if (user_list_index < MAX_USERS) {
         strcpy(payload.data, user_list[user_list_index].label);        
-    }
-
-    // Se non abbiamo trovato entry valide, invia entry "vuota"
-    if (payload.data[0] == '\0') {
-        ESP_LOGI(TAG, "Fine lista utenti");
-        user_list_index = 0; // Reset index per la prossima richiesta
     }
 
     esp_ble_gatts_send_indicate(
@@ -273,7 +268,12 @@ void send_next_user_entry(void) {
     );
 
     // Invia la password solo se l'utente è stato trovato
-    if (payload.data[0] != '\0') {
+    if (payload.data[0] == '\0') {        
+        ESP_LOGI(TAG, "Fine lista utenti");
+        user_list_index = 0; 
+        return;
+    } 
+    else {
         send_password(user_list_index);
     }
 
