@@ -64,6 +64,10 @@ public slots:
     void getUserList();
     void disconnectService();
 
+    void addUser(const QString &username, const QString &password);
+    void editUser(int index, const QString &username, const QString &password);
+    void removeUser(int index);
+
 private:
     //QLowEnergyController
     void serviceDiscovered(const QBluetoothUuid &);

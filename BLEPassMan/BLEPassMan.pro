@@ -39,7 +39,6 @@ qml_resources.files = \
     # StatsLabel.qml \
     TitleBar.qml \
     Main.qml \
-    UserList.qml \
     images/alert.svg \
     images/bluetooth.svg \
     images/bt_off_to_on.png \
@@ -52,9 +51,18 @@ qml_resources.files = \
 qml_resources.prefix = /qt/qml/BLEPassMan
 
 RESOURCES = qml_resources
+RESOURCES += UserList/userlist.qrc
 
 ios: QMAKE_INFO_PLIST = shared/Info.qmake.ios.plist
 macos: QMAKE_INFO_PLIST = shared/Info.qmake.macos.plist
 
 target.path = ble-passman/target
 INSTALLS += target
+
+DISTFILES += \
+    images/add.png \
+    images/bluetooth.png \
+    images/fingerprint.png
+
+
+

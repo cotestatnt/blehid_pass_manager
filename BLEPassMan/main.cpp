@@ -18,6 +18,7 @@ int main(int argc, char *argv[])
 {
     qputenv("QT_BLUETOOTH_BACKEND", "winrt");
 
+
     QGuiApplication app(argc, argv);
 
     QCommandLineParser parser;
@@ -39,6 +40,7 @@ int main(int argc, char *argv[])
         {u"deviceFinder"_s, QVariant::fromValue(&deviceFinder)},
         {u"deviceHandler"_s, QVariant::fromValue(&deviceHandler)}
     });
+
 
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreationFailed, &app,  []() { QCoreApplication::exit(1); }, Qt::QueuedConnection);
     engine.loadFromModule("BLEPassMan", "Main");

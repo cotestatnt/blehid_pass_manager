@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
 
 import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 import BLEPassMan
 
 
@@ -14,7 +16,47 @@ GamePage {
     infoMessage: deviceHandler.info
     iconType: deviceHandler.icon
 
-    function close() {        
+    Connections {
+        target: deviceHandler
+        function onUserListUpdated(users) {
+            console.log("--- INIZIO CONVERSIONE E DEBUG ---")
+            const jsArray = [];
+
+            if (users && typeof users.length !== 'undefined') {
+                for (var i = 0; i < users.length; i++) {
+                    // 1. Crea un oggetto JavaScript vuoto e pulito.
+                    const cleanUserObject = {};
+
+                    // 2. Copia manualmente le proprietà dall'oggetto C++ all'oggetto JS.
+                    cleanUserObject.username = users[i].username;
+                    cleanUserObject.password = users[i].password;
+
+                    // 3. Aggiungi l'oggetto pulito al nostro array.
+                    jsArray.push(cleanUserObject);
+                }
+
+                // 4. LOG DI DEBUG: Stampa l'array risultante in formato JSON.
+                console.log("Contenuto di jsArray convertito:", JSON.stringify(jsArray, null, 2));
+
+            } else {
+                console.log("ERRORE: Dati ricevuti non validi per la conversione.")
+            }
+
+            // 5. Passa l'array pulito al componente.
+            if (userListComponentLoader.item) {
+                userListComponentLoader.item.userModel = jsArray
+            }
+            console.log("--- FINE CONVERSIONE E DEBUG ---")
+        }
+    }
+
+    // Puoi usare questo blocco per fare un test e vedere se tutto funziona
+    Component.onCompleted: {
+        console.log("Measure.qml caricato. Il loader caricherà:", userListComponentLoader.source)
+    }
+
+
+    function close() {
         deviceHandler.disconnectService()
     }
 
@@ -27,53 +69,71 @@ GamePage {
         spacing: GameSettings.fieldHeight * 0.5
 
         Rectangle {
-            id: userList            
+            id: userList
             readonly property real innerSpacing: Math.min(width * 0.05, 25)
 
             anchors.horizontalCenter: parent.horizontalCenter
             width: Math.min(measurePage.width, measurePage.height - GameSettings.fieldHeight * 4) - 2 * GameSettings.fieldMargin
-            // height: 550
+            height: 550
             radius: 5
             color: GameSettings.viewColor
 
-            UserList {
-                id: userListWidget
-                userList: measurePage.deviceHandler.userList  // Assumi che DeviceHandler abbia property var userList, aggiornata dal segnale
-                onAddUser: {
-                    // Apri dialog per inserire nuovo utente
-                    // Alla conferma, chiama: measurePage.deviceHandler.addUser(username, password)
-                }
-                onEditUser: function(index, username, password) {
-                    // Apri dialog con username/password già compilati
-                    // Alla conferma, chiama: measurePage.deviceHandler.editUser(index, username, password)
-                }
-                onRemoveUser: function(index) {
-                    measurePage.deviceHandler.removeUser(index)
-                }
+            // Loader per caricare il nostro componente UserList
+            Loader {
+                id: userListComponentLoader
+                anchors.fill: parent
+
+                // Il 'source' è il percorso diretto al file QML nel sistema di risorse (QRC)
+                source: "qrc:/UserList/UserList.qml"
+
+            }
+        }
+
+        // Usa un elemento Connections per ascoltare i segnali emessi dall'item caricato dal Loader.
+        Connections {
+            // Il target è l'item caricato, non il loader stesso
+            target: userListComponentLoader.item
+
+            function onAddUser(username, password) {
+                console.log("QML ha richiesto di aggiungere l'utente:", username)
+                deviceHandler.addUser(username, password)
             }
 
+            function onEditUser(index, username, password) {
+                console.log("QML ha richiesto di modificare l'utente all'indice:", index)
+                deviceHandler.editUser(index, username, password)
+            }
 
+            function onRemoveUser(index) {
+                console.log("QML ha richiesto di rimuovere l'utente all'indice:", index)
+                deviceHandler.removeUser(index)
+            }
+
+            function onReadList() {
+                console.log("Sync user list with device")
+                measurePage.start()
+            }
         }
     }
 
-    GameButton {
-        id: startButton
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: GameSettings.fieldMargin
-        width: userList.width
-        height: GameSettings.fieldHeight
-        enabled: measurePage.deviceHandler.alive && !measurePage.deviceHandler.measuring
-                 && measurePage.errorMessage === ""
-        radius: GameSettings.buttonRadius
+    // GameButton {
+    //     id: startButton
+    //     anchors.horizontalCenter: parent.horizontalCenter
+    //     anchors.bottom: parent.bottom
+    //     anchors.bottomMargin: GameSettings.fieldMargin
+    //     width: userList.width
+    //     height: GameSettings.fieldHeight
+    //     enabled: measurePage.deviceHandler.alive && !measurePage.deviceHandler.measuring
+    //              && measurePage.errorMessage === ""
+    //     radius: GameSettings.buttonRadius
 
-        onClicked: measurePage.start()
+    //     onClicked: measurePage.start()
 
-        Text {
-            anchors.centerIn: parent
-            font.pixelSize: GameSettings.microFontSize
-            text: qsTr("START")
-            color: GameSettings.textDarkColor
-        }
-    }
+    //     Text {
+    //         anchors.centerIn: parent
+    //         font.pixelSize: GameSettings.microFontSize
+    //         text: qsTr("START")
+    //         color: GameSettings.textDarkColor
+    //     }
+    // }
 }

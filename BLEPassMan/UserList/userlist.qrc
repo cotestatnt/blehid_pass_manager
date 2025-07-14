@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/UserList">
+        <file>UserList.qml</file>
+        <file>UserListView.qml</file>
+        <file>UserDelegate.qml</file>
+        <file>SectionDelegate.qml</file>
+        <file>UserDialog.qml</file>
+        <file>UserForm.qml</file>
+        <file>UserPopup.qml</file>
+    </qresource>
+</RCC>

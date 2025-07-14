@@ -216,9 +216,47 @@ void DeviceHandler::getUserList()
     m_userList.clear();  // reset lista
     QVariantList list;
 
-    emit userListUpdated(list);
+    // emit userListUpdated(list);
     qDebug() << "Start reading users list";
     requestNextUser(0x04);
+}
+
+void DeviceHandler::addUser(const QString &username, const QString &password)
+{
+    // Qui inserirai la tua logica per inviare i dati via BLE
+    // Per ora, simuliamo la modifica locale della lista
+    qDebug() << "BACKEND: Aggiungo utente" << username;
+
+    // Trova un nuovo indice disponibile
+    int newIndex = m_userList.isEmpty() ? 0 : m_userList.lastKey() + 1;
+    m_userList[newIndex] = {username, password}; // Aggiunge l'utente alla mappa interna
+
+    // IL PASSAGGIO FONDAMENTALE: Notifica a QML che il modello è cambiato
+    emit userListUpdated(userList());
+}
+
+void DeviceHandler::editUser(int index, const QString &username, const QString &password)
+{
+    qDebug() << "BACKEND: Modifico utente all'indice" << index;
+    if (!m_userList.contains(index))
+        return;
+
+    m_userList[index] = {username, password}; // Aggiorna l'utente
+
+    // IL PASSAGGIO FONDAMENTALE: Notifica a QML che il modello è cambiato
+    emit userListUpdated(userList());
+}
+
+void DeviceHandler::removeUser(int index)
+{
+    qDebug() << "BACKEND: Rimuovo utente all'indice" << index;
+    if (!m_userList.contains(index))
+        return;
+
+    m_userList.remove(index); // Rimuove l'utente
+
+    // IL PASSAGGIO FONDAMENTALE: Notifica a QML che il modello è cambiato
+    emit userListUpdated(userList());
 }
 
 
@@ -246,7 +284,7 @@ void DeviceHandler::updateCharacteristicValue(const QLowEnergyCharacteristic &c,
         return;
     }
 
-    QString text = QString::fromUtf8(data).trimmed();
+    QString text = QString::fromUtf8(data.data(), strnlen(data.data(), data.size())).trimmed();
 
     switch (cmd) {
     case 0x04: // username
