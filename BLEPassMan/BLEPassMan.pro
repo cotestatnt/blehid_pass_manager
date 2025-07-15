@@ -15,7 +15,6 @@ HEADERS += \
     devicefinder.h \
     devicehandler.h \
     bluetoothbaseclass.h
-    # heartrate-global.h
 
 SOURCES += main.cpp \
     connectionhandler.cpp \
@@ -26,6 +25,7 @@ SOURCES += main.cpp \
 
 qml_resources.files = \
     qmldir \
+    Main.qml \
     App.qml \
     BluetoothAlarmDialog.qml \
     BottomLine.qml \
@@ -35,34 +35,18 @@ qml_resources.files = \
     GameSettings.qml \
     Measure.qml \
     SplashScreen.qml \
-    # Stats.qml \
-    # StatsLabel.qml \
     TitleBar.qml \
-    Main.qml \
-    images/alert.svg \
-    images/bluetooth.svg \
-    images/bt_off_to_on.png \
-    images/clock.svg \
-    images/heart.png \
-    images/logo.png \
-    images/progress.svg \
-    images/search.svg
+
 
 qml_resources.prefix = /qt/qml/BLEPassMan
 
 RESOURCES = qml_resources
-RESOURCES += UserList/userlist.qrc
+RESOURCES += userlist/userlist.qrc
+RESOURCES += images/images.qrc
+
 
 ios: QMAKE_INFO_PLIST = shared/Info.qmake.ios.plist
 macos: QMAKE_INFO_PLIST = shared/Info.qmake.macos.plist
 
-target.path = ble-passman/target
-INSTALLS += target
-
-DISTFILES += \
-    images/add.png \
-    images/bluetooth.png \
-    images/fingerprint.png
-
-
-
+# target.path = ble-passman/target
+# INSTALLS += target

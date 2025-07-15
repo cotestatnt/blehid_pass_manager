@@ -2,6 +2,7 @@
 #include "user_list.h"
 
 #include "ble_device_main.h"
+#include "ble_userlist_auth.h"
 
 static const char *TAG = "FingerprintTask";
 static TaskHandle_t fingerprintTaskHandle = nullptr;
@@ -208,7 +209,12 @@ static void fingerprint_task(void *pvParameters)
             last_interaction_time = xTaskGetTickCount() - pdMS_TO_TICKS(10000);
             display_reset_pending = 1;
             oled_write_text("Search...");
+
             if (searchFinger()) {
+                // Autenticazione biometrica riuscita: abilita accesso BLE user list
+                ble_userlist_set_authenticated(true);
+                printf("[FINGERPRINT] Autenticazione biometrica riuscita: accesso BLE abilitato\n");
+
                 // Invia la password corrispondente all'indice attuale
                 uint8_t* encoded = user_list[user_index].password_enc;
                 size_t len = user_list[user_index].password_len;
@@ -224,8 +230,7 @@ static void fingerprint_task(void *pvParameters)
                     printf("Decrypt error");
                     oled_write_text("No account");
                 }
-            } 
-            else {
+            } else {
                 ESP_LOGI(TAG, "No matching finger found.");
                 send_string("No matching fingerprint");
                 oled_write_text("No match");

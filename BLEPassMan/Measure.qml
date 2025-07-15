@@ -18,43 +18,38 @@ GamePage {
 
     Connections {
         target: deviceHandler
-        function onUserListUpdated(users) {
-            console.log("--- INIZIO CONVERSIONE E DEBUG ---")
+        function onUserListUpdated(users) {            
             const jsArray = [];
 
             if (users && typeof users.length !== 'undefined') {
-                for (var i = 0; i < users.length; i++) {
-                    // 1. Crea un oggetto JavaScript vuoto e pulito.
-                    const cleanUserObject = {};
-
-                    // 2. Copia manualmente le proprietà dall'oggetto C++ all'oggetto JS.
+                for (var i = 0; i < users.length; i++) {                    
+                    const cleanUserObject = {};                    
                     cleanUserObject.username = users[i].username;
                     cleanUserObject.password = users[i].password;
-
-                    // 3. Aggiungi l'oggetto pulito al nostro array.
                     jsArray.push(cleanUserObject);
-                }
-
-                // 4. LOG DI DEBUG: Stampa l'array risultante in formato JSON.
-                console.log("Contenuto di jsArray convertito:", JSON.stringify(jsArray, null, 2));
+                }                
+                // console.log("Contenuto di jsArray convertito:", JSON.stringify(jsArray, null, 2));
 
             } else {
                 console.log("ERRORE: Dati ricevuti non validi per la conversione.")
             }
 
-            // 5. Passa l'array pulito al componente.
+            // Passa l'array pulito al componente.
             if (userListComponentLoader.item) {
                 userListComponentLoader.item.userModel = jsArray
-            }
-            console.log("--- FINE CONVERSIONE E DEBUG ---")
+            }            
+        }
+
+        function onServiceReady() {
+            console.log("Sync user list with device")
+            measurePage.start()
+            userListComponentLoader.item.syncEnabled = true
         }
     }
 
-    // Puoi usare questo blocco per fare un test e vedere se tutto funziona
-    Component.onCompleted: {
-        console.log("Measure.qml caricato. Il loader caricherà:", userListComponentLoader.source)
-    }
-
+    // Component.onCompleted: {
+    //     console.log("Measure.qml caricato. Il loader caricherà:", userListComponentLoader.source)
+    // }
 
     function close() {
         deviceHandler.disconnectService()
@@ -81,15 +76,12 @@ GamePage {
             // Loader per caricare il nostro componente UserList
             Loader {
                 id: userListComponentLoader
-                anchors.fill: parent
-
-                // Il 'source' è il percorso diretto al file QML nel sistema di risorse (QRC)
-                source: "qrc:/UserList/UserList.qml"
-
+                anchors.fill: parent                
+                source: "qrc:/userlist/UserList.qml"
             }
         }
 
-        // Usa un elemento Connections per ascoltare i segnali emessi dall'item caricato dal Loader.
+        // Connections per ascoltare i segnali emessi dall'item caricato dal Loader.
         Connections {
             // Il target è l'item caricato, non il loader stesso
             target: userListComponentLoader.item

@@ -1,0 +1,16 @@
+<RCC>
+    <qresource prefix="/images">
+        <file>add.png</file>
+        <file>bluetooth.png</file>
+        <file>bluetooth.svg</file>
+        <file>fingerprint.png</file>
+        <file>alert.svg</file>
+        <file>bluetooth.svg</file>
+        <file>bt_off_to_on.png</file>
+        <file>clock.svg</file>
+        <file>heart.png</file>
+        <file>logo.png</file>
+        <file>progress.svg</file>
+        <file>search.svg</file>
+    </qresource>
+</RCC>

@@ -82,7 +82,7 @@ void DeviceHandler::serviceDiscovered(const QBluetoothUuid &gatt)
         qDebug() << "Waiting for service scan to be done...";
         setInfo("Service discovered. Waiting for service scan to be done...");
         setIcon(IconProgress);
-        m_foundService = true;
+        m_foundService = true;        
     }
 
 }
@@ -107,7 +107,7 @@ void DeviceHandler::serviceScanDone()
         connect(m_service, &QLowEnergyService::descriptorWritten, this, &DeviceHandler::confirmedDescriptorWrite);
         m_service->discoverDetails();
     } else {
-        setError("Heart Rate Service not found.");
+        setError("Service not found.");
         setIcon(IconError);
     }
 }
@@ -137,6 +137,7 @@ void DeviceHandler::serviceStateChanged(QLowEnergyService::ServiceState s)
         if (m_notificationDesc.isValid()) {
             m_service->writeDescriptor(m_notificationDesc, QByteArray::fromHex("0100"));
             qDebug() << "Custom characteristic notify subscribed";
+            emit serviceReady();
         }
 
         break;
@@ -223,29 +224,57 @@ void DeviceHandler::getUserList()
 
 void DeviceHandler::addUser(const QString &username, const QString &password)
 {
-    // Qui inserirai la tua logica per inviare i dati via BLE
-    // Per ora, simuliamo la modifica locale della lista
-    qDebug() << "BACKEND: Aggiungo utente" << username;
-
-    // Trova un nuovo indice disponibile
     int newIndex = m_userList.isEmpty() ? 0 : m_userList.lastKey() + 1;
-    m_userList[newIndex] = {username, password}; // Aggiunge l'utente alla mappa interna
+    qDebug() << "BACKEND: Aggiungo utente all'indice" << newIndex;
 
-    // IL PASSAGGIO FONDAMENTALE: Notifica a QML che il modello è cambiato
+    // Pacchetto username
+    QByteArray userData;
+    userData.append(static_cast<char>(0x01));           // CMD
+    userData.append(static_cast<char>(newIndex));       // Indice
+    userData.append(static_cast<char>(0x04));           // Sub-CMD: username
+    userData.append(username.toUtf8());                 // Username
+    writeCustomCharacteristic(userData);
+
+    // Pacchetto password
+    QByteArray passData;
+    passData.append(static_cast<char>(0x01));           // CMD
+    passData.append(static_cast<char>(newIndex));       // Indice
+    passData.append(static_cast<char>(0x05));           // Sub-CMD: password
+    passData.append(password.toUtf8());                 // Password
+    writeCustomCharacteristic(passData);
+
+    // (Opzionale) Aggiorna modello locale
+    m_userList[newIndex] = {username, password};
     emit userListUpdated(userList());
 }
 
 void DeviceHandler::editUser(int index, const QString &username, const QString &password)
 {
-    qDebug() << "BACKEND: Modifico utente all'indice" << index;
+    qDebug() << "BACKEND: Modifco utente all'indice" << index;
     if (!m_userList.contains(index))
         return;
 
-    m_userList[index] = {username, password}; // Aggiorna l'utente
+    // Pacchetto username
+    QByteArray userData;
+    userData.append(static_cast<char>(0x01));           // CMD
+    userData.append(static_cast<char>(index));          // Indice
+    userData.append(static_cast<char>(0x04));           // Sub-CMD: username
+    userData.append(username.toUtf8());
+    writeCustomCharacteristic(userData);
 
-    // IL PASSAGGIO FONDAMENTALE: Notifica a QML che il modello è cambiato
+    // Pacchetto password
+    QByteArray passData;
+    passData.append(static_cast<char>(0x01));           // CMD
+    passData.append(static_cast<char>(index));          // Indice
+    passData.append(static_cast<char>(0x05));           // Sub-CMD: password
+    passData.append(password.toUtf8());
+    writeCustomCharacteristic(passData);
+
+    m_userList[index] = {username, password};
     emit userListUpdated(userList());
 }
+
+
 
 void DeviceHandler::removeUser(int index)
 {
@@ -253,12 +282,16 @@ void DeviceHandler::removeUser(int index)
     if (!m_userList.contains(index))
         return;
 
-    m_userList.remove(index); // Rimuove l'utente
+    QByteArray data;
+    data.append(static_cast<char>(0x03));           // CMD Remove
+    data.append(static_cast<char>(index));          // Indice
+    writeCustomCharacteristic(data);
 
-    // IL PASSAGGIO FONDAMENTALE: Notifica a QML che il modello è cambiato
-    emit userListUpdated(userList());
+    m_userList.remove(index);
+
+    // Chiedi la lista aggiornata al device
+    getUserList();
 }
-
 
 void DeviceHandler::requestNextUser(quint8 cmd)
 {
@@ -293,8 +326,24 @@ void DeviceHandler::updateCharacteristicValue(const QLowEnergyCharacteristic &c,
         break;
     case 0x05: // password
         m_userList[index].password = text;
-        qDebug() << "[BLE] Password[" << index << "]:" << text;
+        // qDebug() << "[BLE] Password[" << index << "]:" << text;
         requestNextUser(0x04);
+        break;
+    case 0x99: // Not authenticate
+        qDebug() << "[BLE] Authenticated[" << (data.at(0) ? "true" : "false") << "]:" << text;
+        if (data.at(0)) {
+            setInfo("User Authenticated");
+            setIcon(IconSearch);
+
+        } else {
+            setError("Not authenticated. Put fingerprint on sensor");
+            setIcon(IconError);
+        }
+        break;
+    case 0xFF: // List empty
+        qWarning() << "User list empty";
+        setInfo("User list empty, please add new user");
+        setIcon(IconSearch);
         break;
     default:
         qDebug() << "[BLE] Comando sconosciuto:" << cmd;

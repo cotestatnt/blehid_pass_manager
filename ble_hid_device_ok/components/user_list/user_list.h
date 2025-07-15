@@ -20,11 +20,12 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#define MAX_LABEL_LEN    32
-#define MAX_PASSWORD_LEN 32
+#define MAX_LABEL_LEN    18
+#define MAX_PASSWORD_LEN 18
 #define MAX_USERS        16
 
 typedef struct {
+    uint8_t id;                        // ID univoco dell'utente
     char label[MAX_LABEL_LEN];         // es: username o descrizione
     uint8_t password_enc[MAX_PASSWORD_LEN]; // password crittografata
     size_t password_len;               // lunghezza reale della password cifrata
@@ -54,6 +55,9 @@ int userdb_update(int index, const char* new_label, const char* new_password);
 void userdb_increment_usage(int index);
 void userdb_sort_by_usage();
 
+void userdb_set_username(int index, const char* username, size_t len);
+void userdb_set_password(int index, const char* password, size_t len);
+
 // Test data initialization
 void userdb_init_test_data();
 void userdb_dump();
@@ -61,6 +65,9 @@ void userdb_clear();
 
 // Funzioni per l'invio della lista utenti al client BLE
 void send_next_user_entry();
+void send_db_cleared();
+void send_authenticated(bool auth);
+
 
 #ifdef __cplusplus
 }

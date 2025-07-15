@@ -254,7 +254,7 @@ void send_next_user_entry(void) {
     payload.index = user_list_index;
 
     // Cerca la prossima entry valida
-    if (user_list_index < MAX_USERS) {
+    if (user_list_index < MAX_USERS && user_count ) {
         strcpy(payload.data, user_list[user_list_index].label);        
     }
 
@@ -268,7 +268,7 @@ void send_next_user_entry(void) {
     );
 
     // Invia la password solo se l'utente è stato trovato
-    if (payload.data[0] == '\0') {        
+    if (payload.data[0] == '\0' || user_count == 0) {        
         ESP_LOGI(TAG, "Fine lista utenti");
         user_list_index = 0; 
         return;
@@ -281,6 +281,93 @@ void send_next_user_entry(void) {
     user_list_index++;
 }
 
+
+void send_authenticated(bool auth) {
+    user_mgmt_payload_t payload = {0};
+    payload.cmd = 0x99;  // Comando per indicare che l'utente non è autenticato
+    payload.index = 0;   // Non ha senso in questo contesto, ma serve per mantenere la struttura
+
+    payload.data[0] = auth ? 1 : 0; // 1 se autenticato, 0 altrimenti
+
+    esp_ble_gatts_send_indicate(
+        hidd_le_env.gatt_if,
+        user_mgmt_conn_id,
+        user_mgmt_handle[USER_MGMT_IDX_VAL],
+        sizeof(payload),
+        (uint8_t *)&payload,
+        false
+    );
+
+    ESP_LOGI(TAG, "Sent  authenticated message");
+}
+
+void send_db_cleared() {
+    user_mgmt_payload_t payload = {0};
+    payload.cmd = 0xFF;  // Comando per indicare che il db è stato cancellato
+    payload.index = 0;   // Non ha senso in questo contesto, ma serve per mantenere la struttura
+
+    strcpy(payload.data, "Userd DB cleared");
+
+    esp_ble_gatts_send_indicate(
+        hidd_le_env.gatt_if,
+        user_mgmt_conn_id,
+        user_mgmt_handle[USER_MGMT_IDX_VAL],
+        sizeof(payload),
+        (uint8_t *)&payload,
+        false
+    );
+
+    ESP_LOGI(TAG, "Userd DB cleared");
+}
+
+
+void userdb_set_username(int index, const char* username, size_t len) {
+
+    printf("Setting username for index %d: %.*s\n", index, (int)len, username);
+
+    if (index >= 0 && index < user_count) {
+        // Modifica: aggiorna username esistente
+        strncpy(user_list[index].label, username, len < MAX_LABEL_LEN ? len : MAX_LABEL_LEN - 1);
+        user_list[index].label[MAX_LABEL_LEN - 1] = '\0';
+        userdb_save();
+    } else if (index == user_count && user_count < MAX_USERS) {
+        // Nuovo inserimento: crea nuovo utente con solo username
+        memset(&user_list[user_count], 0, sizeof(user_entry_t));
+        strncpy(user_list[user_count].label, username, len < MAX_LABEL_LEN ? len : MAX_LABEL_LEN - 1);
+        user_list[user_count].label[MAX_LABEL_LEN - 1] = '\0';
+        user_list[user_count].usage_count = 0;
+        user_list[user_count].password_len = 0;
+        user_count++;
+        userdb_save();
+    }
+}
+
+void userdb_set_password(int index, const char* password, size_t len) {
+    printf("Setting password for index %d\n", index);
+
+    if (index >= 0 && index < user_count) {
+        // Modifica: aggiorna password esistente (criptata)
+        uint8_t encrypted[MAX_PASSWORD_LEN];
+        size_t enc_len = 0;
+        userdb_encrypt_password(password, encrypted, &enc_len);
+        if (enc_len > MAX_PASSWORD_LEN) enc_len = MAX_PASSWORD_LEN;
+        memcpy(user_list[index].password_enc, encrypted, enc_len);
+        user_list[index].password_len = enc_len;
+        userdb_save();
+    } else if (index == user_count && user_count < MAX_USERS) {
+        // Nuovo inserimento: crea nuovo utente con solo password
+        memset(&user_list[user_count], 0, sizeof(user_entry_t));
+        uint8_t encrypted[MAX_PASSWORD_LEN];
+        size_t enc_len = 0;
+        userdb_encrypt_password(password, encrypted, &enc_len);
+        if (enc_len > MAX_PASSWORD_LEN) enc_len = MAX_PASSWORD_LEN;
+        memcpy(user_list[user_count].password_enc, encrypted, enc_len);
+        user_list[user_count].password_len = enc_len;
+        user_list[user_count].usage_count = 0;
+        user_count++;
+        userdb_save();
+    }
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////

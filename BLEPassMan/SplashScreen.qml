@@ -17,7 +17,7 @@ Item {
         anchors.centerIn: parent
         width: Math.min(parent.height, parent.width) * 0.6
         height: GameSettings.heightForWidth(width, sourceSize)
-        source: "images/logo.png"
+        source: "qrc:/images/logo.png"
     }
 
     Timer {

@@ -58,6 +58,7 @@ public:
 signals:
     void aliveChanged();
     Q_SIGNAL void userListUpdated(QVariantList list);
+    Q_SIGNAL void serviceReady();
 
 
 public slots:

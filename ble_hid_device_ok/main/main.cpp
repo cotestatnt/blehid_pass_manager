@@ -121,11 +121,10 @@ extern "C" void app_main(void)
     fingerprint_task_start();
 
     // Load user database
-    userdb_clear();
-    userdb_init_test_data();
-    // userdb_load();
+    // userdb_clear();
+    // userdb_init_test_data();
+    userdb_load();
     userdb_dump();
-
         
     while(1) {
         // Aggiorna il livello della batteria ogni 10 secondi

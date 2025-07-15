@@ -9,6 +9,9 @@
 #include "esp_log.h"
 
 #include "user_list.h"
+#include "ble_userlist_auth.h"
+#include "oled.h"
+
 
 /// characteristic presentation information
 struct prf_char_pres_fmt
@@ -473,17 +476,81 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_
         }
 
         if (param->write.handle == user_mgmt_handle[USER_MGMT_IDX_VAL]) {
-            // Gestisci la scrittura sulla caratteristica custom
-            // Esempio: 
-            // 0x01 per inserimento, 0x02 per modifica, 0x03 per cancellazione, 0x04 per lista completa
-            // <0x01> <username>:<password>
+            // Gestisci la scrittura sulla caratteristica custom            
             printf("Received write on custom characteristic: %.*s\n",  param->write.len, param->write.value);
             if (param->write.len < 1) break;
+
             uint8_t cmd = param->write.value[0];
-            if (cmd == 0x04) {
-                user_mgmt_conn_id = param->write.conn_id;
-                send_next_user_entry();
+            if (!ble_userlist_is_authenticated()) {
+                printf("[BLE] Accesso lista utenti negato: non autenticato!\n");
+                oled_write_text("No auth!");
+                send_authenticated(false);
                 break;
+            }
+
+            // Aggiorna l'ID di connessione per le operazioni di gestione utenti
+            user_mgmt_conn_id = param->write.conn_id;
+
+            switch (cmd) {                  
+                case 0x00: {
+                    // Comando di reset della lista utenti                
+                    userdb_clear();     
+                    send_db_cleared();
+                    oled_write_text("DB cleared!");
+                    break;
+                }
+
+                case 0x01:
+                case 0x02: {
+                    // Comando di inserimento/modifica utente o password
+                    // Formato: <0x01|0x02> <indice> <0x04|0x05> <dati>
+                    if (param->write.len < 3) {
+                        printf("[BLE] Inserimento: dati insufficienti\n");
+                        break;
+                    }
+                    uint8_t idx = param->write.value[1];
+                    uint8_t field = param->write.value[2];
+                    const char *data = (const char *)&param->write.value[3];
+                    size_t data_len = param->write.len - 3;
+
+                    if (field == 0x04) {
+                        // Inserimento username
+                        printf("[BLE] Inserimento username idx=%d: %.*s\n", idx, (int)data_len, data);
+                        userdb_set_username(idx, data, data_len);   
+                        oled_write_text("Add username");                     
+                    } else if (field == 0x05) {
+                        // Inserimento password
+                        printf("[BLE] Inserimento password idx=%d: %.*s\n", idx, (int)data_len, data);
+                        userdb_set_password(idx, data, data_len);        
+                        oled_write_text("Edit username");                    
+                    } else {
+                        printf("[BLE] Campo non riconosciuto: %02X\n", field);
+                        oled_write_text("no cmd");    
+                    }
+                    break;
+                }
+
+                case 0x03: {
+                    // Comando di cancellazione utente
+                    // Formato: <0x03> <indice>
+                    uint8_t idx = param->write.value[1];
+                    userdb_remove(idx);
+                    oled_write_text("rem username");    
+                    break;
+                }
+
+                case 0x04: {    
+                    // Comando di lettura lista
+                    // Formato: <0x04>                     
+                    send_next_user_entry();
+                    break;
+                }
+                
+                default: {
+                    printf("[BLE] Comando non riconosciuto: %02X\n", cmd);
+                    oled_write_text("cmd error");   
+                    break;
+                }
             }
         }
 

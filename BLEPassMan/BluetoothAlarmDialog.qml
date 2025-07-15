@@ -41,7 +41,7 @@ Item {
                 anchors.right: quitButton.right
                 anchors.top: parent.top
                 height: GameSettings.heightForWidth(width, sourceSize)
-                source: "images/bt_off_to_on.png"
+                source: "qrc:/images/bt_off_to_on.png"
             }
 
             Text {

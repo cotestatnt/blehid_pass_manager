@@ -17,10 +17,10 @@ Item {
     function iconTypeToName(icon: int) : string {
         switch (icon) {
         case BluetoothBaseClass.IconNone: return ""
-        case BluetoothBaseClass.IconBluetooth: return "images/bluetooth.svg"
-        case BluetoothBaseClass.IconError: return "images/alert.svg"
-        case BluetoothBaseClass.IconProgress: return "images/progress.svg"
-        case BluetoothBaseClass.IconSearch: return "images/search.svg"
+        case BluetoothBaseClass.IconBluetooth: return "qrc:/images/bluetooth.svg"
+        case BluetoothBaseClass.IconError: return "qrc:/images/alert.svg"
+        case BluetoothBaseClass.IconProgress: return "qrc:/images/progress.svg"
+        case BluetoothBaseClass.IconSearch: return "qrc:/images/search.svg"
         }
     }
 
