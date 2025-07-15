@@ -5,7 +5,7 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import BLEPassMan
 
-GamePage {
+Page {
     id: connectPage
 
     required property ConnectionHandler connectionHandler
@@ -22,15 +22,15 @@ GamePage {
         id: viewCaption
         anchors {
             top: parent.top
-            topMargin: GameSettings.fieldMargin + connectPage.messageHeight
+            topMargin: Settings.fieldMargin + connectPage.messageHeight
             horizontalCenter: parent.horizontalCenter
         }
-        width: parent.width - GameSettings.fieldMargin * 2
-        height: GameSettings.fieldHeight
+        width: parent.width - Settings.fieldMargin * 2
+        height: Settings.fieldHeight
         horizontalAlignment: Text.AlignLeft
         verticalAlignment: Text.AlignVCenter
-        color: GameSettings.textColor
-        font.pixelSize: GameSettings.smallFontSize
+        color: Settings.textColor
+        font.pixelSize: Settings.smallFontSize
         text: qsTr("Found Devices")
     }
 
@@ -40,11 +40,11 @@ GamePage {
         // only BlueZ platform has address type selection
         anchors.bottom: connectPage.connectionHandler.requiresAddressType ? addressTypeButton.top
                                                                           : searchButton.top
-        anchors.bottomMargin: GameSettings.fieldMargin
+        anchors.bottomMargin: Settings.fieldMargin
         anchors.horizontalCenter: parent.horizontalCenter
-        width: parent.width - GameSettings.fieldMargin * 2
-        color: GameSettings.viewColor
-        radius: GameSettings.buttonRadius
+        width: parent.width - Settings.fieldMargin * 2
+        color: Settings.viewColor
+        radius: Settings.buttonRadius
 
         ListView {
             id: devices
@@ -58,9 +58,9 @@ GamePage {
                 required property int index
                 required property var modelData
 
-                height: GameSettings.fieldHeight * 1.2
+                height: Settings.fieldHeight * 1.2
                 width: devices.width
-                color: index % 2 === 0 ? GameSettings.delegate1Color : GameSettings.delegate2Color
+                color: index % 2 === 0 ? Settings.delegate1Color : Settings.delegate2Color
 
                 MouseArea {
                     anchors.fill: parent
@@ -72,36 +72,36 @@ GamePage {
 
                 Text {
                     id: device
-                    font.pixelSize: GameSettings.microFontSize
+                    font.pixelSize: Settings.microFontSize
                     text: box.modelData.deviceName
                     anchors.top: parent.top
                     anchors.topMargin: parent.height * 0.15
                     anchors.leftMargin: parent.height * 0.15
                     anchors.left: parent.left
-                    color: GameSettings.textColor
+                    color: Settings.textColor
                 }
 
                 Text {
                     id: deviceAddress
-                    font.pixelSize: GameSettings.microFontSize
+                    font.pixelSize: Settings.microFontSize
                     text: box.modelData.deviceAddress
                     anchors.bottom: parent.bottom
                     anchors.bottomMargin: parent.height * 0.15
                     anchors.rightMargin: parent.height * 0.15
                     anchors.right: parent.right
-                    color: Qt.darker(GameSettings.textColor)
+                    color: Qt.darker(Settings.textColor)
                 }
             }
         }
     }
 
-    GameButton {
+    CustomButton {
         id: addressTypeButton
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: searchButton.top
-        anchors.bottomMargin: GameSettings.fieldMargin * 0.5
+        anchors.bottomMargin: Settings.fieldMargin * 0.5
         width: viewContainer.width
-        height: GameSettings.fieldHeight
+        height: Settings.fieldHeight
         visible: connectPage.connectionHandler.requiresAddressType // only required on BlueZ
         state: "public"
         onClicked: state === "public" ? state = "random" : state = "public"
@@ -130,26 +130,26 @@ GamePage {
         Text {
             id: addressTypeText
             anchors.centerIn: parent
-            font.pixelSize: GameSettings.microFontSize
-            color: GameSettings.textDarkColor
+            font.pixelSize: Settings.microFontSize
+            color: Settings.textDarkColor
         }
     }
 
-    GameButton {
+    CustomButton {
         id: searchButton
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: GameSettings.fieldMargin
+        anchors.bottomMargin: Settings.fieldMargin
         width: viewContainer.width
-        height: GameSettings.fieldHeight
+        height: Settings.fieldHeight
         enabled: !connectPage.deviceFinder.scanning
         onClicked: connectPage.deviceFinder.startSearch()
 
         Text {
             anchors.centerIn: parent
-            font.pixelSize: GameSettings.microFontSize
+            font.pixelSize: Settings.microFontSize
             text: qsTr("START SEARCH")
-            color: GameSettings.textDarkColor
+            color: Settings.textDarkColor
         }
     }
 }

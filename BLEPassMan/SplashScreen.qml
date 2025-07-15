@@ -16,7 +16,7 @@ Item {
     Image {
         anchors.centerIn: parent
         width: Math.min(parent.height, parent.width) * 0.6
-        height: GameSettings.heightForWidth(width, sourceSize)
+        height: Settings.heightForWidth(width, sourceSize)
         source: "qrc:/images/logo.png"
     }
 

@@ -80,7 +80,10 @@ private:
     void confirmedDescriptorWrite(const QLowEnergyDescriptor &d, const QByteArray &value);
     void writeCustomCharacteristic(const QByteArray &data);
 
-    void requestNextUser(quint8 cmd);
+    // void requestNextUser(quint8 cmd);
+
+    void requestUser(quint8 idx);
+    void requestPassword(quint8 idx);
 
 private:
     bool m_foundService = false;
@@ -94,8 +97,7 @@ private:
     QBluetoothUuid m_customService;
     QBluetoothUuid m_customCharacteristic;
 
-    QMap<int, UserEntry> m_userList;
-    bool m_readingUsers = false;
+    QMap<int, UserEntry> m_userList;    
     int m_currentUserIndex = 0;
 
 };

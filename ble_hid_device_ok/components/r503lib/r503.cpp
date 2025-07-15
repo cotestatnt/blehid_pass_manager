@@ -203,49 +203,50 @@ static void fingerprint_task(void *pvParameters)
     printMenu();
 
     while (true) {
-        // Controlla il segnale "touch" su GPIO 4
-        if (gpio_get_level((gpio_num_t)TOUCH_GPIO) == 0) {
-            ESP_LOGI(TAG, "Touch detected, starting fingerprint search...");
-            last_interaction_time = xTaskGetTickCount() - pdMS_TO_TICKS(10000);
-            display_reset_pending = 1;
-            oled_write_text("Search...");
+        // Controlla il segnale "touch" su GPIO 4hhhhhhhhòljljpàkèk
+        // if (gpio_get_level((gpio_num_t)TOUCH_GPIO) == 0) {
+        //     ESP_LOGI(TAG, "Touch detected, starting fingerprint search...");
+        //     last_interaction_time = xTaskGetTickCount() - pdMS_TO_TICKS(10000);
+        //     display_reset_pending = 1;
+        //     oled_write_text("Search...");
 
-            if (searchFinger()) {
-                // Autenticazione biometrica riuscita: abilita accesso BLE user list
-                ble_userlist_set_authenticated(true);
-                printf("[FINGERPRINT] Autenticazione biometrica riuscita: accesso BLE abilitato\n");
+        //     if (searchFinger()) {
+        //         // Autenticazione biometrica riuscita: abilita accesso BLE user list
+        //         ble_userlist_set_authenticated(true);
+        //         printf("[FINGERPRINT] Autenticazione biometrica riuscita: accesso BLE abilitato\n");
 
-                // Invia la password corrispondente all'indice attuale
-                uint8_t* encoded = user_list[user_index].password_enc;
-                size_t len = user_list[user_index].password_len;
+        //         // Invia la password corrispondente all'indice attuale
+        //         uint8_t* encoded = user_list[user_index].password_enc;
+        //         size_t len = user_list[user_index].password_len;
 
-                char plain[128];
-                if (userdb_decrypt_password(encoded, len, plain) == 0) {
-                    printf("Password (decrypted): %s\n", plain);
-                    send_string(plain);
-                    userdb_increment_usage(user_index);
-                    oled_write_text("Match found");
-                }
-                else {
-                    printf("Decrypt error");
-                    oled_write_text("No account");
-                }
-            } else {
-                ESP_LOGI(TAG, "No matching finger found.");
-                send_string("No matching fingerprint");
-                oled_write_text("No match");
-            }
+        //         char plain[128];
+        //         if (userdb_decrypt_password(encoded, len, plain) == 0) {
+        //             printf("Password (decrypted): %s\n", plain);
+        //             send_string(plain);
+        //             userdb_increment_usage(user_index);
+        //             oled_write_text("Match found");
+        //         }
+        //         else {
+        //             printf("Decrypt error");
+        //             oled_write_text("No account");
+        //         }
+        //     } else {
+        //         ESP_LOGI(TAG, "No matching finger found.");
+        //         send_string("No matching fingerprint");
+        //         oled_write_text("No match");
+        //     }
 
-            while (gpio_get_level((gpio_num_t)TOUCH_GPIO) == 0) {
-                vTaskDelay(pdMS_TO_TICKS(50));
-            }
-        }
+        //     while (gpio_get_level((gpio_num_t)TOUCH_GPIO) == 0) {
+        //         vTaskDelay(pdMS_TO_TICKS(50));
+        //     }
+        // }
 
         // Gestione menu da seriale
         size_t buffered_size;
         uart_get_buffered_data_len(UART_PORT, &buffered_size);
         if (buffered_size > 0) {
             int ch = getchar();
+            printf("Received command: %c\n", ch);
             switch (ch) {
                 case 'e':
                     enrollFinger();

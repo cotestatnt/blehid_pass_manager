@@ -12,17 +12,17 @@ Window {
     width: 720 * .7
     height: 1240 * .7
     title: qsTr("BLE PassMan")
-    color: GameSettings.backgroundColor
+    color: Settings.backgroundColor
 
     required property ConnectionHandler connectionHandler
     required property DeviceFinder deviceFinder
     required property DeviceHandler deviceHandler
 
     Component.onCompleted: {
-        GameSettings.wWidth = Qt.binding(function () {
+        Settings.wWidth = Qt.binding(function () {
             return width
         })
-        GameSettings.wHeight = Qt.binding(function () {
+        Settings.wHeight = Qt.binding(function () {
             return height
         })
     }

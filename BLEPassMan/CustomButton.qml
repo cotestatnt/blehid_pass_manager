@@ -7,11 +7,11 @@ Rectangle {
     id: button
     color: baseColor
     onEnabledChanged: checkColor()
-    radius: GameSettings.buttonRadius
+    radius: Settings.buttonRadius
 
-    property color baseColor: GameSettings.buttonColor
-    property color pressedColor: GameSettings.buttonPressedColor
-    property color disabledColor: GameSettings.disabledButtonColor
+    property color baseColor: Settings.buttonColor
+    property color pressedColor: Settings.buttonPressedColor
+    property color disabledColor: Settings.disabledButtonColor
 
     signal clicked
 

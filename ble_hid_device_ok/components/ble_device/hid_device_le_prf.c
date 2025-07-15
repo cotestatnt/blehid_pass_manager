@@ -481,6 +481,8 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_
             if (param->write.len < 1) break;
 
             uint8_t cmd = param->write.value[0];
+            uint8_t idx = param->write.value[1];
+            
             if (!ble_userlist_is_authenticated()) {
                 printf("[BLE] Accesso lista utenti negato: non autenticato!\n");
                 oled_write_text("No auth!");
@@ -508,7 +510,7 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_
                         printf("[BLE] Inserimento: dati insufficienti\n");
                         break;
                     }
-                    uint8_t idx = param->write.value[1];
+                    
                     uint8_t field = param->write.value[2];
                     const char *data = (const char *)&param->write.value[3];
                     size_t data_len = param->write.len - 3;
@@ -532,17 +534,23 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_
 
                 case 0x03: {
                     // Comando di cancellazione utente
-                    // Formato: <0x03> <indice>
-                    uint8_t idx = param->write.value[1];
+                    // Formato: <0x03> <indice>                    
                     userdb_remove(idx);
                     oled_write_text("rem username");    
                     break;
                 }
 
                 case 0x04: {    
-                    // Comando di lettura lista
-                    // Formato: <0x04>                     
-                    send_next_user_entry();
+                    // Comando di lettura utente
+                    // Formato: <0x04> <indice>                    
+                    send_user(idx);
+                    break;
+                }
+
+                case 0x05: {    
+                    // Comando di lettura passoword
+                    // Formato: <0x05> <indice>                    
+                    send_password(idx);
                     break;
                 }
                 

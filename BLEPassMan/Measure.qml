@@ -7,7 +7,7 @@ import QtQuick.Layouts
 import BLEPassMan
 
 
-GamePage {
+Page {
     id: measurePage
 
     required property DeviceHandler deviceHandler
@@ -61,17 +61,17 @@ GamePage {
 
     Column {
         anchors.centerIn: parent
-        spacing: GameSettings.fieldHeight * 0.5
+        spacing: Settings.fieldHeight * 0.5
 
         Rectangle {
             id: userList
             readonly property real innerSpacing: Math.min(width * 0.05, 25)
 
             anchors.horizontalCenter: parent.horizontalCenter
-            width: Math.min(measurePage.width, measurePage.height - GameSettings.fieldHeight * 4) - 2 * GameSettings.fieldMargin
+            width: Math.min(measurePage.width, measurePage.height - Settings.fieldHeight * 4) - 2 * Settings.fieldMargin
             height: 550
             radius: 5
-            color: GameSettings.viewColor
+            color: Settings.viewColor
 
             // Loader per caricare il nostro componente UserList
             Loader {
@@ -108,24 +108,24 @@ GamePage {
         }
     }
 
-    // GameButton {
+    // CustomButton {
     //     id: startButton
     //     anchors.horizontalCenter: parent.horizontalCenter
     //     anchors.bottom: parent.bottom
-    //     anchors.bottomMargin: GameSettings.fieldMargin
+    //     anchors.bottomMargin: Settings.fieldMargin
     //     width: userList.width
-    //     height: GameSettings.fieldHeight
+    //     height: Settings.fieldHeight
     //     enabled: measurePage.deviceHandler.alive && !measurePage.deviceHandler.measuring
     //              && measurePage.errorMessage === ""
-    //     radius: GameSettings.buttonRadius
+    //     radius: Settings.buttonRadius
 
     //     onClicked: measurePage.start()
 
     //     Text {
     //         anchors.centerIn: parent
-    //         font.pixelSize: GameSettings.microFontSize
+    //         font.pixelSize: Settings.microFontSize
     //         text: qsTr("START")
-    //         color: GameSettings.textDarkColor
+    //         color: Settings.textDarkColor
     //     }
     // }
 }

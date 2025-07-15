@@ -53,12 +53,7 @@ Item {
         Measure {
             id: measurePage
             deviceHandler: app.deviceHandler
-
-            // onShowStatsPage: app.__currentIndex = 2
         }
-        // Stats {
-        //     deviceHandler: app.deviceHandler
-        // }
 
         onCurrentIndexChanged: {
             if (currentIndex === 0)

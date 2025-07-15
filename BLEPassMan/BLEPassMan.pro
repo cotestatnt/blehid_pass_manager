@@ -28,11 +28,10 @@ qml_resources.files = \
     Main.qml \
     App.qml \
     BluetoothAlarmDialog.qml \
-    BottomLine.qml \
     Connect.qml \
-    GameButton.qml \
-    GamePage.qml \
-    GameSettings.qml \
+    CustomButton.qml \
+    Page.qml \
+    Settings.qml \
     Measure.qml \
     SplashScreen.qml \
     TitleBar.qml \

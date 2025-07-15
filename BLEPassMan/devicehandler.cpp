@@ -212,16 +212,6 @@ QVariantList DeviceHandler::userList() const
 }
 
 
-void DeviceHandler::getUserList()
-{
-    m_userList.clear();  // reset lista
-    QVariantList list;
-
-    // emit userListUpdated(list);
-    qDebug() << "Start reading users list";
-    requestNextUser(0x04);
-}
-
 void DeviceHandler::addUser(const QString &username, const QString &password)
 {
     int newIndex = m_userList.isEmpty() ? 0 : m_userList.lastKey() + 1;
@@ -286,21 +276,37 @@ void DeviceHandler::removeUser(int index)
     data.append(static_cast<char>(0x03));           // CMD Remove
     data.append(static_cast<char>(index));          // Indice
     writeCustomCharacteristic(data);
-
     m_userList.remove(index);
 
     // Chiedi la lista aggiornata al device
     getUserList();
 }
 
-void DeviceHandler::requestNextUser(quint8 cmd)
-{
-    m_readingUsers = true;
+void DeviceHandler::requestUser(quint8 idx) {
     QByteArray data;
-    data.append(cmd);
+    data.append(0x04);
+    data.append(idx);
     writeCustomCharacteristic(data);
 }
 
+void DeviceHandler::requestPassword(quint8 idx) {
+    QByteArray data;
+    data.append(0x05);
+    data.append(idx);
+    writeCustomCharacteristic(data);
+}
+
+void DeviceHandler::getUserList()
+{
+    m_userList.clear();  // reset lista
+
+    // emit userListUpdated(list);
+    qDebug() << "Start reading users list";    
+    requestUser(0);
+}
+
+
+// PARSE CHARACTERISTICS NOTIFIED FROM DEVICE
 void DeviceHandler::updateCharacteristicValue(const QLowEnergyCharacteristic &c, const QByteArray &value)
 {
     if (c.uuid() != m_customCharacteristic || value.size() < 3)
@@ -320,34 +326,35 @@ void DeviceHandler::updateCharacteristicValue(const QLowEnergyCharacteristic &c,
     QString text = QString::fromUtf8(data.data(), strnlen(data.data(), data.size())).trimmed();
 
     switch (cmd) {
-    case 0x04: // username
-        m_userList[index].username = text;
-        qDebug() << "[BLE] Username[" << index << "]:" << text;
-        break;
-    case 0x05: // password
-        m_userList[index].password = text;
-        // qDebug() << "[BLE] Password[" << index << "]:" << text;
-        requestNextUser(0x04);
-        break;
-    case 0x99: // Not authenticate
-        qDebug() << "[BLE] Authenticated[" << (data.at(0) ? "true" : "false") << "]:" << text;
-        if (data.at(0)) {
-            setInfo("User Authenticated");
-            setIcon(IconSearch);
+        case 0x04: // username
+            m_userList[index].username = text;
+            qDebug() << "[BLE] Username[" << index << "]:" << text;
+            requestPassword(index);
+            break;
+        case 0x05: // password
+            m_userList[index].password = text;
+            qDebug() << "[BLE] Password[" << index << "]:" << "***********";
+            requestUser(index + 1);
+            break;
+        case 0x99: // Not authenticate
+            qDebug().nospace() << "[BLE] Authenticated[" << (data.at(0) ? "true" : "false") << "]";
+            if (data.at(0)) {
+                setInfo("User Authenticated");
+                setIcon(IconSearch);
 
-        } else {
-            setError("Not authenticated. Put fingerprint on sensor");
-            setIcon(IconError);
-        }
-        break;
-    case 0xFF: // List empty
-        qWarning() << "User list empty";
-        setInfo("User list empty, please add new user");
-        setIcon(IconSearch);
-        break;
-    default:
-        qDebug() << "[BLE] Comando sconosciuto:" << cmd;
-        break;
+            } else {
+                setError("Not authenticated. Put fingerprint on sensor");
+                setIcon(IconError);
+            }
+            break;
+        case 0xFF: // List empty
+            qWarning() << "User list empty";
+            setInfo("User list empty, please add new user");
+            setIcon(IconSearch);
+            break;
+        default:
+            qDebug() << "[BLE] Comando sconosciuto:" << cmd;
+            break;
     }
 }
 

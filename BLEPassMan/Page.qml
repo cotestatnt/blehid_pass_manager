@@ -30,25 +30,25 @@ Item {
             top: parent.top
             left: parent.left
             right: parent.right
-            topMargin: GameSettings.fieldMargin * 0.5
-            leftMargin: GameSettings.fieldMargin
-            rightMargin: GameSettings.fieldMargin
+            topMargin: Settings.fieldMargin * 0.5
+            leftMargin: Settings.fieldMargin
+            rightMargin: Settings.fieldMargin
         }
-        height: GameSettings.fieldHeight
-        radius: GameSettings.buttonRadius
-        color: page.hasError ? GameSettings.errorColor : "transparent"
+        height: Settings.fieldHeight
+        radius: Settings.buttonRadius
+        color: page.hasError ? Settings.errorColor : "transparent"
         visible: page.hasError || page.hasInfo
         border {
             width: 1
-            color: page.hasError ? GameSettings.errorColor : GameSettings.infoColor
+            color: page.hasError ? Settings.errorColor : Settings.infoColor
         }
 
         Image {
             id: icon
-            readonly property int imgSize: GameSettings.fieldHeight * 0.5
+            readonly property int imgSize: Settings.fieldHeight * 0.5
             anchors {
                 left: parent.left
-                leftMargin: GameSettings.fieldMargin * 0.5
+                leftMargin: Settings.fieldMargin * 0.5
                 verticalCenter: parent.verticalCenter
             }
             visible: source.toString() !== ""
@@ -62,15 +62,15 @@ Item {
             id: error
             anchors {
                 fill: parent
-                leftMargin: GameSettings.fieldMargin + icon.width
-                rightMargin: GameSettings.fieldMargin + icon.width
+                leftMargin: Settings.fieldMargin + icon.width
+                rightMargin: Settings.fieldMargin + icon.width
             }
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
             minimumPixelSize: 5
-            font.pixelSize: GameSettings.microFontSize
+            font.pixelSize: Settings.microFontSize
             fontSizeMode: Text.Fit
-            color: page.hasError ? GameSettings.textColor : GameSettings.infoColor
+            color: page.hasError ? Settings.textColor : Settings.infoColor
             text: page.hasError ? page.errorMessage : page.infoMessage
         }
     }

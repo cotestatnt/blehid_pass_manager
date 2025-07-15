@@ -27,7 +27,7 @@ Item {
         width: parent.width * 0.8
         height: parent.height * 0.6
         border.color: "#454545"
-        color: GameSettings.backgroundColor
+        color: Settings.backgroundColor
         radius: width * 0.05
 
         Item {
@@ -40,7 +40,7 @@ Item {
                 anchors.left: quitButton.left
                 anchors.right: quitButton.right
                 anchors.top: parent.top
-                height: GameSettings.heightForWidth(width, sourceSize)
+                height: Settings.heightForWidth(width, sourceSize)
                 source: "qrc:/images/bt_off_to_on.png"
             }
 
@@ -52,25 +52,25 @@ Item {
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
                 wrapMode: Text.WordWrap
-                font.pixelSize: GameSettings.smallFontSize
-                color: GameSettings.textColor
+                font.pixelSize: Settings.smallFontSize
+                color: Settings.textColor
                 text: root.permissionError
                       ? qsTr("Bluetooth permissions are not granted. Please grant the permissions in the system settings.")
                       : qsTr("This application cannot be used without Bluetooth. Please switch Bluetooth ON to continue.")
             }
 
-            GameButton {
+            CustomButton {
                 id: quitButton
                 anchors.bottom: parent.bottom
                 anchors.horizontalCenter: parent.horizontalCenter
                 width: dialogContainer.width * 0.6
-                height: GameSettings.buttonHeight
+                height: Settings.buttonHeight
                 onClicked: Qt.quit()
 
                 Text {
                     anchors.centerIn: parent
-                    color: GameSettings.textColor
-                    font.pixelSize: GameSettings.microFontSize
+                    color: Settings.textColor
+                    font.pixelSize: Settings.microFontSize
                     text: qsTr("QUIT")
                 }
             }

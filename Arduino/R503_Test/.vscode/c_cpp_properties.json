@@ -3,7 +3,7 @@
     "configurations": [
         {
             "name": "Arduino",
-            "compilerPath": "C:\\Users\\Tolentino\\AppData\\Local\\Arduino15\\packages\\esp32\\tools\\esp-rv32\\2411\\bin\\riscv32-esp-elf-g++",
+            "compilerPath": "C:\\Users\\BAN_TAG\\AppData\\Local\\Arduino15\\packages\\esp32\\tools\\esp-rv32\\2411\\bin\\riscv32-esp-elf-g++",
             "compilerArgs": [
                 "-MMD",
                 "-w",
@@ -12,19 +12,19 @@
             ],
             "intelliSenseMode": "gcc-x64",
             "includePath": [
-                "D:\\Dropbox\\blehid_pass_manager\\R503_Test",
-                "C:\\Users\\Tolentino\\AppData\\Local\\Arduino15\\packages\\esp32\\tools\\esp32-arduino-libs\\idf-release_v5.4-2f7dcd86-v1\\esp32c3\\qio_qspi\\include",
-                "C:\\Users\\Tolentino\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\3.2.0\\cores\\esp32",
-                "C:\\Users\\Tolentino\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\3.2.0\\variants\\ttgo-t-oi-plus",
-                "C:\\Users\\Tolentino\\AppData\\Local\\Arduino15\\packages\\esp32\\tools\\esp-rv32\\2411\\riscv32-esp-elf\\include\\c++\\14.2.0",
-                "C:\\Users\\Tolentino\\AppData\\Local\\Arduino15\\packages\\esp32\\tools\\esp-rv32\\2411\\riscv32-esp-elf\\include\\c++\\14.2.0\\riscv32-esp-elf",
-                "C:\\Users\\Tolentino\\AppData\\Local\\Arduino15\\packages\\esp32\\tools\\esp-rv32\\2411\\riscv32-esp-elf\\include\\c++\\14.2.0\\backward",
-                "C:\\Users\\Tolentino\\AppData\\Local\\Arduino15\\packages\\esp32\\tools\\esp-rv32\\2411\\lib\\gcc\\riscv32-esp-elf\\14.2.0\\include",
-                "C:\\Users\\Tolentino\\AppData\\Local\\Arduino15\\packages\\esp32\\tools\\esp-rv32\\2411\\lib\\gcc\\riscv32-esp-elf\\14.2.0\\include-fixed",
-                "C:\\Users\\Tolentino\\AppData\\Local\\Arduino15\\packages\\esp32\\tools\\esp-rv32\\2411\\riscv32-esp-elf\\include"
+                "C:\\Dati\\Cloud\\Dropbox\\blehid_pass_manager\\Arduino\\R503_Test",
+                "C:\\Users\\BAN_TAG\\AppData\\Local\\Arduino15\\packages\\esp32\\tools\\esp32-arduino-libs\\idf-release_v5.4-2f7dcd86-v1\\esp32c3\\qio_qspi\\include",
+                "C:\\Users\\BAN_TAG\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\3.2.0\\cores\\esp32",
+                "C:\\Users\\BAN_TAG\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\3.2.0\\variants\\ttgo-t-oi-plus",
+                "C:\\Users\\BAN_TAG\\AppData\\Local\\Arduino15\\packages\\esp32\\tools\\esp-rv32\\2411\\riscv32-esp-elf\\include\\c++\\14.2.0",
+                "C:\\Users\\BAN_TAG\\AppData\\Local\\Arduino15\\packages\\esp32\\tools\\esp-rv32\\2411\\riscv32-esp-elf\\include\\c++\\14.2.0\\riscv32-esp-elf",
+                "C:\\Users\\BAN_TAG\\AppData\\Local\\Arduino15\\packages\\esp32\\tools\\esp-rv32\\2411\\riscv32-esp-elf\\include\\c++\\14.2.0\\backward",
+                "C:\\Users\\BAN_TAG\\AppData\\Local\\Arduino15\\packages\\esp32\\tools\\esp-rv32\\2411\\lib\\gcc\\riscv32-esp-elf\\14.2.0\\include",
+                "C:\\Users\\BAN_TAG\\AppData\\Local\\Arduino15\\packages\\esp32\\tools\\esp-rv32\\2411\\lib\\gcc\\riscv32-esp-elf\\14.2.0\\include-fixed",
+                "C:\\Users\\BAN_TAG\\AppData\\Local\\Arduino15\\packages\\esp32\\tools\\esp-rv32\\2411\\riscv32-esp-elf\\include"
             ],
             "forcedInclude": [
-                "C:\\Users\\Tolentino\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\3.2.0\\cores\\esp32\\Arduino.h"
+                "C:\\Users\\BAN_TAG\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\3.2.0\\cores\\esp32\\Arduino.h"
             ],
             "cStandard": "c11",
             "cppStandard": "c++11",

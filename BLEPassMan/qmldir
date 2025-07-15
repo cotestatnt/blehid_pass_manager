@@ -2,11 +2,10 @@ module BLEPassMan
 prefer :/qt/qml/BLEPassMan/
 App 1.0 App.qml
 BluetoothAlarmDialog 1.0 BluetoothAlarmDialog.qml
-BottomLine 1.0 BottomLine.qml
 Connect 1.0 Connect.qml
-GameButton 1.0 GameButton.qml
-GamePage 1.0 GamePage.qml
-singleton GameSettings 1.0 GameSettings.qml
+CustomButton 1.0 CustomButton.qml
+Page 1.0 Page.qml
+singleton Settings 1.0 Settings.qml
 Measure 1.0 Measure.qml
 SplashScreen 1.0 SplashScreen.qml
 TitleBar 1.0 TitleBar.qml

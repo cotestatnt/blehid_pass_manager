@@ -226,16 +226,16 @@ void userdb_clear() {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-void send_password(uint8_t index) {
+void send_user(uint8_t index) {
     user_mgmt_payload_t payload = {0};
-    payload.cmd = 0x05;
+    payload.cmd = 0x04;
     payload.index = index;
+    
+    if (index < MAX_USERS && user_count ) {
+        strcpy(payload.data, user_list[index].label);        
+    }  
 
-    char plain[128];
-    userdb_decrypt_password(user_list[index].password_enc, user_list[index].password_len, plain);        
-    strcpy(payload.data, plain);        
-
-    ESP_LOGI(TAG, "User password: %s\n", plain);
+    ESP_LOGI(TAG, "Username: %s\n", (char*) payload.data);
    
     esp_ble_gatts_send_indicate(
         hidd_le_env.gatt_if,
@@ -247,38 +247,26 @@ void send_password(uint8_t index) {
     );
 }
 
-void send_next_user_entry(void) {
-
+void send_password(uint8_t index) {
     user_mgmt_payload_t payload = {0};
-    payload.cmd = 0x04;
-    payload.index = user_list_index;
+    payload.cmd = 0x05;
+    payload.index = index;
 
-    // Cerca la prossima entry valida
-    if (user_list_index < MAX_USERS && user_count ) {
-        strcpy(payload.data, user_list[user_list_index].label);        
+    if (index < MAX_USERS && user_count ) {
+        char plain[128];
+        userdb_decrypt_password(user_list[index].password_enc, user_list[index].password_len, plain);        
+        strcpy(payload.data, plain);        
+        ESP_LOGI(TAG, "User password: %s\n", plain);
     }
-
+   
     esp_ble_gatts_send_indicate(
         hidd_le_env.gatt_if,
         user_mgmt_conn_id,
         user_mgmt_handle[USER_MGMT_IDX_VAL],
         sizeof(payload),
         (uint8_t *)&payload,
-        false  // false = notification, true = indication (usa true se vuoi conferma dal client)
+        false
     );
-
-    // Invia la password solo se l'utente è stato trovato
-    if (payload.data[0] == '\0' || user_count == 0) {        
-        ESP_LOGI(TAG, "Fine lista utenti");
-        user_list_index = 0; 
-        return;
-    } 
-    else {
-        send_password(user_list_index);
-    }
-
-    // Incrementa l'indice per la prossima richiesta
-    user_list_index++;
 }
 
 
@@ -298,7 +286,7 @@ void send_authenticated(bool auth) {
         false
     );
 
-    ESP_LOGI(TAG, "Sent  authenticated message");
+    ESP_LOGI(TAG, "Authenticated message: %s", auth ? "true" : "false");
 }
 
 void send_db_cleared() {
