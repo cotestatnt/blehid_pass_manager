@@ -44,7 +44,7 @@ Item {
             font.bold: true
             width: parent.width
             horizontalAlignment: Qt.AlignHCenter
-            text: root.currentContact >= 0 ? userModel[root.currentContact].username : ""
+            // text: root.currentContact >= 0 ? userModel[root.currentContact].username : ""
         }
         MenuItem {
             text: qsTr("Edit...")

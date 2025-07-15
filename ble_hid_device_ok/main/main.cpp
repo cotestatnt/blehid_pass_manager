@@ -44,7 +44,7 @@ void button_task(void *pvParameters)
             size_t len = user_list[user_index].password_len;
             
             printf("Account selezionato(%d): %s\n", user_index, username);
-            oled_write_text(username);
+            oled_write_text(username, true);
             last_interaction_time = xTaskGetTickCount();
             display_reset_pending = 1;
 
@@ -63,7 +63,7 @@ void button_task(void *pvParameters)
             size_t len = user_list[user_index].password_len;
 
             printf("Account selezionato (%d): %s\n", user_index, username);
-            oled_write_text(username);
+            oled_write_text(username, true);
             last_interaction_time = xTaskGetTickCount();
             display_reset_pending = 1;
 
@@ -80,7 +80,7 @@ void button_task(void *pvParameters)
         if (display_reset_pending) {
             uint32_t now = xTaskGetTickCount();
             if (now - last_interaction_time > pdMS_TO_TICKS(15000)) {  // 15 secondi
-                oled_write_text("BLE PassMan");
+                oled_write_text("BLE PassMan", false);
                 display_reset_pending = 0;
             }
         }
@@ -112,6 +112,7 @@ extern "C" void app_main(void)
 
     // Inizializza ed avvia il task di gestione BLE
     ble_device_init();    
+
     ESP_LOGI(TAG, "BLE HID Device initialized. Waiting for input...");
 
     // // Avvia il display OLED

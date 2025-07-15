@@ -8,7 +8,7 @@
 
 #include <QLowEnergyController>
 #include <QLowEnergyService>
-
+#include <QSoundEffect>
 #include <QDateTime>
 #include <QList>
 #include <QMap>
@@ -69,6 +69,8 @@ public slots:
     void editUser(int index, const QString &username, const QString &password);
     void removeUser(int index);
 
+    void enrollFingerprint();
+
 private:
     //QLowEnergyController
     void serviceDiscovered(const QBluetoothUuid &);
@@ -87,6 +89,8 @@ private:
 
 private:
     bool m_foundService = false;
+
+    QSoundEffect m_soundEffect;
 
     QLowEnergyController *m_control = nullptr;
     QLowEnergyService *m_service = nullptr;

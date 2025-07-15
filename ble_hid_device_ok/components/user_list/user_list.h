@@ -1,21 +1,11 @@
-// #pragma once
-// #ifndef SHARED_DATA_H
-// #define SHARED_DATA_H
-
-// #define NUM_PASSWORDS 3
-
-// extern const char* password_list[NUM_PASSWORDS];
-// extern volatile int password_index;
-
-// // char account_name[32] = "Account1";
-// // bool show_account_name = false;
-
-// #endif
-
-
 #pragma once
 #ifndef SHARED_DATA_H
 #define SHARED_DATA_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 #include <stdint.h>
 #include <stddef.h>
@@ -37,9 +27,7 @@ extern volatile int user_index;
 extern int display_reset_pending;
 extern uint32_t last_interaction_time;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+
 
 // Funzioni di crittografia password
 int userdb_encrypt_password(const char* plain, uint8_t* out_encrypted, size_t* out_len) ;
@@ -70,6 +58,7 @@ void send_password(uint8_t index);
 void send_db_cleared();
 void send_authenticated(bool auth);
 
+void send_ble_message(const char* message, uint8_t type);
 #ifdef __cplusplus
 }
 #endif

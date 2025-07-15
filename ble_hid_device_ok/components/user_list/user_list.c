@@ -9,6 +9,8 @@
 
 #include "hid_device_le_prf.h"
 #include "user_list.h"
+#include "oled.h"
+
 
 user_entry_t user_list[MAX_USERS]; // Lista degli account
 size_t user_count = 0;             // Numero totale degli account memorizzati
@@ -24,6 +26,9 @@ uint32_t last_interaction_time = 0; // Memorizza il momento in cui viene scritto
 uint8_t decrypt_key[16];
 
 static const char *TAG = "USER_DB";
+
+
+void send_ble_message(const char* message, uint8_t type);
 
 // Deriva una chiave sicura a 128 bit da eFuse HMAC_KEY0
 esp_err_t get_device_key_hmac(uint8_t out_key[16]) {
@@ -130,6 +135,11 @@ void userdb_load() {
         ESP_LOGE(TAG, "Error loading users list");
         return;
     }
+    
+    user_count = 0;
+    user_index = -1;
+    memset(user_list, 0, sizeof(user_list));
+
     nvs_get_blob(handle, NVS_KEY, user_list, &required_size);
     uint32_t count = 0;
     nvs_get_u32(handle, "count", &count);
@@ -154,6 +164,9 @@ int userdb_add(const char* label, const uint8_t* password_enc, size_t enc_len) {
     user_list[user_count].usage_count = 0;
     user_count++;
     userdb_save();
+
+    oled_write_text("User added", true);
+    ESP_LOGI(TAG, "User added: %s", label);
     return user_count;
 }
 
@@ -165,6 +178,10 @@ int userdb_remove(int index) {
     }
     user_count--;
     userdb_save();
+
+    userdb_load(); 
+    oled_write_text("User removed", true);
+    ESP_LOGI(TAG, "User removed at index: %d", index);
     return 0;
 }
 
@@ -179,6 +196,7 @@ int userdb_update(int index, const char* new_label, const char* new_password_enc
     memcpy(user_list[index].password_enc, new_password_enc, len);
     user_list[index].password_len = len;
     userdb_save();
+    send_ble_message("User updated", 0x00);
     return 0;
 }
 
@@ -222,8 +240,6 @@ void userdb_clear() {
 }
 
 
-// Invia il prossimo account all'utente connesso
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 void send_user(uint8_t index) {
@@ -243,7 +259,7 @@ void send_user(uint8_t index) {
         user_mgmt_handle[USER_MGMT_IDX_VAL],
         sizeof(payload),
         (uint8_t *)&payload,
-        false
+        true
     );
 }
 
@@ -265,7 +281,7 @@ void send_password(uint8_t index) {
         user_mgmt_handle[USER_MGMT_IDX_VAL],
         sizeof(payload),
         (uint8_t *)&payload,
-        false
+        true
     );
 }
 
@@ -283,10 +299,34 @@ void send_authenticated(bool auth) {
         user_mgmt_handle[USER_MGMT_IDX_VAL],
         sizeof(payload),
         (uint8_t *)&payload,
-        false
+        true
     );
 
     ESP_LOGI(TAG, "Authenticated message: %s", auth ? "true" : "false");
+    ESP_LOGI(TAG, "gatt_if: %d, conn_id: %d, handle: %d\n",
+             hidd_le_env.gatt_if, user_mgmt_conn_id, user_mgmt_handle[USER_MGMT_IDX_VAL]);
+}
+
+
+void send_ble_message(const char* message, uint8_t type) {
+    user_mgmt_payload_t payload = {0};
+    payload.cmd = 0xAA;  // Comando per inviare un messaggio generico
+    payload.index = type; // 0x00 Info, 0x01 Warning, 0x02 Error
+
+    strncpy(payload.data, message, sizeof(payload.data) - 1);        
+    ESP_LOGI(TAG, "[%s] Message: %s", type ? "error": "info", (char*) payload.data);
+
+    esp_ble_gatts_send_indicate(
+        hidd_le_env.gatt_if,
+        user_mgmt_conn_id,
+        user_mgmt_handle[USER_MGMT_IDX_VAL],
+        sizeof(payload),
+        (uint8_t *)&payload,
+        true
+    );
+
+    ESP_LOGI(TAG, "gatt_if: %d, conn_id: %d, handle: %d\n",
+             hidd_le_env.gatt_if, user_mgmt_conn_id, user_mgmt_handle[USER_MGMT_IDX_VAL]);
 }
 
 void send_db_cleared() {

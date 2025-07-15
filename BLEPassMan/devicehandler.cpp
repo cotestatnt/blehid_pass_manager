@@ -3,6 +3,8 @@
 
 #include "devicehandler.h"
 #include "deviceinfo.h"
+
+
 #include <QtEndian>
 #include <QRandomGenerator>
 
@@ -68,8 +70,14 @@ void DeviceHandler::setDevice(DeviceInfo *device)
             setIcon(IconError);
         });
 
+
+        // // Dopo aver connesso il controller
+        // m_control->requestMtu(247); // oppure 512 se vuoi provare MTU massimo
+
         // Connect
         m_control->connectToDevice();
+
+        qDebug() << "[BLE] MTU negoziato:" << m_control->mtu();
     }
 }
 
@@ -296,6 +304,16 @@ void DeviceHandler::requestPassword(quint8 idx) {
     writeCustomCharacteristic(data);
 }
 
+void DeviceHandler::enrollFingerprint() {
+    setInfo("Follow instructions on devices's display");
+    setIcon(IconProgress);
+
+    qDebug() << "Enroll new fingerprint";
+    QByteArray data;
+    data.append(0x07);
+    writeCustomCharacteristic(data);
+}
+
 void DeviceHandler::getUserList()
 {
     m_userList.clear();  // reset lista
@@ -316,6 +334,8 @@ void DeviceHandler::updateCharacteristicValue(const QLowEnergyCharacteristic &c,
     const quint8 index = static_cast<quint8>(value[1]);
     const QByteArray data = value.mid(2);
 
+    // qDebug() << value.toHex(' ').toUpper();
+
     if (data.isEmpty() || data.at(0) == '\0') {
         QVariantList list = userList();
         qDebug() << "[BLE Notify] Lista utenti completata.";
@@ -324,6 +344,7 @@ void DeviceHandler::updateCharacteristicValue(const QLowEnergyCharacteristic &c,
     }
 
     QString text = QString::fromUtf8(data.data(), strnlen(data.data(), data.size())).trimmed();
+
 
     switch (cmd) {
         case 0x04: // username
@@ -338,19 +359,39 @@ void DeviceHandler::updateCharacteristicValue(const QLowEnergyCharacteristic &c,
             break;
         case 0x99: // Not authenticate
             qDebug().nospace() << "[BLE] Authenticated[" << (data.at(0) ? "true" : "false") << "]";
+            clearMessages();
             if (data.at(0)) {
                 setInfo("User Authenticated");
                 setIcon(IconSearch);
-
+                m_soundEffect.setSource(QUrl("qrc:/images/info.wav"));
+                m_soundEffect.play();
             } else {
                 setError("Not authenticated. Put fingerprint on sensor");
                 setIcon(IconError);
+                m_soundEffect.setSource(QUrl("qrc:/images/pop.wav"));
+                m_soundEffect.play();
             }
             break;
         case 0xFF: // List empty
+
             qWarning() << "User list empty";
             setInfo("User list empty, please add new user");
             setIcon(IconSearch);
+            break;
+        case 0xAA: // generic message
+            clearMessages();
+            qDebug() << "[" << (index ? "error" : "info") <<  "] Message: " << text;
+            if (index) {
+                setError("[BLE] " + text);
+                setIcon(IconError);
+                m_soundEffect.setSource(QUrl("qrc:/images/pop.wav"));
+                m_soundEffect.play();
+            } else {
+                setInfo("[BLE] " + text);
+                setIcon(IconSearch);
+                m_soundEffect.setSource(QUrl("qrc:/images/info.wav"));
+                m_soundEffect.play();
+            }
             break;
         default:
             qDebug() << "[BLE] Comando sconosciuto:" << cmd;

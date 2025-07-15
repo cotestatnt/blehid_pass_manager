@@ -1,7 +1,7 @@
 TEMPLATE = app
 TARGET = ble-passman
 
-QT += qml quick bluetooth
+QT += qml quick bluetooth multimedia
 
 CONFIG += qmltypes
 CONFIG += c++17
@@ -35,7 +35,6 @@ qml_resources.files = \
     Measure.qml \
     SplashScreen.qml \
     TitleBar.qml \
-
 
 qml_resources.prefix = /qt/qml/BLEPassMan
 

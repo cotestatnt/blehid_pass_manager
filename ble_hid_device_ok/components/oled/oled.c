@@ -4,7 +4,7 @@
 static const char *TAG = "OLED";
 static lv_disp_t *disp;
 
-void oled_write_text(const char* text) {
+void oled_write_text(const char* text, bool reset_display) {
     // Lock the mutex due to the LVGL APIs are not thread-safe
     if (lvgl_port_lock(0)) {
         lv_obj_t *scr = lv_disp_get_scr_act(disp);
@@ -18,6 +18,12 @@ void oled_write_text(const char* text) {
         // Release the mutex
         lvgl_port_unlock();
     }   
+
+    if (reset_display) {
+        // Reset the display after writing text
+        display_reset_pending = 1;
+        last_interaction_time = xTaskGetTickCount();
+    }
 }
 
 void oled_init(void) {
@@ -84,5 +90,5 @@ void oled_init(void) {
     lv_disp_set_rotation(disp, LV_DISP_ROT_180);
 
     // ESP_LOGI(TAG, "Display LVGL Scroll Text");
-    oled_write_text("BLE PassMan");
+    oled_write_text("BLE PassMan", false);
 }

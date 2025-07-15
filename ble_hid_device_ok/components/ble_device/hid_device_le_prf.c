@@ -12,6 +12,7 @@
 #include "ble_userlist_auth.h"
 #include "oled.h"
 
+extern void enrollFinger();
 
 /// characteristic presentation information
 struct prf_char_pres_fmt
@@ -485,8 +486,9 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_
             
             if (!ble_userlist_is_authenticated()) {
                 printf("[BLE] Accesso lista utenti negato: non autenticato!\n");
-                oled_write_text("No auth!");
+                oled_write_text("No auth!", true);
                 send_authenticated(false);
+                // send_ble_message("Not authorized. Put fingerprint", 0x02);
                 break;
             }
 
@@ -498,7 +500,7 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_
                     // Comando di reset della lista utenti                
                     userdb_clear();     
                     send_db_cleared();
-                    oled_write_text("DB cleared!");
+                    oled_write_text("DB cleared!", true);
                     break;
                 }
 
@@ -518,16 +520,15 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_
                     if (field == 0x04) {
                         // Inserimento username
                         printf("[BLE] Inserimento username idx=%d: %.*s\n", idx, (int)data_len, data);
-                        userdb_set_username(idx, data, data_len);   
-                        oled_write_text("Add username");                     
+                        userdb_set_username(idx, data, data_len);                       
                     } else if (field == 0x05) {
                         // Inserimento password
                         printf("[BLE] Inserimento password idx=%d: %.*s\n", idx, (int)data_len, data);
-                        userdb_set_password(idx, data, data_len);        
-                        oled_write_text("Edit username");                    
+                        userdb_set_password(idx, data, data_len);       
+            
                     } else {
                         printf("[BLE] Campo non riconosciuto: %02X\n", field);
-                        oled_write_text("no cmd");    
+                        oled_write_text("no cmd", true);    
                     }
                     break;
                 }
@@ -536,7 +537,7 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_
                     // Comando di cancellazione utente
                     // Formato: <0x03> <indice>                    
                     userdb_remove(idx);
-                    oled_write_text("rem username");    
+                    oled_write_text("rem user", true);    
                     break;
                 }
 
@@ -553,10 +554,19 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_
                     send_password(idx);
                     break;
                 }
+
+                case 0x07: {    
+                    // Comando di enroll fingerprint
+                    // Formato: <0x07>                     
+                    enrollFinger();
+                    printf("Enrolling new fingerprint...\n");
+                    oled_write_text("Enroll FP", true);
+                    break;
+                }
                 
                 default: {
                     printf("[BLE] Comando non riconosciuto: %02X\n", cmd);
-                    oled_write_text("cmd error");   
+                    oled_write_text("cmd error", true);   
                     break;
                 }
             }

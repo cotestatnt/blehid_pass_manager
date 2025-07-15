@@ -36,7 +36,7 @@ extern "C" {
 
 
 void oled_init(void);
-void oled_write_text(const char* text);
+void oled_write_text(const char* text, bool reset_display);
 
 #ifdef __cplusplus
 }

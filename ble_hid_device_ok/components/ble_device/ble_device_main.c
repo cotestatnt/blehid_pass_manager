@@ -214,7 +214,7 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
             ESP_LOGI(HID_DEMO_TAG, "Passkey notify, passkey %06" PRIu32, param->ble_security.key_notif.passkey);
             char passkey_str[7];
             snprintf(passkey_str, sizeof(passkey_str), "%06" PRIu32, passkey); 
-            oled_write_text(passkey_str);
+            oled_write_text(passkey_str, true);
             break;
         case ESP_GAP_BLE_AUTH_CMPL_EVT: {
             esp_bd_addr_t bd_addr;
@@ -226,7 +226,7 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
                 ESP_LOGI(HID_DEMO_TAG, "Pairing successfully, auth_mode ESP_LE_AUTH_REQ_MITM");
             }
             show_bonded_devices();
-            oled_write_text("BLE PassMan");            
+            oled_write_text("BLE PassMan", true);            
             break;
         }
         case ESP_GAP_BLE_REMOVE_BOND_DEV_COMPLETE_EVT: {
@@ -450,13 +450,6 @@ void ble_device_init(void)
         ESP_LOGE(HID_DEMO_TAG, "%s register the callback function failed", __func__);
     }
 
-    // Increare MTU size
-    // The default MTU size is 23 bytes, which is too small for HID reports    
-    if ((ret = esp_ble_gatt_set_local_mtu(100)) != ESP_OK) {
-        ESP_LOGE("BLE", "esp_ble_gatt_set_local_mtu failed: %s", esp_err_to_name(ret));
-    }
-
-
     /* set the security iocap & auth_req & key size & init key response key parameters to the stack*/
     esp_ble_auth_req_t auth_req = ESP_LE_AUTH_REQ_SC_MITM_BOND;     //bonding with peer device after authentication
     esp_ble_io_cap_t iocap = ESP_IO_CAP_OUT;                       //set the IO capability to No output No input
@@ -482,6 +475,12 @@ void ble_device_init(void)
     and the init key means which key you can distribute to the slave. */
     esp_ble_gap_set_security_param(ESP_BLE_SM_SET_INIT_KEY, &init_key, sizeof(uint8_t));
     esp_ble_gap_set_security_param(ESP_BLE_SM_SET_RSP_KEY, &rsp_key, sizeof(uint8_t));
+
+    // Increare MTU size
+    // The default MTU size is 23 bytes, which is too small for HID reports    
+    if ((ret = esp_ble_gatt_set_local_mtu(100)) != ESP_OK) {
+        ESP_LOGE("BLE", "esp_ble_gatt_set_local_mtu failed: %s", esp_err_to_name(ret));
+    }
 
     // xTaskCreate(&hid_demo_task, "hid_task", 2048, NULL, 5, NULL);
 }

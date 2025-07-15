@@ -108,24 +108,22 @@ Page {
         }
     }
 
-    // CustomButton {
-    //     id: startButton
-    //     anchors.horizontalCenter: parent.horizontalCenter
-    //     anchors.bottom: parent.bottom
-    //     anchors.bottomMargin: Settings.fieldMargin
-    //     width: userList.width
-    //     height: Settings.fieldHeight
-    //     enabled: measurePage.deviceHandler.alive && !measurePage.deviceHandler.measuring
-    //              && measurePage.errorMessage === ""
-    //     radius: Settings.buttonRadius
+    CustomButton {
+        id: clearButton
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: Settings.fieldMargin - 20
+        width: userList.width
+        height: Settings.fieldHeight
+        radius: Settings.buttonRadius
 
-    //     onClicked: measurePage.start()
+        onClicked: deviceHandler.enrollFingerprint()
 
-    //     Text {
-    //         anchors.centerIn: parent
-    //         font.pixelSize: Settings.microFontSize
-    //         text: qsTr("START")
-    //         color: Settings.textDarkColor
-    //     }
-    // }
+        Text {
+            anchors.centerIn: parent
+            font.pixelSize: Settings.microFontSize
+            text: qsTr("ENROLL FINGERPRINT")
+            color: Settings.textDarkColor
+        }
+    }
 }
