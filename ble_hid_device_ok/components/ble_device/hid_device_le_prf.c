@@ -14,6 +14,8 @@
 
 extern void enrollFinger();
 
+extern void clearFingerprintDB();
+
 /// characteristic presentation information
 struct prf_char_pres_fmt
 {
@@ -561,6 +563,14 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_
                     enrollFinger();
                     printf("Enrolling new fingerprint...\n");
                     oled_write_text("Enroll FP", true);
+                    break;
+                }
+
+                case 0x08: {    
+                    // Comando di clear fingerprint DB
+                    // Formato: <0x08>       
+                    printf("Clearing fingerprint DB...\n");              
+                    clearFingerprintDB();
                     break;
                 }
                 

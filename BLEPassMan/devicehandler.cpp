@@ -314,6 +314,15 @@ void DeviceHandler::enrollFingerprint() {
     writeCustomCharacteristic(data);
 }
 
+void DeviceHandler::clearFingerprintDB()
+{
+
+    qDebug() << "Clear fingerprint DB";
+    QByteArray data;
+    data.append(0x08);
+    writeCustomCharacteristic(data);
+}
+
 void DeviceHandler::getUserList()
 {
     m_userList.clear();  // reset lista
@@ -373,7 +382,6 @@ void DeviceHandler::updateCharacteristicValue(const QLowEnergyCharacteristic &c,
             }
             break;
         case 0xFF: // List empty
-
             qWarning() << "User list empty";
             setInfo("User list empty, please add new user");
             setIcon(IconSearch);

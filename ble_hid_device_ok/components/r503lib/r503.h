@@ -22,7 +22,7 @@ static R503Lib fps(UART_PORT, RX_GPIO, TX_GPIO, DEVICE_ADDR);
 void fingerprint_task_start(void);
 
 void enrollFinger();
-void clearLibrary();
+void clearFingerprintDB();
 bool searchFinger();
 
 extern uint16_t num_templates;
