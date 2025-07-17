@@ -8,6 +8,8 @@ CONFIG += c++17
 
 QML_IMPORT_NAME = BLEPassMan
 QML_IMPORT_MAJOR_VERSION = 1
+QML_IMPORT_PATH = $$OUT_PWD
+
 
 HEADERS += \
     connectionhandler.h \
@@ -42,9 +44,8 @@ RESOURCES = qml_resources
 RESOURCES += userlist/userlist.qrc
 RESOURCES += images/images.qrc
 
+ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
+ANDROID_BUILD_TYPE = debug
 
 ios: QMAKE_INFO_PLIST = shared/Info.qmake.ios.plist
 macos: QMAKE_INFO_PLIST = shared/Info.qmake.macos.plist
-
-# target.path = ble-passman/target
-# INSTALLS += target

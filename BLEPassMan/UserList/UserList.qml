@@ -6,7 +6,7 @@ import BLEPassMan
 Item {
     id: root
     property int currentContact: -1
-    property bool syncEnabled: false
+    property bool syncEnabled: true
     property var userModel: []
     signal addUser(string username, string password)
     signal editUser(int index, string username, string password)
