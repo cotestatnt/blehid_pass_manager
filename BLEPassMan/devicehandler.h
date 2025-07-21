@@ -26,15 +26,6 @@ class DeviceInfo;
 class DeviceHandler : public BluetoothBaseClass
 {
     Q_OBJECT
-
-    // Q_PROPERTY(bool measuring READ measuring NOTIFY measuringChanged)
-    // Q_PROPERTY(int hr READ hr NOTIFY statsChanged)
-    // Q_PROPERTY(int maxHR READ maxHR NOTIFY statsChanged)
-    // Q_PROPERTY(int minHR READ minHR NOTIFY statsChanged)
-    // Q_PROPERTY(float average READ average NOTIFY statsChanged)
-    // Q_PROPERTY(int time READ time NOTIFY statsChanged)
-    // Q_PROPERTY(float calories READ calories NOTIFY statsChanged)
-
     Q_PROPERTY(bool alive READ alive NOTIFY aliveChanged)
     Q_PROPERTY(AddressType addressType READ addressType WRITE setAddressType)
     Q_PROPERTY(QVariantList userList READ userList NOTIFY userListUpdated)
@@ -70,6 +61,7 @@ public slots:
     void removeUser(int index);
 
     void enrollFingerprint();
+    void clearFingerprintDB();
 
 private:
     //QLowEnergyController

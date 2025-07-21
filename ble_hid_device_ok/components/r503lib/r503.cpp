@@ -18,6 +18,7 @@ uint16_t num_templates = 0;
 //     printf("--------------------------\n\n");
 // }
 
+
  void enrollFinger()
 {
     int ret;
@@ -176,14 +177,24 @@ bool searchFinger()
     return false;
 }
 
-void clearLibrary()
-{
-    char inputBuf[8];
-    printf("Do you really want to clear library Yes [y] / No [n]: ");
-    fps.setAuraLED(aLEDON, aLEDRed, 255, 1);
-    fgets(inputBuf, sizeof(inputBuf), stdin);
+void clearFingerprintDB()
+{   
+    oled_write_text("Clear FPs DB", true);
+    vTaskDelay(pdMS_TO_TICKS(1000));
+    oled_write_text("Put finger", true);
+    bool confirmed = false;
+    uint32_t timeout = xTaskGetTickCount() + pdMS_TO_TICKS(8000);
+    while (!confirmed && xTaskGetTickCount() < timeout) { 
+        confirmed = searchFinger();
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
 
-    if (inputBuf[0] == 'y') {
+    if (!confirmed) {
+        printf("No finger detected or no match found. Aborting clear operation.\n");
+        oled_write_text("No match found", true);
+        return;
+    } 
+    else {
         int ret = fps.emptyLibrary();
         if (ret == R503_OK) {
             printf("The fingerprint library has been cleared!\n");
@@ -192,9 +203,6 @@ void clearLibrary()
             printf("[X] Failed to clear library (code: 0x%02X)\n", ret);
             fps.setAuraLED(aLEDFlash, aLEDRed, 50, 3);
         }
-    } else {
-        printf("The operation has been cancelled.\n");
-        fps.setAuraLED(aLEDFadeOut, aLEDRed, 100, 0);
     }
 }
 

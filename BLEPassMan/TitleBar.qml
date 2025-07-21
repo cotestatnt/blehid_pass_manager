@@ -7,12 +7,12 @@ import QtQuick
 Rectangle {
     id: titleBar
 
-    property var __titles: ["CONNECT", "USER LIST"]
+    property var __titles: ["< CONNECTIONS", ""]
     property int currentIndex: 0
 
     signal titleClicked(int index)
 
-    height: Settings.fieldHeight - 40
+    height: Settings.fieldHeight
     color: Settings.titleColor
 
     Rectangle {
@@ -22,12 +22,12 @@ Rectangle {
         x: titleBar.currentIndex * width
         color: Settings.selectedTitleColor
 
-        Rectangle {
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.top: parent.top
-            width: parent.width
-            height: parent.height * 0.05
-        }
+        // Rectangle {
+        //     anchors.horizontalCenter: parent.horizontalCenter
+        //     anchors.top: parent.top
+        //     width: parent.width
+        //     height: parent.height * 0.05
+        // }
 
         Behavior on x {
             NumberAnimation {
@@ -42,17 +42,20 @@ Rectangle {
             id: caption
             required property int index
             property bool hoveredOrPressed: mouseArea.pressed || mouseArea.containsMouse
-            width: titleBar.width / 3
-            height: titleBar.height
+            width: titleBar.width / 2
+            height: titleBar.height -5
             x: index * width
             color: (titleBar.currentIndex !== index) && hoveredOrPressed ? Settings.hoverTitleColor : "transparent"
             Text {
                 anchors.fill: parent
+                // anchors.bottom: parent.bottom
                 horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
+                verticalAlignment: Text.AlignBottom
                 text: titleBar.__titles[caption.index]
                 font.pixelSize: Settings.microFontSize
                 color: Settings.textColor
+
+                visible: app.__currentIndex
             }
             MouseArea {
                 id: mouseArea

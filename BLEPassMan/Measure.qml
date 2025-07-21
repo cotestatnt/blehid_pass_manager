@@ -3,7 +3,9 @@
 
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Controls.impl
 import QtQuick.Layouts
+
 import BLEPassMan
 
 
@@ -108,22 +110,112 @@ Page {
         }
     }
 
+    // CustomButton {
+    //     id: clearButton
+    //     anchors.horizontalCenter: parent.horizontalCenter
+    //     anchors.bottom: parent.bottom
+    //     anchors.bottomMargin: Settings.fieldMargin - 20
+    //     width: userList.width
+    //     height: Settings.fieldHeight
+    //     radius: Settings.buttonRadius
+
+    //     onClicked: deviceHandler.enrollFingerprint()
+
+    //     Text {
+    //         anchors.centerIn: parent
+    //         font.pixelSize: Settings.microFontSize
+    //         text: qsTr("ENROLL FINGERPRINT")
+    //         color: Settings.textDarkColor
+    //     }
+    // }
+
     CustomButton {
-        id: clearButton
+        id: fpButton
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: Settings.fieldMargin - 20
-        width: userList.width
-        height: Settings.fieldHeight
+        anchors.bottomMargin: Settings.fieldMargin
+        width: userList.width / 6
+        height: Settings.fieldHeight / 4
         radius: Settings.buttonRadius
 
-        onClicked: deviceHandler.enrollFingerprint()
+        onClicked: {
+            fpButton.visible = false
+            fpSection.expanded = !fpSection.expanded
+        }
 
         Text {
+            verticalAlignment: Text.AlignBottom
             anchors.centerIn: parent
             font.pixelSize: Settings.microFontSize
-            text: qsTr("ENROLL FINGERPRINT")
+            text: qsTr("...")
             color: Settings.textDarkColor
+        }
+    }
+
+
+    Column {
+        id: fpSection
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 20
+        width: userList.width
+
+        property bool expanded: false
+
+
+        Rectangle {
+            id: collapsibleContent
+            width: parent.width
+            height: fpSection.expanded ? contentRow.implicitHeight : 0
+            clip: true
+            color: "transparent" // o come preferisci
+
+            Behavior on height { NumberAnimation { duration: 250; easing.type: Easing.InOutQuad } }
+
+            Row {
+                id: contentRow
+                width: parent.width
+                spacing: 15
+                anchors.horizontalCenter: parent.horizontalCenter
+
+                DelayButton {
+                    id: enrollButton
+                    height: Settings.fieldHeight
+                    width: (parent.width - 20) / 2
+                    delay: 2000
+                    text: qsTr("ENROLL FINGERPRINT")
+
+                    background: Rectangle {
+                        color: Settings.buttonColor
+                        radius: Settings.buttonRadius
+                    }
+
+                    onActivated: {
+                        fpButton.visible = true
+                        fpSection.expanded = false
+                        deviceHandler.enrollFingerprint()
+                    }
+                }
+
+                DelayButton {
+                    id: clearButton
+                    height: Settings.fieldHeight
+                    width: (parent.width - 20) / 2
+                    delay: 5000
+                    text: qsTr("CLEAR FINGERPRINTS DB")
+
+                    background: Rectangle {
+                        color: Settings.buttonColor
+                        radius: Settings.buttonRadius
+                    }
+
+                    onActivated: {
+                        fpButton.visible = true
+                        fpSection.expanded = false
+                        deviceHandler.clearFingerprintDB()
+                    }
+                }
+            }
         }
     }
 }

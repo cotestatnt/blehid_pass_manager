@@ -5,6 +5,5 @@
         <file>UserDelegate.qml</file>
         <file>UserDialog.qml</file>
         <file>UserForm.qml</file>
-        <file>UserPopup.qml</file>
     </qresource>
 </RCC>
