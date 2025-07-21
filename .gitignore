@@ -40,3 +40,4 @@ inols-clangd.log
 /ble_hid_device_ok/managed_components
 /contactlist
 /BLEPassMan/build
+*.user
