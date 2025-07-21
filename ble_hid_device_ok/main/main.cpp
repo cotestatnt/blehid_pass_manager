@@ -27,7 +27,6 @@
 
 static const char *TAG = "MAIN";
 
-
 void button_task(void *pvParameters)
 {
     int last_btn_up = 1, last_btn_down = 1;
