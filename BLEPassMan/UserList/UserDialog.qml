@@ -27,7 +27,7 @@ Dialog {
 
     y: 40
     x: parent.width / 2 - width / 2
-    width: parent.width - 40
+    width: parent.width - 20
     padding: 20
 
     focus: true

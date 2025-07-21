@@ -37,7 +37,7 @@ uint16_t num_templates = 0;
 
     printf("Follow the steps below to enroll a new finger\n");
     oled_write_text("Enroll new FP", true);
-    vTaskDelay(pdMS_TO_TICKS(1000));
+    vTaskDelay(pdMS_TO_TICKS(2000));
 
     for (int i = 1; i <= featureCount; i++) {
         fps.setAuraLED(aLEDBreathing, aLEDBlue, 50, 255);
@@ -73,14 +73,14 @@ uint16_t num_templates = 0;
             fps.setAuraLED(aLEDBreathing, aLEDGreen, 255, 255);
             printf(" >> Features %d of %d extracted\n", i, featureCount);
             oled_write_text("Features extracted", true);
-            vTaskDelay(pdMS_TO_TICKS(250));
+            vTaskDelay(pdMS_TO_TICKS(500));
             break;
         }
 
         printf(" >> Lift your finger from the sensor!\n");
         oled_write_text("Lift finger", true);
         while (fps.takeImage() != R503_NO_FINGER) {
-            vTaskDelay(pdMS_TO_TICKS(100));
+            vTaskDelay(pdMS_TO_TICKS(200));
         }
     }
 
@@ -107,12 +107,12 @@ uint16_t num_templates = 0;
         return;
     }
 
-    vTaskDelay(pdMS_TO_TICKS(250));
+    vTaskDelay(pdMS_TO_TICKS(500));
     fps.setAuraLED(aLEDBreathing, aLEDGreen, 255, 1);
     printf(" >> Template stored at location: %d\n", num_templates); 
     num_templates += 1; 
     printf(" >> Enroll process completed successfully!\n");
-    oled_write_text("Enroll completed", true);
+    oled_write_text("Enroll done!", true);
 }
 
 bool searchFinger()
