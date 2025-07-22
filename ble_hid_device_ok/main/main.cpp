@@ -15,6 +15,7 @@
 #include "esp_log.h"
 #include "nvs_flash.h"
 #include "driver/gpio.h"
+#include "esp_sleep.h"
 
 // Local components
 #include "ble_device_main.h"
@@ -26,6 +27,13 @@
 #define PIN_NUM_DW           7
 
 static const char *TAG = "MAIN";
+
+
+static bool go_to_deep_sleep = false;
+void enter_deep_sleep() {
+    esp_deep_sleep_enable_gpio_wakeup((1ULL << TOUCH_GPIO), ESP_GPIO_WAKEUP_GPIO_LOW); 
+    esp_deep_sleep_start();
+}
 
 void button_task(void *pvParameters)
 {
@@ -82,6 +90,9 @@ void button_task(void *pvParameters)
             if (now - last_interaction_time > pdMS_TO_TICKS(15000)) {  // 15 secondi
                 oled_write_text("BLE PassMan", false);
                 display_reset_pending = 0;
+                vTaskDelay(pdMS_TO_TICKS(100));
+                go_to_deep_sleep = true;
+                printf("Entering deep sleep...\n");                
             }
         }
 
@@ -130,9 +141,16 @@ extern "C" void app_main(void)
     #endif
         
     while(1) {
-        // Aggiorna il livello della batteria ogni 10 secondi
-        static TickType_t last_battery_update = 0;
         TickType_t now = xTaskGetTickCount();
+        static TickType_t last_interaction_time = xTaskGetTickCount();
+        if (go_to_deep_sleep && now - last_interaction_time > pdMS_TO_TICKS(120000)) {
+            go_to_deep_sleep = false;
+            oled_off();
+            enter_deep_sleep();
+        }
+
+        // Aggiorna il livello della batteria ogni 30 secondi
+        static TickType_t last_battery_update = 0;
         if (now - last_battery_update > pdMS_TO_TICKS(30000)) {
             // ble_battery_set_level(98);
             // ble_battery_notify_level(98);

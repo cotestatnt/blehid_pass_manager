@@ -480,9 +480,11 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_
 
         if (param->write.handle == user_mgmt_handle[USER_MGMT_IDX_VAL]) {
             // Gestisci la scrittura sulla caratteristica custom            
+            #if DEBUG_PASSWD
             printf("Received write on custom characteristic: %.*s\n",  param->write.len, param->write.value);
-            if (param->write.len < 1) break;
+            #endif
 
+            if (param->write.len < 1) break;
             uint8_t cmd = param->write.value[0];
             uint8_t idx = param->write.value[1];
             
@@ -531,6 +533,9 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_
                         printf("[BLE] Inserimento password idx=%d\n", idx);
                         #endif
                         userdb_set_password(idx, data, data_len);
+                    } else if (field == 0x06) {
+                        printf("[BLE] Inserimento winlogin idx=%d\n", idx);
+                        userdb_set_winlogin(idx, (bool)data);
                     } else {
                         printf("[BLE] Campo non riconosciuto: %02X\n", field);
                         oled_write_text("no cmd", true);    
@@ -554,9 +559,16 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_
                 }
 
                 case 0x05: {    
-                    // Comando di lettura passoword
+                    // Comando di lettura password
                     // Formato: <0x05> <indice>                    
                     send_password(idx);
+                    break;
+                }
+
+                case 0x06: {    
+                    // Comando di lettura winlogin
+                    // Formato: <0x06> <indice>                    
+                    send_winlogin(idx);
                     break;
                 }
 

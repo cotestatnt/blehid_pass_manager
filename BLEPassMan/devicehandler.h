@@ -18,6 +18,7 @@
 struct UserEntry {
     QString username;
     QString password;
+    bool winlogin;
 };
 
 
@@ -56,8 +57,8 @@ public slots:
     void getUserList();
     void disconnectService();
 
-    void addUser(const QString &username, const QString &password);
-    void editUser(int index, const QString &username, const QString &password);
+    void addUser(const QString &username, const QString &password, const bool winlogin);
+    void editUser(int index, const QString &username, const QString &password, const bool winlogin);
     void removeUser(int index);
 
     void enrollFingerprint();
@@ -78,6 +79,7 @@ private:
 
     void requestUser(quint8 idx);
     void requestPassword(quint8 idx);
+    void requestWinlogin(quint8 idx);
 
 private:
     bool m_foundService = false;

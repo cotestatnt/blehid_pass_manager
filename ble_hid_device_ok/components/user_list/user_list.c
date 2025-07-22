@@ -289,6 +289,26 @@ void send_password(uint8_t index) {
     );
 }
 
+void send_winlogin(uint8_t index) {
+    user_mgmt_payload_t payload = {0};
+    payload.cmd = 0x06;
+    payload.index = index;
+
+    if (index < MAX_USERS && user_count ) {
+        payload.data[0] = user_list[index].winlogin ? 1 : 0; // 1 se è un login Windows, 0 altrimenti
+        ESP_LOGI(TAG, "Winlogin: %d\n", payload.data[0]);
+    }  
+
+    esp_ble_gatts_send_indicate(
+        hidd_le_env.gatt_if,
+        user_mgmt_conn_id,
+        user_mgmt_handle[USER_MGMT_IDX_VAL],
+        sizeof(payload),
+        (uint8_t *)&payload,
+        true
+    );
+}
+
 
 void send_authenticated(bool auth) {
     user_mgmt_payload_t payload = {0};
@@ -405,5 +425,11 @@ void userdb_set_password(int index, const char* password, size_t len) {
     }
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
+void userdb_set_winlogin(int index, bool winlogin) {
+    printf("Setting winlogin for index %d: %d\n", index, winlogin);
+
+    if (index >= 0 && index < user_count) {
+        user_list[index].winlogin = winlogin;
+        userdb_save();
+    }
+}

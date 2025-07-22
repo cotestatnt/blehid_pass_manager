@@ -4,6 +4,7 @@ App 1.0 App.qml
 BluetoothAlarmDialog 1.0 BluetoothAlarmDialog.qml
 Connect 1.0 Connect.qml
 CustomButton 1.0 CustomButton.qml
+ButtonsFingerprint 1.0 ButtonsFingerprint.qml
 Page 1.0 Page.qml
 singleton Settings 1.0 Settings.qml
 Measure 1.0 Measure.qml

@@ -32,6 +32,7 @@ qml_resources.files = \
     BluetoothAlarmDialog.qml \
     Connect.qml \
     CustomButton.qml \
+    ButtonsFingerprint.qml \
     Page.qml \
     Settings.qml \
     Measure.qml \
@@ -49,3 +50,6 @@ ANDROID_BUILD_TYPE = debug
 
 ios: QMAKE_INFO_PLIST = shared/Info.qmake.ios.plist
 macos: QMAKE_INFO_PLIST = shared/Info.qmake.macos.plist
+
+DISTFILES += \
+

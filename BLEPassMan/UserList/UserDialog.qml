@@ -7,11 +7,12 @@ import QtQuick.Controls
 Dialog {
     id: dialog
 
-    signal finished(string username, string password)
+    signal finished(string username, string password, bool winlogin)
 
     function createContact() {
         form.username.clear();
         form.password.clear();
+        form.winlogin.checked = false;
 
         dialog.title = qsTr("Add User");
         dialog.open();
@@ -20,6 +21,7 @@ Dialog {
     function editContact(contact) {
         form.username.text = contact.username;
         form.password.text = contact.password;
+        form.winlogin.checked = contact.winlogin;
 
         dialog.title = qsTr("Edit User");
         dialog.open();
@@ -41,7 +43,7 @@ Dialog {
 
     onAccepted: {
         if (form.username.text && form.password.text) {
-            finished(form.username.text, form.password.text);
+            finished(form.username.text, form.password.text, form.winlogin);
         }
     }
 }
