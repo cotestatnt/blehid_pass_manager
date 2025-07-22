@@ -525,9 +525,12 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_
                         userdb_set_username(idx, data, data_len);                       
                     } else if (field == 0x05) {
                         // Inserimento password
+                        #if DEBUG_PASSWD
                         printf("[BLE] Inserimento password idx=%d: %.*s\n", idx, (int)data_len, data);
-                        userdb_set_password(idx, data, data_len);       
-            
+                        #else
+                        printf("[BLE] Inserimento password idx=%d\n", idx);
+                        #endif
+                        userdb_set_password(idx, data, data_len);
                     } else {
                         printf("[BLE] Campo non riconosciuto: %02X\n", field);
                         oled_write_text("no cmd", true);    
@@ -625,10 +628,10 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_
             ESP_LOGI(HID_LE_PRF_TAG, "UserMgmt svc handle = %x", user_mgmt_handle[USER_MGMT_IDX_SVC]);
             esp_ble_gatts_start_service(user_mgmt_handle[USER_MGMT_IDX_SVC]);
         }
-        else
-        {
-            esp_ble_gatts_start_service(param->add_attr_tab.handles[0]);
-        }
+        // else
+        // {
+        //     esp_ble_gatts_start_service(param->add_attr_tab.handles[0]);
+        // }
         break;
     }
 

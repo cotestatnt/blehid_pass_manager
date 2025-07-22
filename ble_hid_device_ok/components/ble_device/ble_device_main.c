@@ -69,10 +69,10 @@ static uint8_t hidd_service_uuid128[] = {
 static esp_ble_adv_data_t hidd_adv_data = {
     .set_scan_rsp = false,
     .include_name = true,
-    .include_txpower = true,
-    .min_interval = 0x0006, //slave connection min interval, Time = min_interval * 1.25 msec
-    .max_interval = 0x0010, //slave connection max interval, Time = max_interval * 1.25 msec
-    .appearance = 0x03c0,       //HID Generic,
+    .include_txpower = false,
+    .min_interval = 0x0006, // Slave connection min interval, Time = min_interval * 1.25 msec
+    .max_interval = 0x0010, // Slave connection max interval, Time = max_interval * 1.25 msec
+    .appearance = 0x03c0,   // HID Generic,
     .manufacturer_len = 0,
     .p_manufacturer_data =  NULL,
     .service_data_len = 0,
@@ -87,13 +87,9 @@ static esp_ble_adv_params_t hidd_adv_params = {
     .adv_int_max        = 0x30,
     .adv_type           = ADV_TYPE_IND,
     .own_addr_type      = BLE_ADDR_TYPE_PUBLIC,
-    //.peer_addr            =
-    //.peer_addr_type       =
     .channel_map        = ADV_CHNL_ALL,
     .adv_filter_policy = ADV_FILTER_ALLOW_SCAN_ANY_CON_ANY,
 };
-
-
 
 
 static void show_bonded_devices(void)

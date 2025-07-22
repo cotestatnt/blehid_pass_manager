@@ -10,6 +10,8 @@ extern "C" {
 #include <stdint.h>
 #include <stddef.h>
 
+#define DEBUG_PASSWD 0
+
 #define MAX_LABEL_LEN    32
 #define MAX_PASSWORD_LEN 32
 #define MAX_USERS        16

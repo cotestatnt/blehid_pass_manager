@@ -1,7 +1,7 @@
 TEMPLATE = app
 TARGET = ble-passman
 
-QT += qml quick bluetooth multimedia
+QT += qml quick bluetooth multimedia quickcontrols2
 
 CONFIG += qmltypes
 CONFIG += c++17

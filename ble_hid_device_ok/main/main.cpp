@@ -38,40 +38,40 @@ void button_task(void *pvParameters)
         // Pulsante su (PIN 6) premuto (da HIGH a LOW)
         if (last_btn_up == 1 && btn_up == 0) {
             user_index = (user_index + 1) % user_count;
-
-            const char* username = user_list[user_index].label;
-            uint8_t* encoded = user_list[user_index].password_enc;
-            size_t len = user_list[user_index].password_len;
+            const char* username = user_list[user_index].label;            
             
             printf("Account selezionato(%d): %s\n", user_index, username);
             oled_write_text(username, true);
             last_interaction_time = xTaskGetTickCount();
             display_reset_pending = 1;
-
+            #if DEBUG_PASSWD
+            uint8_t* encoded = user_list[user_index].password_enc;
+            size_t len = user_list[user_index].password_len;
             char plain[128];
-            if (userdb_decrypt_password(encoded, len, plain) == 0)
+            if (userdb_decrypt_password(encoded, len, plain) == 0)            
                 printf("Password (decrypted): %s\n", plain);
             else 
                 printf("Decrypt error");
+            #endif
         }
         // Pulsante giù (PIN 7) premuto (da HIGH a LOW)
         if (last_btn_down == 1 && btn_down == 0) {
             user_index = (user_index + user_count - 1) % user_count;
-
-            const char* username = user_list[user_index].label;
-            uint8_t* encoded = user_list[user_index].password_enc;
-            size_t len = user_list[user_index].password_len;
+            const char* username = user_list[user_index].label;            
 
             printf("Account selezionato (%d): %s\n", user_index, username);
             oled_write_text(username, true);
             last_interaction_time = xTaskGetTickCount();
             display_reset_pending = 1;
-
+            #if DEBUG_PASSWD
+            uint8_t* encoded = user_list[user_index].password_enc;
+            size_t len = user_list[user_index].password_len;
             char plain[128];
             if (userdb_decrypt_password(encoded, len, plain) == 0)
                 printf("Password (decrypted): %s\n", plain);
             else 
                 printf("Decrypt error");
+            #endif
         }
 
         last_btn_up = btn_up;
@@ -125,7 +125,9 @@ extern "C" void app_main(void)
     // userdb_clear();
     // userdb_init_test_data();
     userdb_load();
+    #if DEBUG_PASSWD
     userdb_dump();
+    #endif
         
     while(1) {
         // Aggiorna il livello della batteria ogni 10 secondi
