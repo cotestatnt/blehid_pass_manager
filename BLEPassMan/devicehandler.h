@@ -46,6 +46,7 @@ public:
     AddressType addressType() const;
 
     bool alive() const;
+    DeviceInfo *currentDevice() const { return m_currentDevice; }
 
 signals:
     void aliveChanged();
@@ -85,7 +86,6 @@ private:
     bool m_foundService = false;
 
     QSoundEffect m_soundEffect;
-
     QLowEnergyController *m_control = nullptr;
     QLowEnergyService *m_service = nullptr;
     QLowEnergyDescriptor m_notificationDesc;

@@ -31,7 +31,6 @@ extern int display_reset_pending;
 extern uint32_t last_interaction_time;
 
 
-
 // Funzioni di crittografia password
 int userdb_encrypt_password(const char* plain, uint8_t* out_encrypted, size_t* out_len) ;
 int userdb_decrypt_password(const uint8_t* encrypted, size_t len, char* out_plain);

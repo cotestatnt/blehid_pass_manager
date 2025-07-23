@@ -153,6 +153,14 @@ void DeviceHandler::serviceStateChanged(QLowEnergyService::ServiceState s)
     emit aliveChanged();
 }
 
+bool DeviceHandler::alive() const
+{
+    if (m_service)
+        return m_service->state() == QLowEnergyService::RemoteServiceDiscovered;
+
+    return false;
+}
+
 
 void DeviceHandler::writeCustomCharacteristic(const QByteArray &data)
 {
@@ -193,13 +201,6 @@ void DeviceHandler::disconnectService()
     }
 }
 
-bool DeviceHandler::alive() const
-{
-    if (m_service)
-        return m_service->state() == QLowEnergyService::RemoteServiceDiscovered;
-
-    return false;
-}
 
 QVariantList DeviceHandler::userList() const
 {
@@ -259,7 +260,7 @@ void DeviceHandler::editUser(int index, const QString &username, const QString &
     // Pacchetto username
     QByteArray data;
     data.append(static_cast<char>(0x01));           // CMD
-    data.append(static_cast<char>(index));       // Indice
+    data.append(static_cast<char>(index));          // Indice
     data.append(static_cast<char>(0x04));           // Sub-CMD: username
     data.append(username.toUtf8());                 // Username
     writeCustomCharacteristic(data);
@@ -267,7 +268,7 @@ void DeviceHandler::editUser(int index, const QString &username, const QString &
     // Pacchetto password
     data.clear();
     data.append(static_cast<char>(0x01));           // CMD
-    data.append(static_cast<char>(index));       // Indice
+    data.append(static_cast<char>(index));          // Indice
     data.append(static_cast<char>(0x05));           // Sub-CMD: password
     data.append(password.toUtf8());                 // Password
     writeCustomCharacteristic(data);
@@ -275,10 +276,12 @@ void DeviceHandler::editUser(int index, const QString &username, const QString &
     // Pacchetto winlogin
     data.clear();
     data.append(static_cast<char>(0x01));           // CMD
-    data.append(static_cast<char>(index));       // Indice
+    data.append(static_cast<char>(index));          // Indice
     data.append(static_cast<char>(0x06));           // Sub-CMD: Winlogin
-    data.append(winlogin);                          // Winlogin
+    data.append(static_cast<char>(winlogin));       // Winlogin
     writeCustomCharacteristic(data);
+
+    qDebug() << "Edit user data" << data.toHex(' ').toUpper();
 
     m_userList[index] = {username, password, winlogin};
     emit userListUpdated(userList());

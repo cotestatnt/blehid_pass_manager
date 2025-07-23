@@ -53,8 +53,20 @@ void DeviceFinder::startSearch()
     m_deviceHandler->setDevice(nullptr);
     qDeleteAll(m_devices);
     m_devices.clear();
-
     emit devicesChanged();
+
+    /* ----------------------------------------------------------
+       Se il DeviceHandler ha già un dispositivo, aggiungilo ora
+       ---------------------------------------------------------- */
+    DeviceInfo *current = m_deviceHandler->currentDevice();
+    if (current) {
+        m_devices.append(current);
+        emit devicesChanged();
+        setInfo(tr("Already connected. Re-scan to find more devices."));
+        setIcon(IconBluetooth);
+    }
+
+
     m_deviceDiscoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
 
     emit scanningChanged();
@@ -67,8 +79,8 @@ void DeviceFinder::addDevice(const QBluetoothDeviceInfo &device)
     // If device is LowEnergy-device, add it to the list
     if (device.coreConfigurations() & QBluetoothDeviceInfo::LowEnergyCoreConfiguration) {
         // Controlla se espone il servizio target
-        if (!device.serviceUuids().contains(TARGET_SERVICE_UUID))
-            return;
+        // if (!device.serviceUuids().contains(TARGET_SERVICE_UUID))
+        //     return;
 
         auto devInfo = new DeviceInfo(device);
         auto it = std::find_if(m_devices.begin(), m_devices.end(),

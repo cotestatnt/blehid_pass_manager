@@ -8,32 +8,11 @@ static const char *TAG = "FingerprintTask";
 static TaskHandle_t fingerprintTaskHandle = nullptr;
 uint16_t num_templates = 0;
 
-// static void printMenu()
-// {
-//     printf("\n[Fingerprint Menu]\n");
-//     printf("e - Enroll Finger\n");
-//     printf("s - Search Finger\n");
-//     printf("d - Delete All Templates\n");
-//     printf("m - Show Menu\n");
-//     printf("--------------------------\n\n");
-// }
 
-
- void enrollFinger()
+void enrollFinger()
 {
     int ret;
     uint8_t featureCount = 5;
-
-    // char inputBuf[8]
-    // uint16_t location = 0;
-    // printf("How many features do you want to extract? (1-6): ");
-    // fgets(inputBuf, sizeof(inputBuf), stdin);
-    // featureCount = atoi(inputBuf);
-    // if (featureCount < 1 || featureCount > 6) featureCount = 2;
-
-    // printf("Where do you want to store the fingerprint (ID)? ");
-    // fgets(inputBuf, sizeof(inputBuf), stdin);
-    // location = atoi(inputBuf);
 
     printf("Follow the steps below to enroll a new finger\n");
     oled_write_text("Enroll new FP", true);
@@ -245,12 +224,18 @@ static void fingerprint_task(void *pvParameters)
     while (true) {
         // Controlla il segnale "touch" su GPIO 4
         if (gpio_get_level((gpio_num_t)TOUCH_GPIO) == 0) {
+            last_interaction_time = xTaskGetTickCount();
+           
             ESP_LOGI(TAG, "Touch detected, starting fingerprint search...");
             last_interaction_time = xTaskGetTickCount() - pdMS_TO_TICKS(10000);
             display_reset_pending = 1;
             oled_write_text("Search...", true);
 
             if (searchFinger()) {
+                if (user_list[user_index].winlogin && user_index != -1 ) {  // CTRL+ALT+DELETE
+                    send_key_combination(HID_MODIFIER_LEFT_CTRL | HID_MODIFIER_LEFT_ALT, 0x4C);
+                }
+
                 // Autenticazione biometrica riuscita: abilita accesso BLE user list
                 ble_userlist_set_authenticated(true);
                 printf("[FINGERPRINT] Autenticazione biometrica riuscita: accesso BLE abilitato\n");

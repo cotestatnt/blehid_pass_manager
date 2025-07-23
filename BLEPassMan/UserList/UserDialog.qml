@@ -3,9 +3,18 @@
 
 import QtQuick
 import QtQuick.Controls
+import BLEPassMan
 
 Dialog {
     id: dialog
+    /* larghezza voluta */
+    width: parent.width + 40
+    height: implicitHeight
+
+    /* centratura orizzontale */
+    x: (parent.width  - width)  / 2
+    y: 0 - titleBar.height + 10
+
 
     signal finished(string username, string password, bool winlogin)
 
@@ -27,10 +36,10 @@ Dialog {
         dialog.open();
     }
 
-    y: 40
-    x: parent.width / 2 - width / 2
-    width: parent.width - 20
-    padding: 20
+    // y: 5
+    // x: parent.width / 2 - width / 2
+    // width: parent.width
+    // padding: 10
 
     focus: true
     modal: true
@@ -43,7 +52,7 @@ Dialog {
 
     onAccepted: {
         if (form.username.text && form.password.text) {
-            finished(form.username.text, form.password.text, form.winlogin);
+            finished(form.username.text, form.password.text, form.winlogin.checked);
         }
     }
 }

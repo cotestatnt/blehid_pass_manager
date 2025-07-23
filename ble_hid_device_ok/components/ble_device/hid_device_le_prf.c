@@ -16,6 +16,7 @@ extern void enrollFinger();
 
 extern void clearFingerprintDB();
 
+
 /// characteristic presentation information
 struct prf_char_pres_fmt
 {
@@ -410,6 +411,8 @@ static void hid_add_id_tbl(void);
 
 void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_ble_gatts_cb_param_t *param)
 {
+    last_interaction_time = xTaskGetTickCount();
+
     switch (event) {
     case ESP_GATTS_REG_EVT: {
         esp_ble_gap_config_local_icon(ESP_BLE_APPEARANCE_GENERIC_HID);
@@ -535,7 +538,7 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_
                         userdb_set_password(idx, data, data_len);
                     } else if (field == 0x06) {
                         printf("[BLE] Inserimento winlogin idx=%d\n", idx);
-                        userdb_set_winlogin(idx, (bool)data);
+                        userdb_set_winlogin(idx, (bool)param->write.value[3]);
                     } else {
                         printf("[BLE] Campo non riconosciuto: %02X\n", field);
                         oled_write_text("no cmd", true);    

@@ -28,7 +28,6 @@
 
 static const char *TAG = "MAIN";
 
-
 static bool go_to_deep_sleep = false;
 void enter_deep_sleep() {
     esp_deep_sleep_enable_gpio_wakeup((1ULL << TOUCH_GPIO), ESP_GPIO_WAKEUP_GPIO_LOW); 
@@ -45,6 +44,7 @@ void button_task(void *pvParameters)
 
         // Pulsante su (PIN 6) premuto (da HIGH a LOW)
         if (last_btn_up == 1 && btn_up == 0) {
+            last_interaction_time = xTaskGetTickCount();
             user_index = (user_index + 1) % user_count;
             const char* username = user_list[user_index].label;            
             
@@ -64,6 +64,7 @@ void button_task(void *pvParameters)
         }
         // Pulsante giù (PIN 7) premuto (da HIGH a LOW)
         if (last_btn_down == 1 && btn_down == 0) {
+            last_interaction_time = xTaskGetTickCount();
             user_index = (user_index + user_count - 1) % user_count;
             const char* username = user_list[user_index].label;            
 
@@ -142,8 +143,7 @@ extern "C" void app_main(void)
         
     while(1) {
         TickType_t now = xTaskGetTickCount();
-        static TickType_t last_interaction_time = xTaskGetTickCount();
-        if (go_to_deep_sleep && now - last_interaction_time > pdMS_TO_TICKS(120000)) {
+        if (go_to_deep_sleep && now - last_interaction_time > pdMS_TO_TICKS(180000)) {
             go_to_deep_sleep = false;
             oled_off();
             enter_deep_sleep();

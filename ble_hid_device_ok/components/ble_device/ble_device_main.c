@@ -29,26 +29,10 @@
 #include "esp_bt_device.h"
 #include "hid_dev.h"
 
+#include "ble_device_main.h"
 #include "oled.h"
 
 #define HID_DEMO_TAG "HID_DEMO"
-
-// Keyboard codes
-#define HID_MODIFIER_NONE           0x00
-#define HID_MODIFIER_LEFT_CTRL      0x01
-#define HID_MODIFIER_LEFT_SHIFT     0x02
-#define HID_MODIFIER_LEFT_ALT       0x04
-#define HID_MODIFIER_RIGHT_CTRL     0x10
-#define HID_MODIFIER_RIGHT_SHIFT    0x20
-#define HID_MODIFIER_RIGHT_ALT      0x40
-
-#define HID_SPACE                   0x2C
-#define HID_DOT                     0x37
-#define HID_NEWLINE                 0x28
-#define HID_FSLASH                  0x38
-#define HID_BSLASH                  0x31
-#define HID_COMMA                   0x36
-#define HID_DOT                     0x37
 
 static uint16_t hid_conn_id = 0;
 static bool sec_conn = false;
@@ -375,6 +359,22 @@ void send_string(const char* str) {
   }
 }
 
+
+void send_key_combination(uint8_t modifiers, uint8_t key)
+{
+    uint8_t buffer[8] = {0}; // HID report: [modifier, reserved, key1, key2, key3, key4, key5, key6]
+    
+    buffer[0] = modifiers;  // Combinazione di modificatori
+    buffer[2] = key;        // Tasto principale
+    
+    // Send key press
+    esp_hidd_send_keyboard_value(hid_conn_id, buffer[0], &buffer[2], 1);
+    vTaskDelay(10 / portTICK_PERIOD_MS);
+    
+    // Send key release
+    uint8_t release_key = 0;
+    esp_hidd_send_keyboard_value(hid_conn_id, 0, &release_key, 0);
+}
 
 void hid_demo_task(void *pvParameters)
 {
