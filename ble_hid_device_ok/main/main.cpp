@@ -15,6 +15,7 @@
 #include "esp_log.h"
 #include "nvs_flash.h"
 #include "driver/gpio.h"
+#include "esp_sleep.h"
 
 // Local components
 #include "ble_device_main.h"
@@ -27,6 +28,13 @@
 
 static const char *TAG = "MAIN";
 
+
+static bool go_to_deep_sleep = false;
+void enter_deep_sleep() {
+    esp_deep_sleep_enable_gpio_wakeup((1ULL << TOUCH_GPIO), ESP_GPIO_WAKEUP_GPIO_LOW); 
+    esp_deep_sleep_start();
+}
+
 void button_task(void *pvParameters)
 {
     int last_btn_up = 1, last_btn_down = 1;
@@ -38,40 +46,40 @@ void button_task(void *pvParameters)
         // Pulsante su (PIN 6) premuto (da HIGH a LOW)
         if (last_btn_up == 1 && btn_up == 0) {
             user_index = (user_index + 1) % user_count;
-
-            const char* username = user_list[user_index].label;
-            uint8_t* encoded = user_list[user_index].password_enc;
-            size_t len = user_list[user_index].password_len;
+            const char* username = user_list[user_index].label;            
             
             printf("Account selezionato(%d): %s\n", user_index, username);
             oled_write_text(username, true);
             last_interaction_time = xTaskGetTickCount();
             display_reset_pending = 1;
-
+            #if DEBUG_PASSWD
+            uint8_t* encoded = user_list[user_index].password_enc;
+            size_t len = user_list[user_index].password_len;
             char plain[128];
-            if (userdb_decrypt_password(encoded, len, plain) == 0)
+            if (userdb_decrypt_password(encoded, len, plain) == 0)            
                 printf("Password (decrypted): %s\n", plain);
             else 
                 printf("Decrypt error");
+            #endif
         }
         // Pulsante giù (PIN 7) premuto (da HIGH a LOW)
         if (last_btn_down == 1 && btn_down == 0) {
             user_index = (user_index + user_count - 1) % user_count;
-
-            const char* username = user_list[user_index].label;
-            uint8_t* encoded = user_list[user_index].password_enc;
-            size_t len = user_list[user_index].password_len;
+            const char* username = user_list[user_index].label;            
 
             printf("Account selezionato (%d): %s\n", user_index, username);
             oled_write_text(username, true);
             last_interaction_time = xTaskGetTickCount();
             display_reset_pending = 1;
-
+            #if DEBUG_PASSWD
+            uint8_t* encoded = user_list[user_index].password_enc;
+            size_t len = user_list[user_index].password_len;
             char plain[128];
             if (userdb_decrypt_password(encoded, len, plain) == 0)
                 printf("Password (decrypted): %s\n", plain);
             else 
                 printf("Decrypt error");
+            #endif
         }
 
         last_btn_up = btn_up;
@@ -82,6 +90,9 @@ void button_task(void *pvParameters)
             if (now - last_interaction_time > pdMS_TO_TICKS(15000)) {  // 15 secondi
                 oled_write_text("BLE PassMan", false);
                 display_reset_pending = 0;
+                vTaskDelay(pdMS_TO_TICKS(100));
+                go_to_deep_sleep = true;
+                printf("Entering deep sleep...\n");                
             }
         }
 
@@ -125,12 +136,21 @@ extern "C" void app_main(void)
     // userdb_clear();
     // userdb_init_test_data();
     userdb_load();
+    #if DEBUG_PASSWD
     userdb_dump();
+    #endif
         
     while(1) {
-        // Aggiorna il livello della batteria ogni 10 secondi
-        static TickType_t last_battery_update = 0;
         TickType_t now = xTaskGetTickCount();
+        static TickType_t last_interaction_time = xTaskGetTickCount();
+        if (go_to_deep_sleep && now - last_interaction_time > pdMS_TO_TICKS(120000)) {
+            go_to_deep_sleep = false;
+            oled_off();
+            enter_deep_sleep();
+        }
+
+        // Aggiorna il livello della batteria ogni 30 secondi
+        static TickType_t last_battery_update = 0;
         if (now - last_battery_update > pdMS_TO_TICKS(30000)) {
             // ble_battery_set_level(98);
             // ble_battery_notify_level(98);

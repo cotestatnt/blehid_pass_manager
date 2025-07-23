@@ -4,14 +4,14 @@ import QtQuick
 import QtQuick.Controls
 
 ListView {
-    id: listView
-    signal pressAndHold(int index)
+    id: listView   
     width: 320
     height: 480
     boundsBehavior: Flickable.StopAtBounds
     spacing: 5
 
     property int selectedIndex: -1
+    signal pressAndHold(int index)
 
     delegate: UserDelegate {
         id: delegate

@@ -10,14 +10,17 @@
 #include <QLoggingCategory>
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include <QQuickStyle>
+
 
 using namespace Qt::StringLiterals;
 
 
 int main(int argc, char *argv[])
 {
-    qputenv("QT_BLUETOOTH_BACKEND", "winrt");
-
+    // qputenv("QT_BLUETOOTH_BACKEND", "winrt");
+    qputenv("QT_QUICK_CONTROLS_MATERIAL_THEME", "Dark");   // o "Light"
+    QQuickStyle::setStyle("Material");
 
     QGuiApplication app(argc, argv);
 

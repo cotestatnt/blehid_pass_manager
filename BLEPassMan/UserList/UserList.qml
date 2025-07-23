@@ -8,13 +8,14 @@ Item {
     property int currentContact: -1
     property bool syncEnabled: true
     property var userModel: []
-    signal addUser(string username, string password)
-    signal editUser(int index, string username, string password)
+
+    signal addUser(string username, string password, bool winlogin)
+    signal editUser(int index, string username, string password, bool winlogin)
     signal removeUser(int index)
     signal readList()
 
 
-    // // Log per vedere quando il modello viene aggiornato dall'esterno (da Measure.qml)
+    // Log per vedere quando il modello viene aggiornato dall'esterno (da Measure.qml)
     // onUserModelChanged: {
     //     console.log("LOG (UserList.qml): Il modello dati 'userModel' è stato aggiornato. Numero di utenti:", userModel.length)
     // }
@@ -25,11 +26,11 @@ Item {
 
     UserDialog {
         id: contactDialog
-        onFinished: function(username, password) {            
+        onFinished: function(username, password, winlogin) {
             if (root.currentContact === -1)
-                root.addUser(username, password)
+                root.addUser(username, password, winlogin)
             else
-                root.editUser(root.currentContact, username, password)
+                root.editUser(root.currentContact, username, password, winlogin)
         }
     }
 

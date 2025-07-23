@@ -17,6 +17,8 @@ QT_BEGIN_NAMESPACE
 class QBluetoothDeviceInfo;
 QT_END_NAMESPACE
 
+const QBluetoothUuid TARGET_SERVICE_UUID = QBluetoothUuid(QUuid("0000fff0-0000-1000-8000-00805f9b34fb"));
+
 class DeviceInfo;
 class DeviceHandler;
 
@@ -55,7 +57,9 @@ private:
 
     DeviceHandler *m_deviceHandler;
     QBluetoothDeviceDiscoveryAgent *m_deviceDiscoveryAgent;
-    QList<DeviceInfo *> m_devices;
+    QList<DeviceInfo *> m_devices;    
+
+
 };
 
 #endif // DEVICEFINDER_H

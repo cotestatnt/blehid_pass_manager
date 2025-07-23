@@ -34,6 +34,7 @@ extern "C" {
 #define LCD_CMD_BITS           8
 #define LCD_PARAM_BITS         8
 
+void oled_off(void);
 
 void oled_init(void);
 void oled_write_text(const char* text, bool reset_display);

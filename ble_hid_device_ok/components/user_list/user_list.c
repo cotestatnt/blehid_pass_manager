@@ -97,11 +97,13 @@ void userdb_dump() {
     printf("=== USER LIST (%d users) ===\n", (int)user_count);
     for (size_t i = 0; i < user_count; ++i) {
         printf(" [%d] Label: %s\n", (int)i, user_list[i].label);
+        #if DEBUG_PASSWD
         printf("      Password (hex): ");
         for (size_t j = 0; j < user_list[i].password_len; ++j) {
             printf("%02X ", user_list[i].password_enc[j]);
         }
         printf("\n");
+        #endif
         printf("      Usage count: %lu\n", user_list[i].usage_count);
     }
     printf("=============================\n");
@@ -272,9 +274,31 @@ void send_password(uint8_t index) {
         char plain[128];
         userdb_decrypt_password(user_list[index].password_enc, user_list[index].password_len, plain);        
         strcpy(payload.data, plain);        
+        #if DEBUG_PASSWD
         ESP_LOGI(TAG, "User password: %s\n", plain);
+        #endif
     }
    
+    esp_ble_gatts_send_indicate(
+        hidd_le_env.gatt_if,
+        user_mgmt_conn_id,
+        user_mgmt_handle[USER_MGMT_IDX_VAL],
+        sizeof(payload),
+        (uint8_t *)&payload,
+        true
+    );
+}
+
+void send_winlogin(uint8_t index) {
+    user_mgmt_payload_t payload = {0};
+    payload.cmd = 0x06;
+    payload.index = index;
+
+    if (index < MAX_USERS && user_count ) {
+        payload.data[0] = user_list[index].winlogin ? 1 : 0; // 1 se è un login Windows, 0 altrimenti
+        ESP_LOGI(TAG, "Winlogin: %d\n", payload.data[0]);
+    }  
+
     esp_ble_gatts_send_indicate(
         hidd_le_env.gatt_if,
         user_mgmt_conn_id,
@@ -355,6 +379,7 @@ void userdb_set_username(int index, const char* username, size_t len) {
 
     if (index >= 0 && index < user_count) {
         // Modifica: aggiorna username esistente
+        memset(user_list[index].label, 0, MAX_LABEL_LEN);
         strncpy(user_list[index].label, username, len < MAX_LABEL_LEN ? len : MAX_LABEL_LEN - 1);
         user_list[index].label[MAX_LABEL_LEN - 1] = '\0';
         userdb_save();
@@ -379,6 +404,9 @@ void userdb_set_password(int index, const char* password, size_t len) {
         size_t enc_len = 0;
         userdb_encrypt_password(password, encrypted, &enc_len);
         if (enc_len > MAX_PASSWORD_LEN) enc_len = MAX_PASSWORD_LEN;
+
+        // Pulisci la password precedente
+        memset(user_list[index].password_enc, 0, MAX_PASSWORD_LEN);
         memcpy(user_list[index].password_enc, encrypted, enc_len);
         user_list[index].password_len = enc_len;
         userdb_save();
@@ -397,5 +425,11 @@ void userdb_set_password(int index, const char* password, size_t len) {
     }
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
+void userdb_set_winlogin(int index, bool winlogin) {
+    printf("Setting winlogin for index %d: %d\n", index, winlogin);
+
+    if (index >= 0 && index < user_count) {
+        user_list[index].winlogin = winlogin;
+        userdb_save();
+    }
+}

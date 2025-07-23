@@ -3,6 +3,7 @@
 
 static const char *TAG = "OLED";
 static lv_disp_t *disp;
+static esp_lcd_panel_handle_t panel_handle;
 
 void oled_write_text(const char* text, bool reset_display) {
     // Lock the mutex due to the LVGL APIs are not thread-safe
@@ -52,7 +53,7 @@ void oled_init(void) {
     ESP_ERROR_CHECK(esp_lcd_new_panel_io_i2c(i2c_bus, &io_config, &io_handle));
 
     ESP_LOGI(TAG, "Install SSD1306 panel driver");
-    esp_lcd_panel_handle_t panel_handle = NULL;
+    panel_handle = NULL;
     esp_lcd_panel_dev_config_t panel_config = {
         .bits_per_pixel = 1,
         .reset_gpio_num = PIN_NUM_RST,
@@ -91,4 +92,19 @@ void oled_init(void) {
 
     // ESP_LOGI(TAG, "Display LVGL Scroll Text");
     oled_write_text("BLE PassMan", false);
+}
+
+
+void oled_off(void) {
+    if (disp) {
+        // Lock the mutex due to the LVGL APIs are not thread-safe
+        if (lvgl_port_lock(0)) {
+            lv_obj_t *scr = lv_disp_get_scr_act(disp);
+            lv_obj_clean(scr); // Clear the display
+            // Release the mutex
+            lvgl_port_unlock();
+        }
+        ESP_LOGI(TAG, "Turning off OLED display");
+        esp_lcd_panel_disp_on_off(panel_handle, false);
+    }
 }
