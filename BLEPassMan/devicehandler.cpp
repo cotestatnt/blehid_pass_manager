@@ -207,62 +207,77 @@ QVariantList DeviceHandler::userList() const
     QVariantList list;
     for (auto it = m_userList.constBegin(); it != m_userList.constEnd(); ++it) {
         QVariantMap entry;
-        // entry["index"] = it.key();
         entry["username"] = it.value().username;
         entry["password"] = it.value().password;
         entry["winlogin"] = it.value().winlogin;
+        entry["autoFinger"] = it.value().autoFinger;
+        entry["fingerprintIndex"] = it.value().fingerprintIndex;
         list.append(entry);
     }
     return list;
 }
 
 
-void DeviceHandler::addUser(const QString &username, const QString &password, const bool winlogin)
+
+void DeviceHandler::addUser(const QVariantMap &user)
 {
     int newIndex = m_userList.isEmpty() ? 0 : m_userList.lastKey() + 1;
     qDebug() << "BACKEND: Aggiungo utente all'indice" << newIndex;
 
+    UserEntry entry;
+    entry.username = user["username"].toString();
+    entry.password = user["password"].toString();
+    entry.winlogin = user["winlogin"].toBool();
+    entry.autoFinger = user["autoFinger"].toBool();
+    entry.fingerprintIndex = user["fingerprintIndex"].toInt();
+
+    // Converti username e password in array di lunghezza fissa (32 byte)
+    QByteArray usernameBytes = entry.username.toUtf8();
+    QByteArray passwordBytes = entry.password.toUtf8();
+
+    // Tronca o riempi con null bytes per raggiungere esattamente 32 byte
+    usernameBytes = usernameBytes.left(32);  // Tronca se più lungo di 32
+    passwordBytes = passwordBytes.left(32);  // Tronca se più lungo di 32
+    // Riempi con 0x00 fino a raggiungere 32 byte
+    while (usernameBytes.size() < 32) usernameBytes.append('\0');
+    while (passwordBytes.size() < 32) passwordBytes.append('\0');
+
     // Pacchetto username
     QByteArray data;
-    data.append(static_cast<char>(0x01));           // CMD
-    data.append(static_cast<char>(newIndex));       // Indice
-    data.append(static_cast<char>(0x04));           // Sub-CMD: username
-    data.append(username.toUtf8());                 // Username
+    data.append(static_cast<char>(ADD_NEW_USER));
+    data.append(static_cast<char>(newIndex));
+    data.append(usernameBytes);  // 32 byte fissi
+    data.append(passwordBytes);  // 32 byte fissi
+    data.append(entry.winlogin);
+    data.append(entry.autoFinger);
+    data.append(entry.fingerprintIndex);
+
     writeCustomCharacteristic(data);
 
-    // Pacchetto password
-    data.clear();
-    data.append(static_cast<char>(0x01));           // CMD
-    data.append(static_cast<char>(newIndex));       // Indice
-    data.append(static_cast<char>(0x05));           // Sub-CMD: password
-    data.append(password.toUtf8());                 // Password
-    writeCustomCharacteristic(data);
-
-    // Pacchetto winlogin
-    data.clear();
-    data.append(static_cast<char>(0x01));           // CMD
-    data.append(static_cast<char>(newIndex));       // Indice
-    data.append(static_cast<char>(0x06));           // Sub-CMD: Winlogin
-    data.append(winlogin);                          // Winlogin
-    writeCustomCharacteristic(data);
-
-    // (Opzionale) Aggiorna modello locale
-    m_userList[newIndex] = {username, password, winlogin};
+    qDebug() << data.toHex(' ').toUpper();
+    m_userList[newIndex] = entry;
     emit userListUpdated(userList());
 }
 
-void DeviceHandler::editUser(int index, const QString &username, const QString &password, const bool winlogin)
+void DeviceHandler::editUser(int index, const QVariantMap &user)
 {
     qDebug() << "BACKEND: Modifco utente all'indice" << index;
     if (!m_userList.contains(index))
         return;
 
+    UserEntry entry;
+    entry.username = user["username"].toString();
+    entry.password = user["password"].toString();
+    entry.winlogin = user["winlogin"].toBool();
+    entry.winlogin = user["winlogin"].toBool();
+
+
     // Pacchetto username
     QByteArray data;
-    data.append(static_cast<char>(0x01));           // CMD
+    data.append(static_cast<char>(ADD_NEW_USER));           // CMD
     data.append(static_cast<char>(index));          // Indice
-    data.append(static_cast<char>(0x04));           // Sub-CMD: username
-    data.append(username.toUtf8());                 // Username
+    data.append(static_cast<char>(0x01));           // Sub-CMD: username
+    data.append(entry.username.toUtf8());                 // Username
     writeCustomCharacteristic(data);
 
     // Pacchetto password
@@ -270,7 +285,7 @@ void DeviceHandler::editUser(int index, const QString &username, const QString &
     data.append(static_cast<char>(0x01));           // CMD
     data.append(static_cast<char>(index));          // Indice
     data.append(static_cast<char>(0x05));           // Sub-CMD: password
-    data.append(password.toUtf8());                 // Password
+    data.append(entry.password.toUtf8());                 // Password
     writeCustomCharacteristic(data);
 
     // Pacchetto winlogin
@@ -278,15 +293,25 @@ void DeviceHandler::editUser(int index, const QString &username, const QString &
     data.append(static_cast<char>(0x01));           // CMD
     data.append(static_cast<char>(index));          // Indice
     data.append(static_cast<char>(0x06));           // Sub-CMD: Winlogin
-    data.append(static_cast<char>(winlogin));       // Winlogin
+    data.append(static_cast<char>(entry.winlogin));       // Winlogin
     writeCustomCharacteristic(data);
 
     qDebug() << "Edit user data" << data.toHex(' ').toUpper();
 
-    m_userList[index] = {username, password, winlogin};
+    m_userList[index] = entry;
     emit userListUpdated(userList());
 }
 
+void DeviceHandler::getUserFromDevice(int index) {
+
+    qDebug() << "Get complete user list from BLE device";
+    QByteArray data;
+    data.append(static_cast<char>(GET_USERS_LIST));           // CMD
+    data.append(static_cast<char>(index));          // Indice
+    writeCustomCharacteristic(data);
+    qDebug() << data.toHex(' ').toUpper();
+
+}
 
 
 void DeviceHandler::removeUser(int index)
@@ -296,7 +321,7 @@ void DeviceHandler::removeUser(int index)
         return;
 
     QByteArray data;
-    data.append(static_cast<char>(0x03));           // CMD Remove
+    data.append(static_cast<char>(REMOVE_USER));           // CMD Remove
     data.append(static_cast<char>(index));          // Indice
     writeCustomCharacteristic(data);
     m_userList.remove(index);
@@ -305,26 +330,26 @@ void DeviceHandler::removeUser(int index)
     getUserList();
 }
 
-void DeviceHandler::requestUser(quint8 idx) {
-    QByteArray data;
-    data.append(0x04);
-    data.append(idx);
-    writeCustomCharacteristic(data);
-}
+// void DeviceHandler::requestUser(quint8 idx) {
+//     QByteArray data;
+//     data.append(0x04);
+//     data.append(idx);
+//     writeCustomCharacteristic(data);
+// }
 
-void DeviceHandler::requestPassword(quint8 idx) {
-    QByteArray data;
-    data.append(0x05);
-    data.append(idx);
-    writeCustomCharacteristic(data);
-}
+// void DeviceHandler::requestPassword(quint8 idx) {
+//     QByteArray data;
+//     data.append(0x05);
+//     data.append(idx);
+//     writeCustomCharacteristic(data);
+// }
 
-void DeviceHandler::requestWinlogin(quint8 idx) {
-    QByteArray data;
-    data.append(0x06);
-    data.append(idx);
-    writeCustomCharacteristic(data);
-}
+// void DeviceHandler::requestWinlogin(quint8 idx) {
+//     QByteArray data;
+//     data.append(0x06);
+//     data.append(idx);
+//     writeCustomCharacteristic(data);
+// }
 
 
 void DeviceHandler::enrollFingerprint() {
@@ -333,8 +358,7 @@ void DeviceHandler::enrollFingerprint() {
 
     qDebug() << "Enroll new fingerprint";
     QByteArray data;
-    // data.append(0x07);
-    data.append(0xA1);
+    data.append(ENROLL_FINGER);
     writeCustomCharacteristic(data);
 }
 
@@ -343,7 +367,7 @@ void DeviceHandler::clearFingerprintDB()
 
     qDebug() << "Clear fingerprint DB";
     QByteArray data;
-    data.append(0x08);
+    data.append(CLEAR_LIBRARY);
     writeCustomCharacteristic(data);
 }
 
@@ -352,8 +376,9 @@ void DeviceHandler::getUserList()
     m_userList.clear();  // reset lista
 
     // emit userListUpdated(list);
-    qDebug() << "Start reading users list";    
-    requestUser(0);
+    // qDebug() << "Start reading users list";
+    // requestUser(0);
+    getUserFromDevice(0);
 }
 
 UserEntry DeviceHandler::parseUserEntry(const QByteArray &data) {
@@ -368,13 +393,14 @@ UserEntry DeviceHandler::parseUserEntry(const QByteArray &data) {
 
     // Skip command byte (0xA1)
     uint8_t cmd = static_cast<uint8_t>(data[offset++]);
-    if (cmd != 0xA1) {
+    if (cmd != GET_USERS_LIST) {
         qWarning() << "Invalid command byte for user entry:" << QString::number(cmd, 16);
         return entry;
     }
 
     // Parse index
     int index = static_cast<uint8_t>(data[offset++]);
+    Q_UNUSED(index);
 
     // Parse label (MAX_LABEL_LEN bytes)
     constexpr int MAX_LABEL_LEN = 32; // Adjust based on your #define
@@ -435,23 +461,23 @@ void DeviceHandler::updateCharacteristicValue(const QLowEnergyCharacteristic &c,
 
 
     switch (cmd) {
-        case 0x04: // username
-            m_userList[index].username = text;
-            qDebug() << "[BLE] Username[" << index << "]:" << text;
-            requestPassword(index);
-            break;
-        case 0x05: // password
-            m_userList[index].password = text;
-            qDebug() << "[BLE] Password[" << index << "]:" << "***********";
-            requestWinlogin(index);
-            break;
-        case 0x06: // winlogin
-            m_userList[index].winlogin = value[2];
-            qDebug() << "[BLE] Winlogin[" << index << "]:" << m_userList[index].winlogin;
-            requestUser(index + 1);
-            break;
+        // case 0x04: // username
+        //     m_userList[index].username = text;
+        //     qDebug() << "[BLE] Username[" << index << "]:" << text;
+        //     requestPassword(index);
+        //     break;
+        // case 0x05: // password
+        //     m_userList[index].password = text;
+        //     qDebug() << "[BLE] Password[" << index << "]:" << "***********";
+        //     requestWinlogin(index);
+        //     break;
+        // case 0x06: // winlogin
+        //     m_userList[index].winlogin = value[2];
+        //     qDebug() << "[BLE] Winlogin[" << index << "]:" << m_userList[index].winlogin;
+        //     requestUser(index + 1);
+        //     break;
 
-        case 0x99: // Not authenticate
+        case NOT_AUTHORIZED: // Not authenticate
             qDebug().nospace() << "[BLE] Authenticated[" << (data.at(0) ? "true" : "false") << "]";
             clearMessages();
             if (data.at(0)) {
@@ -467,7 +493,7 @@ void DeviceHandler::updateCharacteristicValue(const QLowEnergyCharacteristic &c,
             }
             break;
 
-        case 0xA1: {
+        case GET_USERS_LIST: {
             qDebug() << value.toHex(' ').toUpper();
             UserEntry user = parseUserEntry(value);
             m_userList[index].username =  user.username;
@@ -481,16 +507,17 @@ void DeviceHandler::updateCharacteristicValue(const QLowEnergyCharacteristic &c,
             qDebug() << "Winlogin:" << user.winlogin;
             qDebug() << "Fingerprint:" << user.fingerprintIndex;
             qDebug() << "Fingerprint automatic:" << user.autoFinger;
-            requestUser(index + 1);
+            getUserFromDevice(index + 1);
             break;
         }
 
-        case 0xFF: // List empty
+        case LIST_EMPTY: // List empty
             qWarning() << "User list empty";
             setInfo("User list empty, please add new user");
             setIcon(IconSearch);
             break;
-        case 0xAA: // generic message
+
+        case BLE_MESSAGE: // generic message
             clearMessages();
             qDebug() << "[" << (index ? "error" : "info") <<  "] Message: " << text;
             if (index) {

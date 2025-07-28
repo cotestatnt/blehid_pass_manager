@@ -26,6 +26,7 @@ extern "C" {
 #define MAX_MTU_SIZE                128
 
 
+
 void send_string(const char* str);
 void send_key_combination(uint8_t modifiers, uint8_t key);
 void ble_device_init(void);

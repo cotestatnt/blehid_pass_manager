@@ -91,6 +91,20 @@
 #define HID_REPORT_TYPE_OUTPUT      2
 #define HID_REPORT_TYPE_FEATURE     3
 
+
+// Custom commands for BLE communication
+#define NOT_AUTHORIZED  0x99
+#define RESET_USER_LIST 0xA0
+#define GET_USERS_LIST  0xA1
+#define ADD_NEW_USER    0xA2
+#define EDIT_USER       0xA3
+#define REMOVE_USER     0xA4
+#define BLE_MESSAGE     0xAA
+#define ENROLL_FINGER   0xB0
+#define CLEAR_LIBRARY   0xB2 
+#define LIST_EMPTY      0xFF
+
+
 /// HID Service Attributes Indexes
 enum {
     HIDD_LE_IDX_SVC,

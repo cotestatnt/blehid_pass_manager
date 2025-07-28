@@ -10,10 +10,13 @@ GridLayout {
     property alias username: username
     property alias password: password
     property alias winlogin: winlogin
+    property alias autoFinger: autoFinger
+    property alias fingerprintIndex: fingerprintIndex
     property int minimumInputSize: 120
 
     rows: 3
     columns: 2
+
 
     Label {
         text: qsTr("Username")
@@ -27,6 +30,7 @@ GridLayout {
         Layout.alignment: Qt.AlignLeft | Qt.AlignBaseline
         placeholderText: qsTr("Enter username")
     }
+
 
     Label {
         text: qsTr("Password")
@@ -50,4 +54,23 @@ GridLayout {
         id: winlogin
         checked: false
     }
+
+
+    Label {
+        text: qsTr("Auto fingerprint")
+        Layout.alignment: Qt.AlignLeft | Qt.AlignBaseline
+    }
+    CheckBox {
+        id: autoFinger
+        checked: false
+    }
+
+    Label {
+        text: qsTr("Fingerprint ID")
+    }
+    ComboBox {
+        id: fingerprintIndex
+        model: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    }
+
 }

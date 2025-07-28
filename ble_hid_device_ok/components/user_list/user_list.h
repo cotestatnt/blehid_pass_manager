@@ -18,7 +18,7 @@ extern "C" {
 
 typedef struct {
     char label[MAX_LABEL_LEN];         // es: username o descrizione
-    uint8_t password_enc[MAX_PASSWORD_LEN]; // password crittografata
+    uint8_t password_enc[MAX_PASSWORD_LEN*2]; // password crittografata
     size_t password_len;               // lunghezza reale della password cifrata
     uint32_t usage_count;              // frequenza di utilizzo
     uint8_t footprintIndex;            // indice del fingerprint associato (0-9)
@@ -40,9 +40,15 @@ int userdb_decrypt_password(const uint8_t* encrypted, size_t len, char* out_plai
 // Funzioni di gestione
 void userdb_load();
 void userdb_save();
-int userdb_add(const char* label, const uint8_t* password_enc, size_t enc_len);
 int userdb_remove(int index);
-int userdb_update(int index, const char* new_label, const char* new_password);
+
+
+// int userdb_add(const char* label, const uint8_t* password_enc, size_t enc_len);
+// int userdb_update(int index, const char* new_label, const char* new_password);
+
+int userdb_add(user_entry_t* user);
+void userdb_edit(int index, user_entry_t* user);
+
 void userdb_increment_usage(int index);
 void userdb_sort_by_usage();
 
@@ -51,12 +57,12 @@ void userdb_set_password(int index, const char* password, size_t len);
 void userdb_set_winlogin(int index, bool winlogin);
 
 // Test data initialization
-void userdb_init_test_data();
+// void userdb_init_test_data();
 void userdb_dump();
 void userdb_clear();
 
 // Funzioni per l'invio della lista utenti al client BLE
-void send_user_entry(uint8_t index);
+void send_user_entry(int8_t index);
 void send_winlogin(uint8_t index);
 void send_user(uint8_t index);
 void send_password(uint8_t index);    

@@ -72,29 +72,29 @@ int userdb_decrypt_password(const uint8_t* encrypted, size_t len, char* out_plai
     return 0;
 }
 
-void userdb_init_test_data() {
-    if (get_device_key_hmac(decrypt_key) != ESP_OK)
-        ESP_LOGE(TAG, "Error getting decrypt key");
+// void userdb_init_test_data() {
+//     if (get_device_key_hmac(decrypt_key) != ESP_OK)
+//         ESP_LOGE(TAG, "Error getting decrypt key");
 
-    user_count = 0;
+//     user_count = 0;
 
-    uint8_t pswd[MAX_PASSWORD_LEN];
-    size_t len;
+//     uint8_t pswd[MAX_PASSWORD_LEN];
+//     size_t len;
 
-    userdb_encrypt_password("123456789", pswd, &len);
-    userdb_add("PIN Banca", pswd, len);
+//     userdb_encrypt_password("123456789", pswd, &len);
+//     userdb_add("PIN Banca", pswd, len);
 
-    userdb_encrypt_password("XTA?=XXcts))", pswd, &len);
-    userdb_add("CSR Tolentino", pswd, len);
+//     userdb_encrypt_password("XTA?=XXcts))", pswd, &len);
+//     userdb_add("CSR Tolentino", pswd, len);
 
-    userdb_encrypt_password("Ndirondirondello?", pswd, &len);
-    userdb_add("Windows11", pswd, len);
+//     userdb_encrypt_password("Ndirondirondello?", pswd, &len);
+//     userdb_add("Windows11", pswd, len);
 
-    // userdb_increment_usage(2);
-    // userdb_increment_usage(2);
-    // userdb_increment_usage(0);
-    user_index = -1;  // Reset index all'avvio
-}
+//     // userdb_increment_usage(2);
+//     // userdb_increment_usage(2);
+//     // userdb_increment_usage(0);
+//     user_index = -1;  // Reset index all'avvio
+// }
 
 void userdb_dump() {
     printf("=== USER LIST (%d users) ===\n", (int)user_count);
@@ -154,26 +154,89 @@ void userdb_load() {
 }
 
 // Aggiunge un nuovo utente (label e password in chiaro, da cifrare prima di chiamare questa funzione)
-int userdb_add(const char* label, const uint8_t* password_enc, size_t enc_len) {
+// int userdb_add(const char* label, const uint8_t* password_enc, size_t enc_len) {
+//     if (user_count >= MAX_USERS) 
+//         return -1;
+    
+//     strncpy(user_list[user_count].label, label, MAX_LABEL_LEN - 1);
+//     user_list[user_count].label[MAX_LABEL_LEN - 1] = 0;
+
+//     if (enc_len > MAX_PASSWORD_LEN) 
+//         enc_len = MAX_PASSWORD_LEN;
+    
+//     memcpy(user_list[user_count].password_enc, password_enc, enc_len);
+//     user_list[user_count].password_len = enc_len;
+//     user_list[user_count].usage_count = 0;
+//     user_count++;
+//     userdb_save();
+
+//     oled_write_text("User added", true);
+//     ESP_LOGI(TAG, "User added: %s", label);
+//     return user_count;
+// }
+
+
+// Aggiorna label e password di un utente
+// int userdb_update(int index, const char* new_label, const char* new_password_enc) {
+//     if (index < 0 || index >= user_count) return -1;
+//     strncpy(user_list[index].label, new_label, MAX_LABEL_LEN - 1);
+//     user_list[index].label[MAX_LABEL_LEN - 1] = 0;
+//     size_t len = strlen(new_password_enc);
+//     if (len > MAX_PASSWORD_LEN) 
+//         len = MAX_PASSWORD_LEN;
+//     memcpy(user_list[index].password_enc, new_password_enc, len);
+//     user_list[index].password_len = len;
+//     userdb_save();
+//     send_ble_message("User updated", 0x00);
+//     return 0;
+// }
+
+
+int userdb_add(user_entry_t* user) {
     if (user_count >= MAX_USERS) 
         return -1;
-    
-    strncpy(user_list[user_count].label, label, MAX_LABEL_LEN - 1);
-    user_list[user_count].label[MAX_LABEL_LEN - 1] = 0;
 
-    if (enc_len > MAX_PASSWORD_LEN) 
-        enc_len = MAX_PASSWORD_LEN;
+    // strncpy(user_list[user_count].label, user->label, MAX_LABEL_LEN - 1);
     
-    memcpy(user_list[user_count].password_enc, password_enc, enc_len);
-    user_list[user_count].password_len = enc_len;
-    user_list[user_count].usage_count = 0;
-    user_count++;
+
+    // uint8_t encoded[MAX_PASSWORD_LEN];
+    // size_t len = 0;
+    // userdb_encrypt_password((const char*)pswd, encoded, &len);
+
+    // memcpy(user_list[user_count].password_enc, encoded, len);
+    // user_list[user_count].password_len = len;
+    // user_list[user_count].usage_count = 0;
+    // user_count++;
+
+    user_list[user_count] = *user; // Copia la struttura completa
+    user_list[user_count].usage_count = 0; // Inizializza il contatore di utilizzo
     userdb_save();
 
     oled_write_text("User added", true);
-    ESP_LOGI(TAG, "User added: %s", label);
+    ESP_LOGI(TAG, "User added: %s", user->label);
     return user_count;
 }
+
+
+void userdb_edit(int index, user_entry_t* user){
+    if (index < 0 || index >= user_count) 
+        return ;
+    // strncpy(user_list[index].label, user->label, MAX_LABEL_LEN - 1);
+    // user_list[index].label[MAX_LABEL_LEN - 1] = 0;
+    
+    // size_t len = 0;
+    // uint8_t encoded[MAX_PASSWORD_LEN];
+    // userdb_encrypt_password((const char*)pswd, encoded, &len);
+
+    // memcpy(user_list[index].password_enc, encoded, len);
+    // user_list[index].password_len = user->password_len;
+
+    user_list[index] = *user; // Copia la struttura completa
+    userdb_save();
+    oled_write_text("User updated", true);
+    ESP_LOGI(TAG, "User updated: %s", user->label);
+}
+
 
 // Rimuove un utente dato l'indice
 int userdb_remove(int index) {
@@ -187,21 +250,6 @@ int userdb_remove(int index) {
     userdb_load(); 
     oled_write_text("User removed", true);
     ESP_LOGI(TAG, "User removed at index: %d", index);
-    return 0;
-}
-
-// Aggiorna label e password di un utente
-int userdb_update(int index, const char* new_label, const char* new_password_enc) {
-    if (index < 0 || index >= user_count) return -1;
-    strncpy(user_list[index].label, new_label, MAX_LABEL_LEN - 1);
-    user_list[index].label[MAX_LABEL_LEN - 1] = 0;
-    size_t len = strlen(new_password_enc);
-    if (len > MAX_PASSWORD_LEN) 
-        len = MAX_PASSWORD_LEN;
-    memcpy(user_list[index].password_enc, new_password_enc, len);
-    user_list[index].password_len = len;
-    userdb_save();
-    send_ble_message("User updated", 0x00);
     return 0;
 }
 
@@ -314,37 +362,40 @@ void send_winlogin(uint8_t index) {
 
 
 
-void send_user_entry(uint8_t index) {
+void send_user_entry(int8_t index) {
     if (index < 0 || index >= user_count) {
-        ESP_LOGE(TAG, "Invalid user index: %d", index);
-        return;
+        ESP_LOGW(TAG, "Invalid user index: %d (end of list)\n", index);
     }
+    
     size_t payload_size = 0;
     uint8_t payload_data[128] = {0};
 
-    user_entry_t entry = user_list[index];
-    size_t size = sizeof(entry);
+    if (index < MAX_USERS && user_count ) {
+        user_entry_t entry = user_list[index];
+        size_t size = sizeof(entry);
 
-    payload_data[payload_size++] = 0xA1; // Comando per inviare un utente
-    payload_data[payload_size++] = index; // Indice dell'utente corrente
-    if (size > sizeof(payload_data) - 2) {
-        ESP_LOGE(TAG, "User entry size exceeds maximum payload size");
-        return;
+        payload_data[payload_size++] = 0xA1; // Comando per inviare un utente
+        payload_data[payload_size++] = index; // Indice dell'utente corrente
+        if (size > sizeof(payload_data) - 2) {
+            ESP_LOGE(TAG, "User entry size exceeds maximum payload size");
+            return;
+        }
+
+        // Set label and password in the payload
+        memcpy(&payload_data[payload_size], entry.label, MAX_LABEL_LEN);
+        payload_size += MAX_LABEL_LEN;
+
+        char plain[128] = {0};
+        userdb_decrypt_password(entry.password_enc, entry.password_len, plain);
+        memcpy(&payload_data[payload_size], plain, MAX_PASSWORD_LEN);
+        payload_size += MAX_PASSWORD_LEN;
+
+        payload_data[payload_size++] = entry.winlogin ? 1 : 0; 
+        payload_data[payload_size++] = entry.auto_fingerprint ? 1 : 0; 
+        payload_data[payload_size++] = entry.footprintIndex;
+        memset(plain, 0, sizeof(plain));
     }
-
-    // Set label and password in the payload
-    memcpy(&payload_data[payload_size], entry.label, MAX_LABEL_LEN);
-    payload_size += MAX_LABEL_LEN;
-
-    char plain[128] = {0};
-    userdb_decrypt_password(entry.password_enc, entry.password_len, plain);
-    memcpy(&payload_data[payload_size], plain, MAX_PASSWORD_LEN);
-    payload_size += MAX_PASSWORD_LEN;
-
-    payload_data[payload_size++] = entry.winlogin ? 1 : 0; 
-    payload_data[payload_size++] = entry.auto_fingerprint ? 1 : 0; 
-    payload_data[payload_size++] = entry.footprintIndex;
-
+    
     esp_ble_gatts_send_indicate(
         hidd_le_env.gatt_if,
         user_mgmt_conn_id,
@@ -353,7 +404,6 @@ void send_user_entry(uint8_t index) {
         (uint8_t *)&payload_data,
         true
     );
-    memset(plain, 0, sizeof(plain));
 }
 
 

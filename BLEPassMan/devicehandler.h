@@ -15,6 +15,19 @@
 #include <QTimer>
 #include <QQmlEngine>
 
+
+#define NOT_AUTHORIZED  0x99
+#define GET_USERS_LIST  0xA1
+#define ADD_NEW_USER    0xA2
+#define EDIT_USER       0xA3
+#define REMOVE_USER     0xA4
+#define BLE_MESSAGE     0xAA
+
+#define ENROLL_FINGER   0xB0
+#define CLEAR_LIBRARY   0xB2
+
+#define LIST_EMPTY      0xFF
+
 struct UserEntry {
     QString username;
     QString password;
@@ -60,9 +73,11 @@ public slots:
     void getUserList();
     void disconnectService();
 
-    void addUser(const QString &username, const QString &password, const bool winlogin);
-    void editUser(int index, const QString &username, const QString &password, const bool winlogin);
-    void removeUser(int index);
+    Q_INVOKABLE void addUser(const QVariantMap &user);
+    Q_INVOKABLE void editUser(int index, const QVariantMap &user);
+    Q_INVOKABLE void removeUser(int index);
+
+    void getUserFromDevice(int index);
 
     void enrollFingerprint();
     void clearFingerprintDB();
@@ -79,10 +94,9 @@ private:
     void writeCustomCharacteristic(const QByteArray &data);
 
     // void requestNextUser(quint8 cmd);
-
-    void requestUser(quint8 idx);
-    void requestPassword(quint8 idx);
-    void requestWinlogin(quint8 idx);
+    // void requestUser(quint8 idx);
+    // void requestPassword(quint8 idx);
+    // void requestWinlogin(quint8 idx);
 
     UserEntry parseUserEntry(const QByteArray &data);
 

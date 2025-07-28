@@ -17,6 +17,8 @@ extern void enrollFinger();
 extern void clearFingerprintDB();
 
 
+static const char *TAG = "BLE_CUSTOM";
+
 /// characteristic presentation information
 struct prf_char_pres_fmt
 {
@@ -502,8 +504,9 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_
             // Aggiorna l'ID di connessione per le operazioni di gestione utenti
             user_mgmt_conn_id = param->write.conn_id;
 
+    
             switch (cmd) {                  
-                case 0x00: {
+                case RESET_USER_LIST: {
                     // Comando di reset della lista utenti                
                     userdb_clear();     
                     send_db_cleared();
@@ -511,42 +514,67 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_
                     break;
                 }
 
-                case 0x01:
-                case 0x02: {
+                case ADD_NEW_USER:
+                case EDIT_USER: {
                     // Comando di inserimento/modifica utente o password
-                    // Formato: <0x01|0x02> <indice> <0x04|0x05> <dati>
-                    if (param->write.len < 3) {
-                        printf("[BLE] Inserimento: dati insufficienti\n");
+                    if (param->write.len < 69) {
+                        ESP_LOGE(TAG, "Inserimento: dati insufficienti\n");
                         break;
                     }
-                    
-                    uint8_t field = param->write.value[2];
-                    const char *data = (const char *)&param->write.value[3];
-                    size_t data_len = param->write.len - 3;
 
-                    if (field == 0x04) {
-                        // Inserimento username
-                        printf("[BLE] Inserimento username idx=%d: %.*s\n", idx, (int)data_len, data);
-                        userdb_set_username(idx, data, data_len);                       
-                    } else if (field == 0x05) {
-                        // Inserimento password
-                        #if DEBUG_PASSWD
-                        printf("[BLE] Inserimento password idx=%d: %.*s\n", idx, (int)data_len, data);
-                        #else
-                        printf("[BLE] Inserimento password idx=%d\n", idx);
-                        #endif
-                        userdb_set_password(idx, data, data_len);
-                    } else if (field == 0x06) {
-                        printf("[BLE] Inserimento winlogin idx=%d\n", idx);
-                        userdb_set_winlogin(idx, (bool)param->write.value[3]);
-                    } else {
-                        printf("[BLE] Campo non riconosciuto: %02X\n", field);
-                        oled_write_text("no cmd", true);    
+                    if (idx >= MAX_USERS) {
+                        ESP_LOGE(TAG, "Indice utente non valido: %d", idx);
+                        return;
                     }
+
+                    size_t offset = 2; // Inizio dopo il comando e l'indice 
+                    user_entry_t user;  
+                    
+                    memset(&user, 0, sizeof(user));
+                    memcpy(user.label, (uint8_t*)&param->write.value[offset], MAX_LABEL_LEN);
+                    offset += MAX_LABEL_LEN;
+
+                    userdb_encrypt_password((const char*)param->write.value[offset], user.password_enc, &user.password_len);
+                    offset += MAX_PASSWORD_LEN;
+                    user.winlogin = (bool)param->write.value[offset++];
+                    user.auto_fingerprint = (bool)param->write.value[offset++];
+                    user.footprintIndex = (uint8_t)param->write.value[offset++];
+
+                    if (idx < user_count) {
+                        // Edit user
+                        userdb_edit(idx, &user);
+                    } else {
+                        // Add new user
+                        userdb_add(&user);
+                    }
+                    
+                    // uint8_t field = param->write.value[2];
+                    // const char *data = (const char *)&param->write.value[3];
+                    // size_t data_len = param->write.len - 3;
+
+                    // if (field == 0x04) {
+                    //     // Inserimento username
+                    //     printf("[BLE] Inserimento username idx=%d: %.*s\n", idx, (int)data_len, data);
+                    //     userdb_set_username(idx, data, data_len);                       
+                    // } else if (field == 0x05) {
+                    //     // Inserimento password
+                    //     #if DEBUG_PASSWD
+                    //     printf("[BLE] Inserimento password idx=%d: %.*s\n", idx, (int)data_len, data);
+                    //     #else
+                    //     printf("[BLE] Inserimento password idx=%d\n", idx);
+                    //     #endif
+                    //     userdb_set_password(idx, data, data_len);
+                    // } else if (field == 0x06) {
+                    //     printf("[BLE] Inserimento winlogin idx=%d\n", idx);
+                    //     userdb_set_winlogin(idx, (bool)param->write.value[3]);
+                    // } else {
+                    //     printf("[BLE] Campo non riconosciuto: %02X\n", field);
+                    //     oled_write_text("no cmd", true);    
+                    // }
                     break;
                 }
 
-                case 0x03: {
+                case REMOVE_USER: {
                     // Comando di cancellazione utente
                     // Formato: <0x03> <indice>                    
                     userdb_remove(idx);
@@ -554,28 +582,28 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_
                     break;
                 }
 
-                case 0x04: {    
-                    // Comando di lettura utente
-                    // Formato: <0x04> <indice>                    
-                    send_user(idx);
-                    break;
-                }
+                // case 0x04: {    
+                //     // Comando di lettura utente
+                //     // Formato: <0x04> <indice>                    
+                //     send_user(idx);
+                //     break;
+                // }
 
-                case 0x05: {    
-                    // Comando di lettura password
-                    // Formato: <0x05> <indice>                    
-                    send_password(idx);
-                    break;
-                }
+                // case 0x05: {    
+                //     // Comando di lettura password
+                //     // Formato: <0x05> <indice>                    
+                //     send_password(idx);
+                //     break;
+                // }
 
-                case 0x06: {    
-                    // Comando di lettura winlogin
-                    // Formato: <0x06> <indice>                    
-                    send_winlogin(idx);
-                    break;
-                }
+                // case 0x06: {    
+                //     // Comando di lettura winlogin
+                //     // Formato: <0x06> <indice>                    
+                //     send_winlogin(idx);
+                //     break;
+                // }
 
-                case 0x07: {    
+                case ENROLL_FINGER: {    
                     // Comando di enroll fingerprint
                     // Formato: <0x07>                     
                     enrollFinger();
@@ -584,7 +612,7 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_
                     break;
                 }
 
-                case 0x08: {    
+                case CLEAR_LIBRARY: {    
                     // Comando di clear fingerprint DB
                     // Formato: <0x08>       
                     printf("Clearing fingerprint DB...\n");              
@@ -592,9 +620,9 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_
                     break;
                 }
 
-                case 0xA1: {                    
-                    send_user_entry(user_index);
-                    printf("Send user %d\n", user_index);
+                case GET_USERS_LIST: {                    
+                    send_user_entry(idx);
+                    printf("Send user %d\n", idx);
                     break;
                 }
                 

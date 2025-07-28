@@ -9,8 +9,8 @@ Item {
     property bool syncEnabled: true
     property var userModel: []
 
-    signal addUser(string username, string password, bool winlogin)
-    signal editUser(int index, string username, string password, bool winlogin)
+    signal addUser(var user)
+    signal editUser(int index, var user)
     signal removeUser(int index)
     signal readList()
 
@@ -26,11 +26,11 @@ Item {
 
     UserDialog {
         id: contactDialog
-        onFinished: function(username, password, winlogin) {
+        onFinished: function(user) {
             if (root.currentContact === -1)
-                root.addUser(username, password, winlogin)
+                root.addUser(user)
             else
-                root.editUser(root.currentContact, username, password, winlogin)
+                root.editUser(root.currentContact, user)
         }
     }
 

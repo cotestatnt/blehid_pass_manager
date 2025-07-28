@@ -16,12 +16,14 @@ Dialog {
     y: 0 - titleBar.height + 10
 
 
-    signal finished(string username, string password, bool winlogin)
+    signal finished(var user)
 
     function createContact() {
         form.username.clear();
         form.password.clear();
         form.winlogin.checked = false;
+        form.autoFinger.checked = false;
+        // form.fingerprintIndex.currentValue = 0;
 
         dialog.title = qsTr("Add User");
         dialog.open();
@@ -31,6 +33,8 @@ Dialog {
         form.username.text = contact.username;
         form.password.text = contact.password;
         form.winlogin.checked = contact.winlogin;
+        form.autoFinger.checked = contact.autoFinger;
+        form.fingerprintIndex.currentValue = contact.fingerprintIndex;
 
         dialog.title = qsTr("Edit User");
         dialog.open();
@@ -52,7 +56,13 @@ Dialog {
 
     onAccepted: {
         if (form.username.text && form.password.text) {
-            finished(form.username.text, form.password.text, form.winlogin.checked);
+            finished({
+                username: form.username.text,
+                password: form.password.text,
+                winlogin: form.winlogin.checked,
+                autoFinger: form.autoFinger.checked,
+                fingerprintIndex: form.fingerprintIndex.currentValue
+            });
         }
     }
 }

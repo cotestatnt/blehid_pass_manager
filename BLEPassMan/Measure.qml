@@ -87,17 +87,16 @@ Page {
 
         // Connections per ascoltare i segnali emessi dall'item caricato dal Loader.
         Connections {
-            // Il target è l'item caricato, non il loader stesso
             target: userListComponentLoader.item
 
-            function onAddUser(username, password, winlogin) {
-                console.log("QML ha richiesto di aggiungere l'utente:", username)
-                deviceHandler.addUser(username, password, winlogin)
+            function onAddUser(user) {
+                console.log("QML ha richiesto di aggiungere l'utente:", user.username)
+                deviceHandler.addUser(user)
             }
 
-            function onEditUser(index, username, password, winlogin) {
+            function onEditUser(index, user) {
                 console.log("QML ha richiesto di modificare l'utente all'indice:", index)
-                deviceHandler.editUser(index, username, password, winlogin)
+                deviceHandler.editUser(index, user)
             }
 
             function onRemoveUser(index) {
