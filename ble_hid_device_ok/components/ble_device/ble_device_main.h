@@ -23,6 +23,8 @@ extern "C" {
 #define HID_COMMA                   0x36
 #define HID_DOT                     0x37
 
+#define MAX_MTU_SIZE                128
+
 
 void send_string(const char* str);
 void send_key_combination(uint8_t modifiers, uint8_t key);

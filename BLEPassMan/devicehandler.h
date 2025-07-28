@@ -18,6 +18,8 @@
 struct UserEntry {
     QString username;
     QString password;
+    quint8 fingerprintIndex;
+    bool autoFinger;
     bool winlogin;
 };
 
@@ -81,6 +83,8 @@ private:
     void requestUser(quint8 idx);
     void requestPassword(quint8 idx);
     void requestWinlogin(quint8 idx);
+
+    UserEntry parseUserEntry(const QByteArray &data);
 
 private:
     bool m_foundService = false;

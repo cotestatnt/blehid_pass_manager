@@ -474,7 +474,7 @@ void ble_device_init(void)
 
     // Increare MTU size
     // The default MTU size is 23 bytes, which is too small for HID reports    
-    if ((ret = esp_ble_gatt_set_local_mtu(100)) != ESP_OK) {
+    if ((ret = esp_ble_gatt_set_local_mtu(MAX_MTU_SIZE)) != ESP_OK) {
         ESP_LOGE("BLE", "esp_ble_gatt_set_local_mtu failed: %s", esp_err_to_name(ret));
     }
 

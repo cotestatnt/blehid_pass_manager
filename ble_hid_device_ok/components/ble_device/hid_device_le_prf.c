@@ -591,6 +591,12 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_
                     clearFingerprintDB();
                     break;
                 }
+
+                case 0xA1: {                    
+                    send_user_entry(user_index);
+                    printf("Send user %d\n", user_index);
+                    break;
+                }
                 
                 default: {
                     printf("[BLE] Comando non riconosciuto: %02X\n", cmd);

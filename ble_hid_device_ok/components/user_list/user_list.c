@@ -313,6 +313,50 @@ void send_winlogin(uint8_t index) {
 }
 
 
+
+void send_user_entry(uint8_t index) {
+    if (index < 0 || index >= user_count) {
+        ESP_LOGE(TAG, "Invalid user index: %d", index);
+        return;
+    }
+    size_t payload_size = 0;
+    uint8_t payload_data[128] = {0};
+
+    user_entry_t entry = user_list[index];
+    size_t size = sizeof(entry);
+
+    payload_data[payload_size++] = 0xA1; // Comando per inviare un utente
+    payload_data[payload_size++] = index; // Indice dell'utente corrente
+    if (size > sizeof(payload_data) - 2) {
+        ESP_LOGE(TAG, "User entry size exceeds maximum payload size");
+        return;
+    }
+
+    // Set label and password in the payload
+    memcpy(&payload_data[payload_size], entry.label, MAX_LABEL_LEN);
+    payload_size += MAX_LABEL_LEN;
+
+    char plain[128] = {0};
+    userdb_decrypt_password(entry.password_enc, entry.password_len, plain);
+    memcpy(&payload_data[payload_size], plain, MAX_PASSWORD_LEN);
+    payload_size += MAX_PASSWORD_LEN;
+
+    payload_data[payload_size++] = entry.winlogin ? 1 : 0; 
+    payload_data[payload_size++] = entry.auto_fingerprint ? 1 : 0; 
+    payload_data[payload_size++] = entry.footprintIndex;
+
+    esp_ble_gatts_send_indicate(
+        hidd_le_env.gatt_if,
+        user_mgmt_conn_id,
+        user_mgmt_handle[USER_MGMT_IDX_VAL],
+        payload_size,
+        (uint8_t *)&payload_data,
+        true
+    );
+    memset(plain, 0, sizeof(plain));
+}
+
+
 void send_authenticated(bool auth) {
     user_mgmt_payload_t payload = {0};
     payload.cmd = 0x99;  // Comando per indicare che l'utente non è autenticato

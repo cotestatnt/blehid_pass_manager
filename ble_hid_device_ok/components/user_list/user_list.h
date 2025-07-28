@@ -21,6 +21,8 @@ typedef struct {
     uint8_t password_enc[MAX_PASSWORD_LEN]; // password crittografata
     size_t password_len;               // lunghezza reale della password cifrata
     uint32_t usage_count;              // frequenza di utilizzo
+    uint8_t footprintIndex;            // indice del fingerprint associato (0-9)
+    bool auto_fingerprint;             // true se è un login con fingerprint (0-9) automatico
     bool winlogin;                     // true se è un login Windows
 } user_entry_t;
 
@@ -54,6 +56,7 @@ void userdb_dump();
 void userdb_clear();
 
 // Funzioni per l'invio della lista utenti al client BLE
+void send_user_entry(uint8_t index);
 void send_winlogin(uint8_t index);
 void send_user(uint8_t index);
 void send_password(uint8_t index);    

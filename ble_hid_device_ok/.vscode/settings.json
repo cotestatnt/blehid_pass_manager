@@ -11,7 +11,7 @@
     "--query-driver=C:\\Espressif\\tools\\riscv32-esp-elf\\esp-14.2.0_20241119\\riscv32-esp-elf\\bin\\riscv32-esp-elf-gcc.exe",
     "--compile-commands-dir=c:\\Espressif\\v5.4.2\\esp-idf\\examples\\bluetooth\\bluedroid\\ble\\ble_hid_device_demo\\build"
   ],
-  "idf.portWin": "COM17",
+  "idf.portWin": "COM7",
   "idf.flashType": "UART",
   "files.associations": {
     "xstring": "c",

@@ -23,6 +23,7 @@
 #include "r503.h"
 #include "oled.h"
 
+#define PIN_NUM_FP           5
 #define PIN_NUM_UP           6
 #define PIN_NUM_DW           7
 
@@ -30,6 +31,7 @@ static const char *TAG = "MAIN";
 
 static bool go_to_deep_sleep = false;
 void enter_deep_sleep() {
+    gpio_set_level((gpio_num_t)PIN_NUM_FP, 0);
     esp_deep_sleep_enable_gpio_wakeup((1ULL << TOUCH_GPIO), ESP_GPIO_WAKEUP_GPIO_LOW); 
     esp_deep_sleep_start();
 }
@@ -130,7 +132,16 @@ extern "C" void app_main(void)
     // // Avvia il display OLED
     oled_init();
 
-    // // Avvia il task fingerprint
+    // Avvia il task fingerprint
+    gpio_config_t fp_conf = {};
+    fp_conf.intr_type = GPIO_INTR_DISABLE;
+    fp_conf.mode = GPIO_MODE_OUTPUT;
+    fp_conf.pin_bit_mask = (1ULL << PIN_NUM_FP);
+    fp_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
+    fp_conf.pull_up_en = GPIO_PULLUP_DISABLE;
+    gpio_config(&fp_conf);
+    gpio_set_level((gpio_num_t)PIN_NUM_FP, 1);
+    vTaskDelay(pdMS_TO_TICKS(100));
     fingerprint_task_start();
 
     // Load user database

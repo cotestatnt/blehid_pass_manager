@@ -324,9 +324,9 @@ enum {
 
 #define USER_MGMT_PAYLOAD_LEN  20 // <cmd><index><user> | <cmd><index><password>
 typedef struct {
-    uint8_t cmd;         // tipo comando
-    uint8_t index;       // indice dell'elemento
-    char data[18];       // username or password
+    uint8_t cmd;                       // tipo comando
+    uint8_t index;                     // indice dell'elemento
+    char data[USER_MGMT_PAYLOAD_LEN - 2];       // username or password
 } user_mgmt_payload_t;
 
 

@@ -333,7 +333,8 @@ void DeviceHandler::enrollFingerprint() {
 
     qDebug() << "Enroll new fingerprint";
     QByteArray data;
-    data.append(0x07);
+    // data.append(0x07);
+    data.append(0xA1);
     writeCustomCharacteristic(data);
 }
 
@@ -354,6 +355,61 @@ void DeviceHandler::getUserList()
     qDebug() << "Start reading users list";    
     requestUser(0);
 }
+
+UserEntry DeviceHandler::parseUserEntry(const QByteArray &data) {
+    UserEntry entry = {0};
+
+    if (data.size() < 2) {
+        qWarning() << "Invalid data size for user entry parsing";
+        return entry;
+    }
+
+    int offset = 0;
+
+    // Skip command byte (0xA1)
+    uint8_t cmd = static_cast<uint8_t>(data[offset++]);
+    if (cmd != 0xA1) {
+        qWarning() << "Invalid command byte for user entry:" << QString::number(cmd, 16);
+        return entry;
+    }
+
+    // Parse index
+    int index = static_cast<uint8_t>(data[offset++]);
+
+    // Parse label (MAX_LABEL_LEN bytes)
+    constexpr int MAX_LABEL_LEN = 32; // Adjust based on your #define
+    if (data.size() < offset + MAX_LABEL_LEN) {
+        qWarning() << "Insufficient data for label parsing";
+        return entry;
+    }
+
+    QByteArray labelBytes = data.mid(offset, MAX_LABEL_LEN);
+    entry.username = QString::fromUtf8(labelBytes.data(), strnlen(labelBytes.data(), labelBytes.size())).trimmed(); // Remove null terminators
+    offset += MAX_LABEL_LEN;
+
+    // Parse password (MAX_PASSWORD_LEN bytes)
+    constexpr int MAX_PASSWORD_LEN = 32; // Adjust based on your #define
+    if (data.size() < offset + MAX_PASSWORD_LEN) {
+        qWarning() << "Insufficient data for password parsing";
+        return entry;
+    }
+
+    QByteArray passwordBytes = data.mid(offset, MAX_PASSWORD_LEN);
+    entry.password = QString::fromUtf8(passwordBytes.data(), strnlen(passwordBytes.data(), passwordBytes.size())).trimmed();
+    offset += MAX_PASSWORD_LEN;
+
+    // Parse boolean flags
+    if (data.size() < offset + 3) {
+        qWarning() << "Insufficient data for flags parsing";
+        return entry;
+    }
+
+    entry.winlogin = (data[offset++] == 1);
+    entry.autoFinger = (data[offset++] == 1);
+    entry.fingerprintIndex = static_cast<uint8_t>(data[offset++]);
+    return entry;
+}
+
 
 
 // PARSE CHARACTERISTICS NOTIFIED FROM DEVICE
@@ -410,6 +466,25 @@ void DeviceHandler::updateCharacteristicValue(const QLowEnergyCharacteristic &c,
                 m_soundEffect.play();
             }
             break;
+
+        case 0xA1: {
+            qDebug() << value.toHex(' ').toUpper();
+            UserEntry user = parseUserEntry(value);
+            m_userList[index].username =  user.username;
+            m_userList[index].password = user.password;
+            m_userList[index].winlogin = user.winlogin;
+            m_userList[index].autoFinger = user.autoFinger;
+            m_userList[index].fingerprintIndex = user.fingerprintIndex;
+
+            qDebug() << "User:" << user.username;
+            // qDebug() << "Pass:" << user.password;
+            qDebug() << "Winlogin:" << user.winlogin;
+            qDebug() << "Fingerprint:" << user.fingerprintIndex;
+            qDebug() << "Fingerprint automatic:" << user.autoFinger;
+            requestUser(index + 1);
+            break;
+        }
+
         case 0xFF: // List empty
             qWarning() << "User list empty";
             setInfo("User list empty, please add new user");
