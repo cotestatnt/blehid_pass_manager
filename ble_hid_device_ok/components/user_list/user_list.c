@@ -178,6 +178,7 @@ void userdb_edit(int index, user_entry_t* user){
 
 // Rimuove un utente dato l'indice
 int userdb_remove(int index) {
+    oled_write_text("rem user", true);    
     if (index < 0 || index >= user_count) return -1;
     for (size_t i = index; i < user_count - 1; ++i) {
         user_list[i] = user_list[i + 1];
@@ -214,6 +215,7 @@ void userdb_sort_by_usage() {
 
 // Cancella tutto il DB degli utenti dalla flash
 void userdb_clear() {
+    oled_write_text("clear users", true);
     user_count = 0;
     user_index = -1;
     memset(user_list, 0, sizeof(user_list));
@@ -228,6 +230,7 @@ void userdb_clear() {
     nvs_commit(handle);
     nvs_close(handle);
     ESP_LOGI("userdb", "Database utenti cancellato");
+    oled_write_text("DB cleared!", true);
 }
 
 
@@ -283,7 +286,6 @@ void send_authenticated(bool auth) {
     user_mgmt_payload_t payload = {0};
     payload.cmd = 0x99;  // Comando per indicare che l'utente non è autenticato
     payload.index = 0;   // Non ha senso in questo contesto, ma serve per mantenere la struttura
-
     payload.data[0] = auth ? 1 : 0; // 1 se autenticato, 0 altrimenti
 
     esp_ble_gatts_send_indicate(
@@ -296,8 +298,8 @@ void send_authenticated(bool auth) {
     );
 
     ESP_LOGI(TAG, "Authenticated message: %s", auth ? "true" : "false");
-    ESP_LOGI(TAG, "gatt_if: %d, conn_id: %d, handle: %d\n",
-             hidd_le_env.gatt_if, user_mgmt_conn_id, user_mgmt_handle[USER_MGMT_IDX_VAL]);
+    ESP_LOGI(TAG, "gatt_if: %d, conn_id: %d, handle: %d\n", hidd_le_env.gatt_if, user_mgmt_conn_id, user_mgmt_handle[USER_MGMT_IDX_VAL]);
+    auth ? oled_write_text("No auth!", true) : oled_write_text("Auth!", true);
 }
 
 

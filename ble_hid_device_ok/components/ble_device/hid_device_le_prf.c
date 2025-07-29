@@ -4,20 +4,20 @@
  * SPDX-License-Identifier: Unlicense OR CC0-1.0
  */
 
-#include "hid_device_le_prf.h"
-#include <string.h>
+#include "string.h"
 #include "esp_log.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/event_groups.h"
+#include "hid_device_le_prf.h"
 
 #include "user_list.h"
 #include "ble_userlist_auth.h"
-#include "oled.h"
-
-extern void enrollFinger();
-
-extern void clearFingerprintDB();
-
 
 static const char *TAG = "BLE_CUSTOM";
+
+extern void enrollFinger();
+extern void clearFingerprintDB();
 
 /// characteristic presentation information
 struct prf_char_pres_fmt
@@ -494,23 +494,18 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_
             uint8_t idx = param->write.value[1];
             
             if (!ble_userlist_is_authenticated()) {
-                printf("[BLE] Accesso lista utenti negato: non autenticato!\n");
-                oled_write_text("No auth!", true);
-                send_authenticated(false);
-                // send_ble_message("Not authorized. Put fingerprint", 0x02);
+                printf("[BLE] Accesso lista utenti negato: non autenticato!\n");                
+                send_authenticated(false);                
                 break;
             }
 
             // Aggiorna l'ID di connessione per le operazioni di gestione utenti
             user_mgmt_conn_id = param->write.conn_id;
-
-    
             switch (cmd) {                  
                 case RESET_USER_LIST: {
                     // Comando di reset della lista utenti                
                     userdb_clear();     
-                    send_db_cleared();
-                    oled_write_text("DB cleared!", true);
+                    send_db_cleared();                    
                     break;
                 }
 
@@ -550,82 +545,31 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_
                     } else {
                         // Add new user
                         userdb_add(&user);
-                    }
-                    
-                    // uint8_t field = param->write.value[2];
-                    // const char *data = (const char *)&param->write.value[3];
-                    // size_t data_len = param->write.len - 3;
-
-                    // if (field == 0x04) {
-                    //     // Inserimento username
-                    //     printf("[BLE] Inserimento username idx=%d: %.*s\n", idx, (int)data_len, data);
-                    //     userdb_set_username(idx, data, data_len);                       
-                    // } else if (field == 0x05) {
-                    //     // Inserimento password
-                    //     #if DEBUG_PASSWD
-                    //     printf("[BLE] Inserimento password idx=%d: %.*s\n", idx, (int)data_len, data);
-                    //     #else
-                    //     printf("[BLE] Inserimento password idx=%d\n", idx);
-                    //     #endif
-                    //     userdb_set_password(idx, data, data_len);
-                    // } else if (field == 0x06) {
-                    //     printf("[BLE] Inserimento winlogin idx=%d\n", idx);
-                    //     userdb_set_winlogin(idx, (bool)param->write.value[3]);
-                    // } else {
-                    //     printf("[BLE] Campo non riconosciuto: %02X\n", field);
-                    //     oled_write_text("no cmd", true);    
-                    // }
+                    }                                        
                     break;
                 }
 
                 case REMOVE_USER: {
-                    // Comando di cancellazione utente
-                    // Formato: <0x03> <indice>                    
-                    userdb_remove(idx);
-                    oled_write_text("rem user", true);    
+                    // Comando di cancellazione utente                            
+                    userdb_remove(idx);                    
                     break;
                 }
 
                 case CLEAR_USER_DB: {
                     // Comando di cancellazione del database utenti
-                    userdb_clear();
-                    oled_write_text("clear users", true);
+                    userdb_clear();                    
                     break;
-                }
-
-                // case 0x04: {    
-                //     // Comando di lettura utente
-                //     // Formato: <0x04> <indice>                    
-                //     send_user(idx);
-                //     break;
-                // }
-
-                // case 0x05: {    
-                //     // Comando di lettura password
-                //     // Formato: <0x05> <indice>                    
-                //     send_password(idx);
-                //     break;
-                // }
-
-                // case 0x06: {    
-                //     // Comando di lettura winlogin
-                //     // Formato: <0x06> <indice>                    
-                //     send_winlogin(idx);
-                //     break;
-                // }
+                }                
 
                 case ENROLL_FINGER: {    
-                    // Comando di enroll fingerprint
-                    // Formato: <0x07>                     
-                    enrollFinger();
-                    printf("Enrolling new fingerprint...\n");
-                    oled_write_text("Enroll FP", true);
+                    // Comando di enroll fingerprint                    
+                    printf("Enrolling new fingerprint...\n");                    
+                    enrollFinger();                                        
                     break;
                 }
 
                 case CLEAR_LIBRARY: {    
-                    // Comando di clear fingerprint DB
-                    // Formato: <0x08>       
+                    // Comando di clear fingerprint DB                    
                     printf("Clearing fingerprint DB...\n");              
                     clearFingerprintDB();
                     break;
@@ -638,8 +582,7 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_
                 }
                 
                 default: {
-                    printf("[BLE] Comando non riconosciuto: %02X\n", cmd);
-                    oled_write_text("cmd error", true);   
+                    printf("[BLE] Comando non riconosciuto: %02X\n", cmd);                    
                     break;
                 }
             }

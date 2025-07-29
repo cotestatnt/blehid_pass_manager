@@ -16,8 +16,8 @@ void enrollFinger()
     uint8_t featureCount = 5;
     enrolling_in_progress = true;
 
-    printf("Follow the steps below to enroll a new finger\n");
-    oled_write_text("Enroll new FP", true);
+    printf("\nFollow the steps below to enroll a new finger\n");
+    oled_write_text("Set new FP", true);
     vTaskDelay(pdMS_TO_TICKS(2000));
 
     TickType_t now = xTaskGetTickCount();
@@ -31,13 +31,27 @@ void enrollFinger()
             ret = fps.takeImage();
             if (ret == R503_NO_FINGER) {
                 vTaskDelay(pdMS_TO_TICKS(100));
+
+                // Check for timeout
+                if (xTaskGetTickCount() - now > pdMS_TO_TICKS(10000)) {
+                    printf("[X] Enrollment timed out\n");
+                    oled_write_text("Timeout", true);
+                    fps.setAuraLED(aLEDFlash, aLEDRed, 50, 3);
+                    vTaskDelay(pdMS_TO_TICKS(2000));
+                    enrolling_in_progress = false;
+                    return;
+                }
                 continue;
-            } else if (ret == R503_OK) {
+            } 
+
+            // Image taken successfully
+            else if (ret == R503_OK) {
                 printf(" >> Image %d of %d taken\n", i, featureCount);
                 oled_write_text("Image taken", true);                
                 fps.setAuraLED(aLEDBreathing, aLEDYellow, 255, 255);
-                vTaskDelay(pdMS_TO_TICKS(200));
-            } else {
+                vTaskDelay(pdMS_TO_TICKS(200));                             
+            } 
+            else {
                 printf("[X] Could not take image (code: 0x%02X)\n", ret);
                 oled_write_text("Image error", true);
                 fps.setAuraLED(aLEDFlash, aLEDRed, 50, 3);
@@ -45,6 +59,7 @@ void enrollFinger()
                 continue;
             }
 
+            // Get features from the image
             ret = fps.extractFeatures(i);
             if (ret != R503_OK) {
                 printf("[X] Failed to extract features (code: 0x%02X)\n", ret);
@@ -54,29 +69,24 @@ void enrollFinger()
                 continue;
             }
 
+            // Features extracted successfully
             fps.setAuraLED(aLEDBreathing, aLEDGreen, 255, 255);
             printf(" >> Features %d of %d extracted\n", i, featureCount);
-            oled_write_text("Features extracted", true);
-            vTaskDelay(pdMS_TO_TICKS(500));
+            oled_write_text("Extract features", true);
+            vTaskDelay(pdMS_TO_TICKS(500));                       
             break;
         }
 
         printf(" >> Lift your finger from the sensor!\n");
-        oled_write_text("Lift finger", true);
+        oled_write_text("Lift finger", true);  
+        now = xTaskGetTickCount();       
+
         while (fps.takeImage() != R503_NO_FINGER) {
             vTaskDelay(pdMS_TO_TICKS(200));
-
-            if (xTaskGetTickCount() - now > pdMS_TO_TICKS(10000)) {
-                printf("[X] Enrollment timed out\n");
-                oled_write_text("Enrollment timeout", true);
-                fps.setAuraLED(aLEDFlash, aLEDRed, 50, 3);
-                vTaskDelay(pdMS_TO_TICKS(2000));
-                enrolling_in_progress = false;
-                return;
-            }
         }
     }
 
+    // Create the template from the extracted features
     printf(" >> Creating template...\n");
     oled_write_text("Create template", true);
     fps.setAuraLED(aLEDBreathing, aLEDPurple, 100, 255);
@@ -91,6 +101,7 @@ void enrollFinger()
         return;
     }
 
+    // Store the template in the library
     printf(" >> Template created\n");
     oled_write_text("Template created", true);
     ret = fps.storeTemplate(1, num_templates);
