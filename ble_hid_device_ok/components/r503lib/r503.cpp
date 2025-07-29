@@ -7,16 +7,20 @@
 static const char *TAG = "FingerprintTask";
 static TaskHandle_t fingerprintTaskHandle = nullptr;
 uint16_t num_templates = 0;
+bool enrolling_in_progress = false;
 
 
 void enrollFinger()
 {
     int ret;
     uint8_t featureCount = 5;
+    enrolling_in_progress = true;
 
     printf("Follow the steps below to enroll a new finger\n");
     oled_write_text("Enroll new FP", true);
     vTaskDelay(pdMS_TO_TICKS(2000));
+
+    TickType_t now = xTaskGetTickCount();
 
     for (int i = 1; i <= featureCount; i++) {
         fps.setAuraLED(aLEDBreathing, aLEDBlue, 50, 255);
@@ -61,6 +65,15 @@ void enrollFinger()
         oled_write_text("Lift finger", true);
         while (fps.takeImage() != R503_NO_FINGER) {
             vTaskDelay(pdMS_TO_TICKS(200));
+
+            if (xTaskGetTickCount() - now > pdMS_TO_TICKS(10000)) {
+                printf("[X] Enrollment timed out\n");
+                oled_write_text("Enrollment timeout", true);
+                fps.setAuraLED(aLEDFlash, aLEDRed, 50, 3);
+                vTaskDelay(pdMS_TO_TICKS(2000));
+                enrolling_in_progress = false;
+                return;
+            }
         }
     }
 
@@ -97,6 +110,7 @@ void enrollFinger()
     char message[20];
     snprintf(message, sizeof(message), "Enroll %02d", num_templates);
     oled_write_text(message, true);
+    enrolling_in_progress = false;
 }
 
 int searchFinger()
@@ -269,7 +283,7 @@ static void fingerprint_task(void *pvParameters)
 
     while (true) {
         // Controlla il segnale "touch" su GPIO 4
-        if (gpio_get_level((gpio_num_t)TOUCH_GPIO) == 0) {
+        if (gpio_get_level((gpio_num_t)TOUCH_GPIO) == 0 && !enrolling_in_progress) {
             last_interaction_time = xTaskGetTickCount();
            
             ESP_LOGI(TAG, "Touch detected, starting fingerprint search...");

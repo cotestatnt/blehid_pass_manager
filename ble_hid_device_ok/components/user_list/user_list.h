@@ -11,7 +11,7 @@ extern "C" {
 #include <stddef.h>
 
 #define DEBUG_PASSWD 0
-#define SLEEP_ENABLE 0
+#define SLEEP_ENABLE 1
 
 #define MAX_LABEL_LEN    32
 #define MAX_PASSWORD_LEN 32

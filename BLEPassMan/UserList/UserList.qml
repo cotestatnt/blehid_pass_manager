@@ -74,7 +74,7 @@ Item {
     DelayButton {
         id: clearUserDB
         checked: true
-        delay: 5000
+        delay: 10000
 
         anchors.bottom: parent.bottom
         anchors.left: parent.left

@@ -28,6 +28,7 @@ int searchFinger();
 void printFingerprintTable();
 
 extern uint16_t num_templates;
+extern bool enrolling_in_progress;
 
 #ifdef __cplusplus
 }
