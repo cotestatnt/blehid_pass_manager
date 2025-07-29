@@ -12,7 +12,8 @@
         <file>logo.png</file>
         <file>progress.svg</file>
         <file>search.svg</file>
-		<file>info.wav</file>
-		<file>pop.wav</file>
+        <file>info.wav</file>
+        <file>pop.wav</file>
+        <file>trash.svg</file>
     </qresource>
 </RCC>

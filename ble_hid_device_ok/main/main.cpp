@@ -47,10 +47,14 @@ void button_task(void *pvParameters)
         // Pulsante su (PIN 6) premuto (da HIGH a LOW)
         if (last_btn_up == 1 && btn_up == 0) {
             last_interaction_time = xTaskGetTickCount();
-            user_index = (user_index + 1) % user_count;
-            const char* username = user_list[user_index].label;            
-            
-            printf("Account selezionato(%d): %s\n", user_index, username);
+            user_index = (user_index + 1) ;
+
+            if (user_index >= user_count) {
+                user_index = 0;
+            } 
+        
+            const char* username = user_list[user_index].label;                            
+            printf("Account selezionato (%d): %s\n", user_index, username);
             oled_write_text(username, true);
             last_interaction_time = xTaskGetTickCount();
             display_reset_pending = 1;
@@ -63,13 +67,17 @@ void button_task(void *pvParameters)
             else 
                 printf("Decrypt error");
             #endif
+            
         }
         // Pulsante giù (PIN 7) premuto (da HIGH a LOW)
         if (last_btn_down == 1 && btn_down == 0) {
             last_interaction_time = xTaskGetTickCount();
-            user_index = (user_index + user_count - 1) % user_count;
-            const char* username = user_list[user_index].label;            
+            user_index = (user_index - 1);            
+            if (user_index < 0) {
+                user_index = user_count - 1;
+            }
 
+            const char* username = user_list[user_index].label;
             printf("Account selezionato (%d): %s\n", user_index, username);
             oled_write_text(username, true);
             last_interaction_time = xTaskGetTickCount();
@@ -82,7 +90,7 @@ void button_task(void *pvParameters)
                 printf("Password (decrypted): %s\n", plain);
             else 
                 printf("Decrypt error");
-            #endif
+            #endif            
         }
 
         last_btn_up = btn_up;
@@ -94,8 +102,7 @@ void button_task(void *pvParameters)
                 oled_write_text("BLE PassMan", false);
                 display_reset_pending = 0;
                 vTaskDelay(pdMS_TO_TICKS(100));
-                go_to_deep_sleep = true;
-                printf("Entering deep sleep...\n");                
+                go_to_deep_sleep = true;                            
             }
         }
 
@@ -146,20 +153,22 @@ extern "C" void app_main(void)
 
     // Load user database
     // userdb_clear();
-    // userdb_init_test_data();
-    userdb_load();
-    #if DEBUG_PASSWD
+    
+    vTaskDelay(pdMS_TO_TICKS(1000));
+    userdb_load();    
     userdb_dump();
-    #endif
+    printFingerprintTable();
         
     while(1) {
         TickType_t now = xTaskGetTickCount();
+        #if SLEEP_ENABLE        
         if (go_to_deep_sleep && now - last_interaction_time > pdMS_TO_TICKS(180000)) {
+            printf("Entering deep sleep...\n");    
             go_to_deep_sleep = false;
             oled_off();
             enter_deep_sleep();
         }
-
+        #endif
         // Aggiorna il livello della batteria ogni 30 secondi
         static TickType_t last_battery_update = 0;
         if (now - last_battery_update > pdMS_TO_TICKS(30000)) {

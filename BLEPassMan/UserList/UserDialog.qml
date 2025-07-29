@@ -23,7 +23,7 @@ Dialog {
         form.password.clear();
         form.winlogin.checked = false;
         form.autoFinger.checked = false;
-        // form.fingerprintIndex.currentValue = 0;
+        form.fingerprintIndex.currentIndex = 0;
 
         dialog.title = qsTr("Add User");
         dialog.open();
@@ -34,16 +34,11 @@ Dialog {
         form.password.text = contact.password;
         form.winlogin.checked = contact.winlogin;
         form.autoFinger.checked = contact.autoFinger;
-        form.fingerprintIndex.currentValue = contact.fingerprintIndex;
+        form.fingerprintIndex.currentIndex = contact.fingerprintIndex + 1
 
         dialog.title = qsTr("Edit User");
         dialog.open();
     }
-
-    // y: 5
-    // x: parent.width / 2 - width / 2
-    // width: parent.width
-    // padding: 10
 
     focus: true
     modal: true

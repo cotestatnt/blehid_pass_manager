@@ -30,13 +30,14 @@ void enrollFinger()
                 continue;
             } else if (ret == R503_OK) {
                 printf(" >> Image %d of %d taken\n", i, featureCount);
-                oled_write_text("Image taken", true);
+                oled_write_text("Image taken", true);                
                 fps.setAuraLED(aLEDBreathing, aLEDYellow, 255, 255);
+                vTaskDelay(pdMS_TO_TICKS(200));
             } else {
                 printf("[X] Could not take image (code: 0x%02X)\n", ret);
                 oled_write_text("Image error", true);
                 fps.setAuraLED(aLEDFlash, aLEDRed, 50, 3);
-                vTaskDelay(pdMS_TO_TICKS(1000));
+                vTaskDelay(pdMS_TO_TICKS(2000));
                 continue;
             }
 
@@ -45,7 +46,7 @@ void enrollFinger()
                 printf("[X] Failed to extract features (code: 0x%02X)\n", ret);
                 oled_write_text("Feature error", true);
                 fps.setAuraLED(aLEDFlash, aLEDRed, 50, 3);
-                vTaskDelay(pdMS_TO_TICKS(1000));
+                vTaskDelay(pdMS_TO_TICKS(2000));
                 continue;
             }
 
@@ -73,6 +74,7 @@ void enrollFinger()
         printf("[X] Failed to create a template (code: 0x%02X)\n", ret);
         oled_write_text("Template error", true);
         fps.setAuraLED(aLEDFlash, aLEDRed, 50, 3);
+        vTaskDelay(pdMS_TO_TICKS(2000));
         return;
     }
 
@@ -83,6 +85,7 @@ void enrollFinger()
         printf("[X] Failed to store the template (code: 0x%02X)\n", ret);
         oled_write_text ("Store error", true);
         fps.setAuraLED(aLEDFlash, aLEDRed, 50, 3);
+        vTaskDelay(pdMS_TO_TICKS(2000));
         return;
     }
 
@@ -91,10 +94,12 @@ void enrollFinger()
     printf(" >> Template stored at location: %d\n", num_templates); 
     num_templates += 1; 
     printf(" >> Enroll process completed successfully!\n");
-    oled_write_text("Enroll done!", true);
+    char message[20];
+    snprintf(message, sizeof(message), "Enroll %02d", num_templates);
+    oled_write_text(message, true);
 }
 
-bool searchFinger()
+int searchFinger()
 {
     int ret;
     uint64_t start = esp_timer_get_time() / 1000; // in ms
@@ -123,15 +128,15 @@ bool searchFinger()
     if ((esp_timer_get_time() / 1000 - start) >= 10000) {
         printf("[X] Could not take image (timeout)\n");
         fps.setAuraLED(aLEDFlash, aLEDRed, 100, 2);
-        send_ble_message("Timeout: No finger detected", 0x02);
-        return false;
+        // send_ble_message("Timeout: No finger detected", 0x02);
+        return -1;
     }
 
     ret = fps.extractFeatures(1);
     if (ret != R503_OK) {
         printf("[X] Could not extract features (code: 0x%02X)\n", ret);
         fps.setAuraLED(aLEDFlash, aLEDRed, 50, 3);
-        return false;
+        return -1;
     }
 
     uint16_t location = 0, confidence = 0;
@@ -140,20 +145,20 @@ bool searchFinger()
     if (ret == R503_NO_MATCH_IN_LIBRARY) {
         printf(" >> No matching finger found\n");
         fps.setAuraLED(aLEDBreathing, aLEDRed, 255, 1);
-        send_ble_message("No matching fingerprint", 0x02);
+        // send_ble_message("No matching fingerprint", 0x02);
     } 
     else if (ret == R503_OK) {
         printf(" >> Found finger\n");
         printf("    Finger ID: %d\n", location);
         printf("    Confidence: %d\n", confidence);
         fps.setAuraLED(aLEDBreathing, aLEDGreen, 255, 1);
-        return true;
+        return location;
     } 
     else {
         printf("[X] Could not search library (code: 0x%02X)\n", ret);
         fps.setAuraLED(aLEDFlash, aLEDRed, 50, 3);
     }
-    return false;
+    return -1;
 }
 
 void clearFingerprintDB()
@@ -182,6 +187,47 @@ void clearFingerprintDB()
             printf("[X] Failed to clear library (code: 0x%02X)\n", ret);
             fps.setAuraLED(aLEDFlash, aLEDRed, 50, 3);
         }
+    }
+}
+
+
+void printFingerprintTable() {
+    printf("\nReading fingerprint table...\n");
+    R503Lib* fp = &fps;
+    if (!fp) {
+        printf("Fingerprint library not initialized!\n");
+        return;
+    }        
+
+    uint16_t count;
+    int ret = fp->getTemplateCount(count);
+    if (ret == R503_OK)
+        printf("- Amount of templates: %d\n", count);
+    else
+        printf("- Amount of templates: could not read (code: 0x%02X)\n", ret);    
+
+    R503Parameters params;
+    ret = fp->readParameters(params);
+    if (ret == R503_OK)
+        printf("- Fingerprint library capacity: %d\n", params.fingerLibrarySize);    
+    else    
+        printf("- Fingerprint library capacity: could not read (code: 0x%02X)\n", ret);
+    
+
+    // only print first page, since we know library size is less than 256
+    uint8_t table[32];
+    ret = fp->readIndexTable(table);
+
+    if (ret == R503_OK) {
+        printf("- Fingerprints stored at locations (ID): ");
+        for (int i = 0; i < 32; i++)
+            for (int b = 0; b < 8; b++)
+                if (table[i] >> b & 0x01)
+                    printf("%d  ", i * 8 + b);
+        printf("\n");
+    }
+    else  {
+        printf("- Fingerprints stored at locations (ID): could not read (code: 0x%02X)\n", ret);
     }
 }
 
@@ -231,65 +277,63 @@ static void fingerprint_task(void *pvParameters)
             display_reset_pending = 1;
             oled_write_text("Search...", true);
 
-            if (searchFinger()) {
-                if (user_list[user_index].winlogin && user_index != -1 ) {  // CTRL+ALT+DELETE
-                    send_key_combination(HID_MODIFIER_LEFT_CTRL | HID_MODIFIER_LEFT_ALT, 0x4C);
-                }
+            int finger_index = searchFinger();
+            if (finger_index != -1) {
 
                 // Autenticazione biometrica riuscita: abilita accesso BLE user list
                 ble_userlist_set_authenticated(true);
                 printf("[FINGERPRINT] Autenticazione biometrica riuscita: accesso BLE abilitato\n");
 
-                // Invia la password corrispondente all'indice attuale
-                uint8_t* encoded = user_list[user_index].password_enc;
-                size_t len = user_list[user_index].password_len;
+                if (user_list[user_index].winlogin && user_index != -1 ) {  // CTRL+ALT+DELETE
+                    send_key_combination(HID_MODIFIER_LEFT_CTRL | HID_MODIFIER_LEFT_ALT, 0x4C);
+                }
 
-                char plain[128];
-                if (userdb_decrypt_password(encoded, len, plain) == 0) {
-                    // printf("Password (decrypted): %s\n", plain);
-                    send_string(plain);
-                    userdb_increment_usage(user_index);
-                    oled_write_text("Match found", true);
+                // Cerca nel database utenti se esiste un fingerprint_id equivalente con l'opzione magicfinger
+                if (user_index == -1) {
+                    for (int i = 0; i < MAX_USERS; ++i) {
+                        if (user_list[i].fingerprint_id == finger_index && user_list[i].magicfinger) {
+                            user_index = i;
+                            printf("User %s with fingerprint ID %d found at index %d\n", user_list[i].label, finger_index, i);
+                            break;
+                        }
+                    }                
+                }
+
+                if (user_index != -1) {
+                    // Invia la password corrispondente all'indice attuale
+                    uint8_t* encoded = user_list[user_index].password_enc;
+                    size_t len = user_list[user_index].password_len;
+
+                    char plain[128];
+                    if (userdb_decrypt_password(encoded, len, plain) == 0) {
+                        // printf("Password (decrypted): %s\n", plain);
+                        send_string(plain);
+                        userdb_increment_usage(user_index);
+
+                        char message[16];
+                        snprintf(message, sizeof(message), "Finger ID: %02d", finger_index);
+                        oled_write_text(message, true);
+                    }  
+                    else {
+                        printf("Decrypt error");
+                        oled_write_text("Decrypt err", true);
+                    }               
                 }
                 else {
-                    printf("Decrypt error");
+                    printf("No account selected");
                     oled_write_text("No account", true);
                 }
-            } else {
+            } 
+            else {
                 ESP_LOGI(TAG, "No matching finger found.");
-                send_string("No matching fingerprint");
+                // send_string("No matching fingerprint");
                 oled_write_text("No match", true);
             }
 
             while (gpio_get_level((gpio_num_t)TOUCH_GPIO) == 0) {
                 vTaskDelay(pdMS_TO_TICKS(50));
             }
-        }
-
-        // // Gestione menu da seriale
-        // size_t buffered_size;
-        // uart_get_buffered_data_len(UART_PORT, &buffered_size);
-        // if (buffered_size > 0) {
-        //     int ch = getchar();
-        //     printf("Received command: %c\n", ch);
-        //     switch (ch) {
-        //         case 'e':
-        //             enrollFinger();
-        //             break;
-        //         case 's':
-        //             searchFinger();
-        //             break;
-        //         case 'd':
-        //             clearLibrary();
-        //             printf("[Delete] All templates deleted\n");
-        //             break;
-        //         case 'm':
-        //             printMenu();
-        //             break;
-        //         default:
-        //             break;
-        //     }
-        // }
+        }        
 
         vTaskDelay(pdMS_TO_TICKS(100));
     }

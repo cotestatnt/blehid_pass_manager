@@ -23,7 +23,9 @@ void fingerprint_task_start(void);
 
 void enrollFinger();
 void clearFingerprintDB();
-bool searchFinger();
+int searchFinger();
+
+void printFingerprintTable();
 
 extern uint16_t num_templates;
 

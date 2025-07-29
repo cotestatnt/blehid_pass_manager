@@ -99,6 +99,7 @@
 #define ADD_NEW_USER    0xA2
 #define EDIT_USER       0xA3
 #define REMOVE_USER     0xA4
+#define CLEAR_USER_DB   0xA5
 #define BLE_MESSAGE     0xAA
 #define ENROLL_FINGER   0xB0
 #define CLEAR_LIBRARY   0xB2 

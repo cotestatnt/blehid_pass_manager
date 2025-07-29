@@ -534,11 +534,15 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_
                     memcpy(user.label, (uint8_t*)&param->write.value[offset], MAX_LABEL_LEN);
                     offset += MAX_LABEL_LEN;
 
-                    userdb_encrypt_password((const char*)param->write.value[offset], user.password_enc, &user.password_len);
+                    char plainPsw[MAX_PASSWORD_LEN] = { 0 };
+                    memcpy(plainPsw, (const char *)&param->write.value[offset], MAX_PASSWORD_LEN);                    
                     offset += MAX_PASSWORD_LEN;
+                    
+                    // Encrypt the password before storing it
+                    user.password_len = userdb_encrypt_password(plainPsw, user.password_enc);                
                     user.winlogin = (bool)param->write.value[offset++];
-                    user.auto_fingerprint = (bool)param->write.value[offset++];
-                    user.footprintIndex = (uint8_t)param->write.value[offset++];
+                    user.magicfinger = (bool)param->write.value[offset++];
+                    user.fingerprint_id = (uint8_t)param->write.value[offset++];
 
                     if (idx < user_count) {
                         // Edit user
@@ -582,6 +586,13 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_
                     break;
                 }
 
+                case CLEAR_USER_DB: {
+                    // Comando di cancellazione del database utenti
+                    userdb_clear();
+                    oled_write_text("clear users", true);
+                    break;
+                }
+
                 // case 0x04: {    
                 //     // Comando di lettura utente
                 //     // Formato: <0x04> <indice>                    
@@ -621,8 +632,8 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_
                 }
 
                 case GET_USERS_LIST: {                    
-                    send_user_entry(idx);
-                    printf("Send user %d\n", idx);
+                    printf("Sending user %d\n", idx);
+                    send_user_entry(idx);                    
                     break;
                 }
                 

@@ -21,6 +21,7 @@
 #define ADD_NEW_USER    0xA2
 #define EDIT_USER       0xA3
 #define REMOVE_USER     0xA4
+#define CLEAR_USER_DB   0xA5
 #define BLE_MESSAGE     0xAA
 
 #define ENROLL_FINGER   0xB0
@@ -76,6 +77,7 @@ public slots:
     Q_INVOKABLE void addUser(const QVariantMap &user);
     Q_INVOKABLE void editUser(int index, const QVariantMap &user);
     Q_INVOKABLE void removeUser(int index);
+    Q_INVOKABLE void clearUserDB();
 
     void getUserFromDevice(int index);
 
@@ -92,11 +94,6 @@ private:
     void updateCharacteristicValue(const QLowEnergyCharacteristic &c, const QByteArray &value);
     void confirmedDescriptorWrite(const QLowEnergyDescriptor &d, const QByteArray &value);
     void writeCustomCharacteristic(const QByteArray &data);
-
-    // void requestNextUser(quint8 cmd);
-    // void requestUser(quint8 idx);
-    // void requestPassword(quint8 idx);
-    // void requestWinlogin(quint8 idx);
 
     UserEntry parseUserEntry(const QByteArray &data);
 

@@ -86,6 +86,7 @@ Item {
 
                     onActivated: {
                         deviceHandler.enrollFingerprint()
+                        enrollButton.progress = 0
                     }
                 }
 
@@ -114,6 +115,7 @@ Item {
 
                     onActivated: {
                         deviceHandler.clearFingerprintDB()
+                        clearButton.progress = 0
                     }
                 }
             }

@@ -13,9 +13,7 @@ ItemDelegate {
     checkable: true
 
     required property string username
-    required property string password
-    required property bool winlogin
-
+    required property string password    
     property bool passwordVisible: false
 
     background: Rectangle {

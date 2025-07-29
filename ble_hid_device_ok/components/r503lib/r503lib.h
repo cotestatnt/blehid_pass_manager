@@ -21,7 +21,7 @@
 
 // Defaults
 #define R503_PASSWORD 0x0
-#define R503_RECEIVE_TIMEOUT 3000
+#define R503_RECEIVE_TIMEOUT 5000
 #define R503_RESET_TIMEOUT 3000
 
 // Confirmation Codes

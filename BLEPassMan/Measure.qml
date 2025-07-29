@@ -6,7 +6,6 @@ import QtQuick.Controls
 import QtQuick.Controls.impl
 import QtQuick.Layouts
 import QtQuick.Controls.Material
-
 import BLEPassMan
 
 
@@ -30,6 +29,8 @@ Page {
                     cleanUserObject.username = users[i].username;
                     cleanUserObject.password = users[i].password;
                     cleanUserObject.winlogin = users[i].winlogin;
+                    cleanUserObject.autoFinger = users[i].autoFinger;
+                    cleanUserObject.fingerprintIndex = users[i].fingerprintIndex;
                     jsArray.push(cleanUserObject);
                 }                
                 // console.log("Contenuto di jsArray convertito:", JSON.stringify(jsArray, null, 2));
