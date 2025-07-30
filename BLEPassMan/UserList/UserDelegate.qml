@@ -40,10 +40,10 @@ ItemDelegate {
             rowSpacing: 10
             columnSpacing: 10
 
-            Label { text: qsTr("Username:"); color: "white"; Layout.leftMargin: 60 }
+            Label { text: qsTr("Username:"); color: "white"; Layout.leftMargin: 20 }
             Label { text: delegate.username; font.bold: true; color: "white"; Layout.fillWidth: true }
 
-            Label { text: qsTr("Password:"); color: "white"; Layout.leftMargin: 60 }
+            Label { text: qsTr("Password:"); color: "white"; Layout.leftMargin: 20 }
             RowLayout {
                 Layout.fillWidth: true
                 Label {

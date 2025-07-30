@@ -87,8 +87,7 @@ Item {
         }
 
         contentItem: Text {
-            // Usa l'icona Unicode per il cestino
-            text: "🗑"  // Oppure usa "\uF1F8" se hai FontAwesome
+            text: "🗑"
             font.pixelSize: 20
             color: Material.foreground
             opacity: enabled ? 1.0 : 0.6
@@ -100,11 +99,10 @@ Item {
             implicitWidth: 40
             implicitHeight: 40
             opacity: enabled ? 1 : 0.6
+            radius: size / 2
 
             // Colore grigio scuro per Material Dark theme
             color: clearUserDB.down ? "#616161" : "#424242"
-
-            radius: size / 2
 
             readonly property real size: Math.min(clearUserDB.width, clearUserDB.height)
             width: size
@@ -134,7 +132,7 @@ Item {
                     var ctx = getContext("2d")
                     ctx.clearRect(0, 0, width, height)
                     ctx.strokeStyle = Material.foreground
-                    ctx.lineWidth = parent.size / 20
+                    ctx.lineWidth = parent.size / 15
                     ctx.beginPath()
                     var startAngle = Math.PI / 5 * 3
                     var endAngle = startAngle + clearUserDB.progress * Math.PI / 5 * 9
@@ -154,9 +152,9 @@ Item {
         spacing: 15
 
         RoundButton {
-            text : "👤+ "
+            text : "👤 +"
             font.pixelSize: 20
-            width: 40
+            width: 50
             height: 40
             onClicked: {
                 root.currentContact = -1
@@ -166,9 +164,9 @@ Item {
 
         RoundButton {
             id: readlistButton            
-            text: "👤\u2B94"
+            text: "👥⇄"
             font.pixelSize: 18
-            width: 40
+            width: 50
             height: 40
             enabled: syncEnabled            
             onClicked: root.readList()

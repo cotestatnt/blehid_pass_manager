@@ -50,7 +50,7 @@ QtObject {
 
     // Some other values
     property real fieldHeight: wHeight * 0.08
-    property real fieldMargin: fieldHeight * 0.5
+    property real fieldMargin: fieldHeight * 0.3
     property real buttonHeight: wHeight * 0.08
     property real buttonRadius: buttonHeight * 0.1
 

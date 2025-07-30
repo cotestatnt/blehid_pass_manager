@@ -7,14 +7,12 @@ import BLEPassMan
 
 Dialog {
     id: dialog
-    /* larghezza voluta */
+
     width: parent.width + 40
     height: implicitHeight
 
-    /* centratura orizzontale */
     x: (parent.width  - width)  / 2
-    y: 0 - titleBar.height + 10
-
+    y: 0 - (titleBar.height + 20)
 
     signal finished(var user)
 

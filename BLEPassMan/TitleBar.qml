@@ -22,13 +22,6 @@ Rectangle {
         x: titleBar.currentIndex * width
         color: Settings.selectedTitleColor
 
-        // Rectangle {
-        //     anchors.horizontalCenter: parent.horizontalCenter
-        //     anchors.top: parent.top
-        //     width: parent.width
-        //     height: parent.height * 0.05
-        // }
-
         Behavior on x {
             NumberAnimation {
                 duration: 200

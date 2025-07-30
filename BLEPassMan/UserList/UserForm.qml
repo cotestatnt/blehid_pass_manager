@@ -57,7 +57,7 @@ GridLayout {
 
 
     Label {
-        text: qsTr("Auto fingerprint")
+        text: qsTr("Magic finger")
         Layout.alignment: Qt.AlignLeft | Qt.AlignBaseline
     }
     CheckBox {

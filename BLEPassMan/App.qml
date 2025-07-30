@@ -13,6 +13,7 @@ Item {
     required property DeviceHandler deviceHandler
 
     anchors.fill: parent
+    anchors.margins: 0
     opacity: 0.0
 
     Behavior on opacity {
@@ -43,6 +44,9 @@ Item {
         anchors.top: titleBar.bottom
         anchors.bottom: parent.bottom
         currentIndex: app.__currentIndex
+
+        anchors.leftMargin: 5
+        anchors.rightMargin: 5
 
         Connect {
             connectionHandler: app.connectionHandler

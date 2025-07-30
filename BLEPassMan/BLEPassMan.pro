@@ -6,6 +6,8 @@ QT += qml quick bluetooth multimedia quickcontrols2
 CONFIG += qmltypes
 CONFIG += c++17
 
+RC_ICONS = favicon.ico
+
 QML_IMPORT_NAME = BLEPassMan
 QML_IMPORT_MAJOR_VERSION = 1
 QML_IMPORT_PATH = $$OUT_PWD
@@ -48,8 +50,10 @@ RESOURCES += images/images.qrc
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 ANDROID_BUILD_TYPE = debug
 
+
 ios: QMAKE_INFO_PLIST = shared/Info.qmake.ios.plist
 macos: QMAKE_INFO_PLIST = shared/Info.qmake.macos.plist
 
 DISTFILES += \
+    android/AndroidManifest.xml
 

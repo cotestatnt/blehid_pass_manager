@@ -157,33 +157,6 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
             }
             ESP_LOGI(HID_DEMO_TAG, "Advertising start successfully");
             break;
-        // case ESP_GAP_BLE_PASSKEY_REQ_EVT:                           /* passkey request event */
-        //     ESP_LOGI(HID_DEMO_TAG, "Passkey request");
-        //     /* Call the following function to input the passkey which is displayed on the remote device */
-        //     //esp_ble_passkey_reply(heart_rate_profile_tab[HEART_PROFILE_APP_IDX].remote_bda, true, 0x00);
-        //     break;
-        // case ESP_GAP_BLE_OOB_REQ_EVT: {
-        //     ESP_LOGI(HID_DEMO_TAG, "OOB request");
-        //     uint8_t tk[16] = {1}; //If you paired with OOB, both devices need to use the same tk
-        //     esp_ble_oob_req_reply(param->ble_security.ble_req.bd_addr, tk, sizeof(tk));
-        //     break;
-        // }
-        // case ESP_GAP_BLE_LOCAL_IR_EVT:                               /* BLE local IR event */
-        //     ESP_LOGI(HID_DEMO_TAG, "Local identity root");
-        //     break;
-        // case ESP_GAP_BLE_LOCAL_ER_EVT:                               /* BLE local ER event */
-        //     ESP_LOGI(HID_DEMO_TAG, "Local encryption root");
-        //     break;
-        // case ESP_GAP_BLE_NC_REQ_EVT:
-        //     /* The app will receive this evt when the IO has DisplayYesNO capability and the peer device IO also has DisplayYesNo capability.
-        //     show the passkey number to the user to confirm it with the number displayed by peer device. */
-        //     esp_ble_confirm_reply(param->ble_security.ble_req.bd_addr, true);
-        //     ESP_LOGI(HID_DEMO_TAG, "Numeric Comparison request, passkey %" PRIu32, param->ble_security.key_notif.passkey);
-        //     break;
-        // case ESP_GAP_BLE_KEY_EVT:
-        //     //shows the ble key info share with peer device to the user.
-        //     ESP_LOGI(HID_DEMO_TAG, "Key exchanged, key_type %s", esp_key_type_to_str(param->ble_security.ble_key.key_type));
-        //     break;
         case ESP_GAP_BLE_SEC_REQ_EVT:
             /* send the positive(true) security response to the peer device to accept the security request.
             If not accept the security request, should send the security response with negative(false) accept value*/
