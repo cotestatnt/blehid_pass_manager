@@ -10,14 +10,12 @@
 extern "C" {
 #endif
 
-#define UART_PORT   UART_NUM_1
-#define TOUCH_GPIO  4
-#define TX_GPIO     9
-#define RX_GPIO     8
 #define PASSWORD    0x00000000
 #define DEVICE_ADDR 0xFFFFFFFF
 
-static R503Lib fps(UART_PORT, RX_GPIO, TX_GPIO, DEVICE_ADDR);
+// #include "../../main/config.h"
+#include "config.h"
+static R503Lib fps(FP_UART_PORT, FP_RX, FP_TX, DEVICE_ADDR);
 
 void fingerprint_task_start(void);
 

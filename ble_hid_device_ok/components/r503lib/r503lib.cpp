@@ -2,8 +2,8 @@
 
 #include "R503Lib.h"
 
-#define TAG "R503Lib"
-
+#define TAG "R503Lib" 
+#define R503_DEBUG 1
 
 /**
  * @brief Macros to send commands to the R503 fingerprint sensor module.

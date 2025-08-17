@@ -1,11 +1,11 @@
 
 #include "src/R503Lib/R503Lib.h"
 
-#define PIN_INTERRUPT 4  // D5 sul XIAO nRF52840
+#define PIN_INTERRUPT 6  // D5 sul XIAO nRF52840
 
 // Set this to the serial port you are using
 #define fpsSerial Serial1
-R503Lib fps(&fpsSerial, 8, 9, 0xFFFFFFFF);
+R503Lib fps(&fpsSerial, 3, 4, 0xFFFFFFFF);
 
 // Template buffer
 uint8_t templateData[1792] = { 0 };
@@ -51,6 +51,7 @@ void setup() {
   Serial.printf("=========================================\n\n");
 
   // set the data rate for the sensor serial port
+  fpsSerial.begin(57600, SERIAL_8N1, 3, 4);
   if (fps.begin(57600, 0x0) != R503_OK) {
     Serial.println("[X] Sensor not found!");
     while (1) {

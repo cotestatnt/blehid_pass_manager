@@ -269,8 +269,8 @@ static void fingerprint_task(void *pvParameters)
     gpio_config_t io_conf = {};
     io_conf.intr_type = GPIO_INTR_DISABLE;
     io_conf.mode = GPIO_MODE_INPUT;
-    io_conf.pin_bit_mask = (1ULL << TOUCH_GPIO);
-    io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
+    io_conf.pin_bit_mask = (1ULL << FP_TOUCH);
+    io_conf.pull_down_en = PULLDOWN_TYPE;
     io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
     gpio_config(&io_conf);
 
@@ -294,7 +294,7 @@ static void fingerprint_task(void *pvParameters)
 
     while (true) {
         // Controlla il segnale "touch" su GPIO 4
-        if (gpio_get_level((gpio_num_t)TOUCH_GPIO) == 0 && !enrolling_in_progress) {
+        if (gpio_get_level((gpio_num_t)FP_TOUCH) == ACTIVE_LEVEL && !enrolling_in_progress) {
             last_interaction_time = xTaskGetTickCount();
            
             ESP_LOGI(TAG, "Touch detected, starting fingerprint search...");
@@ -355,7 +355,7 @@ static void fingerprint_task(void *pvParameters)
                 oled_write_text("No match", true);
             }
 
-            while (gpio_get_level((gpio_num_t)TOUCH_GPIO) == 0) {
+            while (gpio_get_level((gpio_num_t)FP_TOUCH) == ACTIVE_LEVEL) {
                 vTaskDelay(pdMS_TO_TICKS(50));
             }
         }        
