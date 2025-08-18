@@ -43,3 +43,4 @@ inols-clangd.log
 *.user
 *.user
 *.3dmbak
+/ble_hid_kw111/build
