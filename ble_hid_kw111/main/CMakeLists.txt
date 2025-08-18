@@ -9,7 +9,7 @@ set(include_dirs
 idf_component_register(
     SRCS "${srcs}"
     INCLUDE_DIRS "${include_dirs}"
-    REQUIRES esp_hid mbedtls ble_device oled kw111 user_list
+    REQUIRES esp_hid mbedtls ble_device oled fpm user_list
     PRIV_REQUIRES nvs_flash
 )
 
