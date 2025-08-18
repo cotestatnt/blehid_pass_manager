@@ -18,7 +18,7 @@
 #define min(a,b) (( (a) < (b) ) ? (a) : (b))
 
 
-#define FPM_DEBUG_LEVEL             2
+
 
 #define FPM_CHECKSUM_LENGTH         2
 

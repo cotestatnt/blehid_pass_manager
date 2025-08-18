@@ -43,19 +43,21 @@ void printHex(uint8_t* data, uint8_t len) {
 
 void setup() {
   // 初始化串口
-  delay(5000);
+  
   Serial.begin(115200);
   fingerprintSerial.begin(57600, SERIAL_8N1, 3, 4);
+  delay(5000);
+  read_FP_info();
 }
 
 void loop() {
-  if(!isInit) { //上电打印模组基本参数
-    isInit = true;
-    read_FP_info();
+  // if(!isInit) { //上电打印模组基本参数
+  //   isInit = true;
+  //   read_FP_info();
 
-    //命令使用说明
-    command_use();
-  }
+  //   //命令使用说明
+  //   // command_use();
+  // }
 
   //接收指令
   // run_command();
@@ -114,6 +116,7 @@ int run_command(void)
       Serial.println(command);
     }
   }
+  return 0;
 }
 
 //读模组基本参数
@@ -177,6 +180,7 @@ int read_FP_info(void)
   } else {
     return 0; // 失败
   }
+  return 0;
 }
 
 //注册指纹
@@ -421,7 +425,7 @@ bool receiveResponse() {
 
 // 打印响应包
 void printResponse(uint8_t *response, uint8_t length) {
-  Serial.print("Response:");
+  Serial.print("Response: ");
   for (int i = 0; i < length; i++) {
     if(response[i] < 0x10) Serial.print('0');
     Serial.print(response[i], HEX);

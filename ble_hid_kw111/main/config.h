@@ -57,7 +57,7 @@
 #elif ESP_BOARD == ESP32S3_TEST
     #define TARGET_ESP32S3       1
     #define FP_UART_PORT         UART_NUM_1
-
+  
     #define BUTTON_UP            7
     #define BUTTON_DOWN          5
 
@@ -76,4 +76,18 @@
 
 #else
     #error "Unsupported ESP board configuration"    
+#endif
+
+
+#define R503_FINGERPRINT 1
+#define ZW111_FINGERPRINT 2
+
+#define FP_SENSOR_TYPE ZW111_FINGERPRINT
+
+#if FP_SENSOR_TYPE == ZW111_FINGERPRINT
+    #define PULLDOWN_TYPE GPIO_PULLDOWN_ENABLE
+    #define ACTIVE_LEVEL 1 // ZW111 touch is active high
+#elif FP_SENSOR_TYPE == R503_FINGERPRINT
+    #define PULLDOWN_TYPE GPIO_PULLDOWN_DISABLE
+    #define ACTIVE_LEVEL 0 // R503 touch is active low
 #endif

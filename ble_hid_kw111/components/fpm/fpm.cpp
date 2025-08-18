@@ -14,8 +14,9 @@
 
 
 static const char* TAG = "FPM";
+#define FPM_DEBUG_LEVEL   1
 
-#if FPM_DEBUG_LEVEL == 2
+#if FPM_DEBUG_LEVEL >= 2
 #define FPM_LOGE(fmt, ...) ESP_LOGE(TAG, fmt, ##__VA_ARGS__)
 #define FPM_LOGD(fmt, ...) ESP_LOGD(TAG, fmt, ##__VA_ARGS__)
 #define FPM_LOGI(fmt, ...) ESP_LOGI(TAG, fmt, ##__VA_ARGS__)
@@ -45,13 +46,14 @@ FPM::FPM(IFpmStream * ss) : port(ss), password(FPM_DEFAULT_PASSWORD), address(FP
 
 bool FPM::begin(uint32_t pwd, uint32_t addr, FPMSystemParams * params) 
 {
+    FPM_LOGI("begin: initializing");
     vTaskDelay(pdMS_TO_TICKS(1000));  /* 500 ms at least according to datasheet */
     
     address = addr;
     password = pwd;
     
     if (!verifyPassword(password)) {
-        FPM_LOGE("FPM", "begin: password verification failed");
+        FPM_LOGE("begin: password verification failed");
         return false;
     }
     
@@ -60,10 +62,10 @@ bool FPM::begin(uint32_t pwd, uint32_t addr, FPMSystemParams * params)
     if (params != NULL) {
         useFixedParams = true;
         memcpy(&sysParams, params, sizeof(FPMSystemParams));
-        FPM_LOGI("FPM", "begin: using fixed params");
+        FPM_LOGI("begin: using fixed params");
     }
     else if (readParams() != FPMStatus::OK) {
-        FPM_LOGE("FPM", "begin: read params failed");
+        FPM_LOGE("begin: read params failed");
         return false;
     }
     
@@ -235,20 +237,32 @@ FPMStatus FPM::readParams(FPMSystemParams * params)
 {
     if (useFixedParams) {
         if (params != NULL) memcpy(params, &sysParams, FPM_SYS_PARAMS_LEN);
+        FPM_LOGI("readParams: using fixed params");
         return FPMStatus::OK;
     }
     
     buffer[0] = FPM_READSYSPARAM;
-    
 	writePacket(FPM_COMMANDPACKET, buffer, 1);
-    FPMStatus confirmCode;
+    vTaskDelay(pdMS_TO_TICKS(100));  /* wait for the sensor to process the command */   
+
     uint16_t readLen = 0;
-    
+    FPMStatus confirmCode;    
     FPMStatus status = readAckGetResponse(&confirmCode, &readLen);
     
-    if (FPM::isErrorCode(status)) return status;
-    if (confirmCode != FPMStatus::OK) return confirmCode;
-    if (readLen != FPM_SYS_PARAMS_LEN) return FPMStatus::READ_ERROR;
+    if (FPM::isErrorCode(status)) {
+        FPM_LOGE("readParams: error 0x%X", static_cast<uint16_t>(status));
+        return status;
+    }
+
+    if (confirmCode != FPMStatus::OK) {
+        FPM_LOGE("readParams: confirm code 0x%X", static_cast<uint16_t>(confirmCode));
+        return confirmCode;
+    }
+
+    if (readLen != FPM_SYS_PARAMS_LEN) {
+        FPM_LOGE("readParams: expected %u bytes, got %u", FPM_SYS_PARAMS_LEN, readLen);
+        return FPMStatus::READ_ERROR;
+    }
     
     memcpy(&sysParams, &buffer[1], FPM_SYS_PARAMS_LEN);
     
@@ -336,7 +350,7 @@ bool FPM::readDataPacket(uint8_t * destBuffer, IFpmStream * destStream, uint16_t
     status = readPacket(destBuffer, destStream, readLen, &pktId);
     
     if (FPM::isErrorCode(status)) {
-        FPM_LOGE("FPM", "readDataPacket: failed with status 0x%X", static_cast<uint16_t>(status));
+        FPM_LOGE("readDataPacket: failed with status 0x%X", static_cast<uint16_t>(status));
         return false;
     }
     
@@ -360,7 +374,7 @@ bool FPM::writeDataPacket(uint8_t * srcBuffer, IFpmStream * srcStream, uint16_t 
     /* clip the write-length to the current packet length */
     else if (*writeLen > PACKET_LEN)
     {
-        FPM_LOGI("FPM", "writeDataPacket: clipping, length %u > packetLen %u", *writeLen, PACKET_LEN);
+        FPM_LOGI("writeDataPacket: clipping, length %u > packetLen %u", *writeLen, PACKET_LEN);
         *writeLen = PACKET_LEN;
     }
     
@@ -465,7 +479,7 @@ FPMStatus FPM::getTemplateCount(uint16_t * templateCount)
     FPMStatus status = readAckGetResponse(&confirmCode, &readLen);
     
     if (FPM::isErrorCode(status)) {
-        FPM_LOGE("FPM", "getTemplateCount(): error 0x%X", static_cast<uint16_t>(status));
+        FPM_LOGE("getTemplateCount(): error 0x%X", static_cast<uint16_t>(status));
         return status;
     }
     
@@ -521,32 +535,29 @@ FPMStatus FPM::getFreeIndex(uint8_t page, int16_t * id)
 
 FPMStatus FPM::getLastIndex(int16_t * lastIndex) 
 {
-    FPMSystemParams params{};
-    if (readParams(&params) == FPMStatus::LIB_OK) {
 
-        for (int page = 0; page < (params.capacity / FPM_TEMPLATES_PER_PAGE) + 1; page++) 
+    for (int page = 0; page < (sysParams.capacity / FPM_TEMPLATES_PER_PAGE) + 1; page++) 
+    {
+        FPMStatus status = getFreeIndex(page, lastIndex);
+        
+        switch (status) 
         {
-            FPMStatus status = getFreeIndex(page, lastIndex);
-            
-            switch (status) 
-            {
-                case FPMStatus::OK:
-                    if (*lastIndex != -1) {
-                        ESP_LOGI(TAG, "Free slot at ID %d", *lastIndex);
-                        return FPMStatus::LIB_OK;
-                    }
-                    break;
-                    
-                default:
-                    ESP_LOGE(TAG, "getFreeIndex(%d): error 0x%X", page, static_cast<uint16_t>(status));                
-                    return status;
-            }
-            
-            yield();
+            case FPMStatus::OK:
+                if (*lastIndex != -1) {
+                    FPM_LOGI("Free slot at ID %d", *lastIndex);
+                    return FPMStatus::OK;
+                }
+                break;
+                
+            default:
+                FPM_LOGE("getFreeIndex(%d): error 0x%X", page, static_cast<uint16_t>(status));                
+                return status;
         }
+        
+        yield();
     }
     
-    ESP_LOGE(TAG, "No free slots!");
+    FPM_LOGE("No free slots!");
     return FPMStatus::NO_FREE_INDEX;
 }
 
@@ -638,7 +649,7 @@ FPMStatus FPM::writePacket(uint8_t * srcBuffer, IFpmStream * srcStream, uint16_t
         /* if we actually timed out, just return */
         if (millis() - lastRead >= FPM_DEFAULT_TIMEOUT)
         {
-            FPM_LOGE("FPM", "writePacket: timed out while reading from Stream");
+            FPM_LOGE("writePacket: timed out while reading from Stream");
             return FPMStatus::TIMEOUT;
         }
     }
@@ -676,7 +687,7 @@ FPMStatus FPM::readPacket(uint8_t * destBuffer, IFpmStream * destStream, uint16_
     
     uint32_t lastRead = millis();
 
-    FPM_LOGI("FPM", "Starting readPacket");
+    FPM_LOGI("Starting readPacket");
 
     while ((uint32_t)(millis() - lastRead) < FPM_DEFAULT_TIMEOUT)
     {        
@@ -695,7 +706,7 @@ FPMStatus FPM::readPacket(uint8_t * destBuffer, IFpmStream * destStream, uint16_
                 if (header != FPM_STARTCODE)
                     break;
 
-                FPM_LOGI("FPM", "Found Header");
+                FPM_LOGI("Found Header");
 
                 header = 0;
                 state = FPMState::READ_METADATA;
@@ -718,16 +729,16 @@ FPMStatus FPM::readPacket(uint8_t * destBuffer, IFpmStream * destStream, uint16_
                 
                 if (addr != address) {
                     state = FPMState::READ_HEADER;
-                    FPM_LOGE("FPM", "Wrong address: 0x%X", addr);
+                    FPM_LOGE("Wrong address: 0x%X", addr);
                     break;
                 }
                 
-                FPM_LOGI("FPM", "Address: 0x%X", addr);
+                FPM_LOGI("Address: 0x%X", addr);
                 
                 /* read packet ID */
                 *pktId = port->read();
                 chksum = *pktId;
-                FPM_LOGI("FPM", "PID: 0x%X", *pktId);
+                FPM_LOGI("PID: 0x%X", *pktId);
                 
                 /* read and compare length */
                 port->readBytes((uint8_t *)&packetLen, 2);
@@ -739,11 +750,11 @@ FPMStatus FPM::readPacket(uint8_t * destBuffer, IFpmStream * destStream, uint16_
                     (destStream == NULL && readLen != NULL && packetLen > (*readLen) + FPM_CHECKSUM_LENGTH)) 
                 {
                     state = FPMState::READ_HEADER;
-                    FPM_LOGE("FPM", "Length is invalid or too large: %u", packetLen);
+                    FPM_LOGE("Length is invalid or too large: %u", packetLen);
                     break;
                 }
 
-                FPM_LOGI("FPM", "Length: %u", packetLen - FPM_CHECKSUM_LENGTH);
+                FPM_LOGI("Length: %u", packetLen - FPM_CHECKSUM_LENGTH);
 
                 /* number of bytes left to read, excluding checksum */
                 remaining = packetLen - FPM_CHECKSUM_LENGTH;
@@ -784,10 +795,9 @@ FPMStatus FPM::readPacket(uint8_t * destBuffer, IFpmStream * destStream, uint16_
                 for (int i = 0; i < toRead; i++)
                 {
                     chksum += tmpRef[i];
-                    ESP_LOGV("FPM", "%X ", tmpRef[i]);
+                    // FPM_LOGI("%X ", tmpRef[i]);
                 }
-
-                ESP_LOGV("FPM", "\r\n");
+                // FPM_LOGI("\r\n");
 
                 remaining -= toRead;
                 state = (remaining == 0) ? FPMState::READ_CHECKSUM : state;
@@ -807,11 +817,11 @@ FPMStatus FPM::readPacket(uint8_t * destBuffer, IFpmStream * destStream, uint16_
                 
                 if (pktChksum != chksum) {
                     state = FPMState::READ_HEADER;
-                    FPM_LOGE("FPM", "Wrong checksum: 0x%X != 0x%X", pktChksum, chksum);
+                    FPM_LOGE("Wrong checksum: 0x%X != 0x%X", pktChksum, chksum);
                     break;
                 }
                 
-                FPM_LOGI("FPM", "Read complete.");
+                FPM_LOGI("Read complete.");
                 if (readLen != NULL)    *readLen = packetLen - FPM_CHECKSUM_LENGTH;
                 
                 return FPMStatus::LIB_OK;
@@ -821,7 +831,7 @@ FPMStatus FPM::readPacket(uint8_t * destBuffer, IFpmStream * destStream, uint16_
         yield();  /* yield to other tasks */
     }
 
-    FPM_LOGE("FPM", "readPacket timeout.");
+    FPM_LOGE("readPacket timeout.");
     return FPMStatus::TIMEOUT;
 }
 
@@ -830,13 +840,29 @@ FPMStatus FPM::readAckGetResponse(FPMStatus * confirmCode, uint16_t * readLen)
     uint8_t pktId = 0;
     *readLen = FPM_BUFFER_SZ;
     FPMStatus status = readPacket(buffer, NULL, readLen, &pktId);
+
+    #if FPM_DEBUG_LEVEL >= 3
+    printf("readAckGetResponse() - ACK buffer:");
+    for (int i = 0; i < *readLen; i++) {
+        printf("%02X ", buffer[i]);
+    }
+    printf("\n");
+    #endif
     
     /* most likely timed out */
-    if (FPM::isErrorCode(status)) return status;
-    
+    if (FPM::isErrorCode(status)) {
+        if (status == FPMStatus::TIMEOUT) {
+            FPM_LOGE("readAckGetResponse: timed out");
+        }
+        else {
+            FPM_LOGE("readAckGetResponse: error 0x%X", static_cast<uint16_t>(status));
+        }
+        return status;
+    }
+
     /* wrong pkt id */
     if (pktId != FPM_ACKPACKET) {
-        FPM_LOGE("FPM", "Wrong PID: 0x%X", pktId);
+        FPM_LOGE("readAckGetResponse: wrong PID: 0x%X", pktId);
         return FPMStatus::READ_ERROR;
     }
     

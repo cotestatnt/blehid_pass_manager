@@ -10,7 +10,7 @@ public:
                      int tx_gpio,
                      int rx_gpio,
                      int baud = 57600,
-                     int rx_buf_size = 2048,
+                     int rx_buf_size = 512,
                      int tx_buf_size = 512);
     ~EspIdfUartStream();
 

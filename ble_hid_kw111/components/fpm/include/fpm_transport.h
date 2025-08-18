@@ -19,7 +19,7 @@ public:
     }
 
     // Arduino::Stream::readBytes ha un timeout interno; qui di default usiamo 0 (non bloccante)
-    size_t readBytes(uint8_t* buf, size_t len, uint32_t timeout_ms = 0) {
+    size_t readBytes(uint8_t* buf, size_t len, uint32_t timeout_ms = 500) {
         return read(buf, len, timeout_ms);
     }
     
@@ -27,7 +27,7 @@ public:
     int read() {
         if (available() <= 0) return -1;
         uint8_t b = 0;
-        size_t r = read(&b, 1, 0);
+        size_t r = read(&b, 1, 100);
         return (r == 1) ? static_cast<int>(b) : -1;
     }
     
