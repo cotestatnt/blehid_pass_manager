@@ -25,7 +25,7 @@
 #include "config.h"
 #include "fingerprint.h"
 #include "ble_device_main.h"
-// #include "hid_device_usb.h"
+#include "hid_device_usb.h"
 #include "user_list.h"
 #include "oled.h"
 
@@ -176,16 +176,16 @@ extern "C" void app_main(void) {
     userdb_dump();
 
     // Initialize USB devices if needed
-    // for (size_t i = 0; i < user_count; ++i) {
-    //     if (user_list[i].login_type >= 1) {
-    //         ESP_LOGI(TAG, "Initializing USB device for users");
-    //         usb_device_init();
+    for (size_t i = 0; i < user_count; ++i) {
+        if (user_list[i].login_type >= 1) {
+            ESP_LOGI(TAG, "Initializing USB device for users");
+            usb_device_init();
 
-    //         vTaskDelay(pdMS_TO_TICKS(1000));
-    //         usb_send_string("Test USB HID device");
-    //         break;
-    //     }
-    // }
+            vTaskDelay(pdMS_TO_TICKS(1000));
+            usb_send_string("Test USB HID device");
+            break;
+        }
+    }
 
     last_interaction_time = xTaskGetTickCount();
     

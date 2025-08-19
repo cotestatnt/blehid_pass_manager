@@ -14,7 +14,7 @@
     "--query-driver=d:\\Espressif\\tools\\tools\\xtensa-esp-elf\\esp-14.2.0_20241119\\xtensa-esp-elf\\bin\\xtensa-esp32s3-elf-gcc.exe",
     "--compile-commands-dir=d:\\Dropbox\\blehid_pass_manager\\ble_hid_device_ok\\build"
   ],
-  "idf.portWin": "COM3",
+  "idf.portWin": "COM7",
   "idf.flashType": "UART",
   "files.associations": {
     "xstring": "c",
@@ -31,7 +31,7 @@
     "fpm.h": "c",
     "stddef.h": "c"
   },
-  "idf.espIdfPathWin": "c:\\Espressif\\v5.5\\esp-idf",
-  "idf.toolsPathWin": "c:\\Espressif\\tools",
-  "idf.pythonInstallPath": "c:\\Espressif\\tools\\tools\\idf-python\\3.11.2\\python.exe"
+  "idf.espIdfPathWin": "d:\\Espressif\\v5.5\\esp-idf",
+  "idf.toolsPathWin": "d:\\Espressif\\tools",
+  "idf.pythonInstallPath": "d:\\Espressif\\tools\\tools\\idf-python\\3.11.2\\python.exe"
 }
