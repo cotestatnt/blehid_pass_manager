@@ -1,14 +1,6 @@
-set(srcs     
-    "main.cpp"    
-)
-
-set(include_dirs 
-    "." 
-)
-
 idf_component_register(
-    SRCS "${srcs}"
-    INCLUDE_DIRS "${include_dirs}"
+    SRCS "main.cpp" "fingerprint.cpp" 
+    INCLUDE_DIRS "." "include"
     REQUIRES esp_hid mbedtls ble_device oled fpm user_list
     PRIV_REQUIRES nvs_flash
 )

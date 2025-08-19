@@ -45,3 +45,4 @@ inols-clangd.log
 *.3dmbak
 /ble_hid_kw111/build
 /ble_hid_kw111/.vscode
+/ble_hid_kw111/managed_components

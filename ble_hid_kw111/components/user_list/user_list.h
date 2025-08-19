@@ -11,7 +11,7 @@ extern "C" {
 #include <stddef.h>
 
 #define DEBUG_PASSWD 0
-#define SLEEP_ENABLE 0
+#define SLEEP_ENABLE 1
 
 #define MAX_LABEL_LEN    32
 #define MAX_PASSWORD_LEN 32
@@ -25,6 +25,7 @@ typedef struct {
     uint8_t fingerprint_id;            // indice del fingerprint associato (0-9)
     bool magicfinger;                  // true se è un login con fingerprint (0-9) automatico
     bool winlogin;                     // true se è un login Windows
+    uint8_t login_type;                // tipo di login (0: BLE, 1: USB, 2: Both)
 } user_entry_t;
 
 extern user_entry_t user_list[MAX_USERS];
@@ -58,11 +59,12 @@ void userdb_sort_by_usage();
 
 // Test data initialization
 // void userdb_init_test_data();
+void user_print(user_entry_t* user);
 void userdb_dump();
 void userdb_clear();
 
 // Funzioni per l'invio della lista utenti al client BLE
-void send_user_entry(int8_t index);
+int send_user_entry(int8_t index);
 // void send_winlogin(uint8_t index);
 // void send_user(uint8_t index);
 // void send_password(uint8_t index);  

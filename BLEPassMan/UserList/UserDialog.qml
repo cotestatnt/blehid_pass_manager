@@ -22,6 +22,7 @@ Dialog {
         form.winlogin.checked = false;
         form.autoFinger.checked = false;
         form.fingerprintIndex.currentIndex = 0;
+        form.loginType.currentIndex = 0;
 
         dialog.title = qsTr("Add User");
         dialog.open();
@@ -33,6 +34,7 @@ Dialog {
         form.winlogin.checked = contact.winlogin;
         form.autoFinger.checked = contact.autoFinger;
         form.fingerprintIndex.currentIndex = contact.fingerprintIndex + 1
+        form.loginType.currentIndex = contact.loginType
 
         dialog.title = qsTr("Edit User");
         dialog.open();
@@ -48,13 +50,14 @@ Dialog {
     }
 
     onAccepted: {
-        if (form.username.text && form.password.text) {
+        if (form.username.text && form.password.text) {            
             finished({
                 username: form.username.text,
                 password: form.password.text,
                 winlogin: form.winlogin.checked,
                 autoFinger: form.autoFinger.checked,
-                fingerprintIndex: form.fingerprintIndex.currentValue
+                fingerprintIndex: form.fingerprintIndex.currentValue,
+                loginType: form.loginType.currentIndex
             });
         }
     }

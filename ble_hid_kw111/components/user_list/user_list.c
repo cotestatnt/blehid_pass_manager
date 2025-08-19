@@ -17,7 +17,7 @@
 
 user_entry_t user_list[MAX_USERS]; // Lista degli account
 size_t user_count = 0;             // Numero totale degli account memorizzati
-volatile int user_index = 0;       // Indice dell'account attualmente selezionato
+volatile int user_index = -1;      // Indice dell'account attualmente selezionato
 
 // Oled handling
 int display_reset_pending = 0;      // Reset del display dopo 15 secondi
@@ -71,41 +71,31 @@ int userdb_decrypt_password(const uint8_t* encrypted, size_t len, char* out_plai
     return 0;
 }
 
-// void userdb_init_test_data() {
-//     if (get_device_key_hmac(decrypt_key) != ESP_OK)
-//         ESP_LOGE(TAG, "Error getting decrypt key");
-//     user_count = 0;
-//     uint8_t pswd[MAX_PASSWORD_LEN];
-//     size_t len;
-//     userdb_encrypt_password("123456789", pswd, &len);
-//     userdb_add("PIN Banca", pswd, len);
-//     userdb_encrypt_password("XTA?=XXcts))", pswd, &len);
-//     userdb_add("CSR Tolentino", pswd, len);
-//     userdb_encrypt_password("Ndirondirondello?", pswd, &len);
-//     userdb_add("Windows11", pswd, len);
-//     // userdb_increment_usage(2);
-//     // userdb_increment_usage(2);
-//     // userdb_increment_usage(0);
-//     user_index = -1;  // Reset index all'avvio
-// }
+
+void user_print(user_entry_t* user) {    
+    for (size_t i = 0; i < user_count; ++i) {
+        printf(" [%d] User: %s\n", (int)i, user->label);
+        #if DEBUG_PASSWD
+        printf("     Password (hex): ");
+        for (size_t j = 0; j < user->password_len; ++j) {
+            printf("%02X ", user->password_enc[j]);
+        }
+        printf("\n");
+        #endif
+        printf("     Usage count: %lu\n", user->usage_count);
+        printf("     Fingerprint ID: %02d\n", user->fingerprint_id);
+        printf("     MagicFinder: %s\n", user->magicfinger ? "enabled" : "disabled");
+        printf("     Winlogin: %s\n", user->winlogin ? "enabled" : "disabled");
+        printf("     Login type: %d\n", user->login_type);
+    }
+}
 
 void userdb_dump() {
     printf("=== USER LIST (%d users) ===\n", (int)user_count);
     for (size_t i = 0; i < user_count; ++i) {
-        printf(" [%d] User: %s\n", (int)i, user_list[i].label);
-        #if DEBUG_PASSWD
-        printf("     Password (hex): ");
-        for (size_t j = 0; j < user_list[i].password_len; ++j) {
-            printf("%02X ", user_list[i].password_enc[j]);
-        }
-        printf("\n");
-        #endif
-        printf("     Usage count: %lu\n", user_list[i].usage_count);
-        printf("     Fingerprint ID: %02d\n", user_list[i].fingerprint_id);        
-        printf("     MagicFinder: %s\n", user_list[i].magicfinger ? "enabled" : "disabled");
-        printf("     Winlogin: %s\n", user_list[i].winlogin ? "enabled" : "disabled");        
+        user_print(&user_list[i]);
     }
-    printf("=============================\n");
+    printf("============================\n");
 }
 
 // Salva la lista utenti e il conteggio su NVS
@@ -138,7 +128,6 @@ void userdb_load() {
     }
     
     user_count = 0;
-    user_index = -1;
     memset(user_list, 0, sizeof(user_list));
 
     nvs_get_blob(handle, NVS_KEY, user_list, &required_size);
@@ -153,14 +142,15 @@ void userdb_load() {
 int userdb_add(user_entry_t* user) {
     if (user_count >= MAX_USERS) 
         return -1;
-
+    user_print(user);
     user_list[user_count] = *user; // Copia la struttura completa
     user_list[user_count].usage_count = 0; // Inizializza il contatore di utilizzo
     user_count++;
     userdb_save();
-
+    userdb_load();
     oled_write_text("User added", true);
     ESP_LOGI(TAG, "User added: %s", user->label);
+    userdb_dump();
     return user_count;
 }
 
@@ -169,15 +159,18 @@ void userdb_edit(int index, user_entry_t* user){
     if (index < 0 || index >= user_count) 
         return ;
 
+    user_print(user);
     user_list[index] = *user; // Copia la struttura completa
     userdb_save();
+    userdb_load();
     oled_write_text("User update", true);
-    ESP_LOGI(TAG, "User updated: %s", user->label);
+    ESP_LOGI(TAG, "User updated: %s", user->label);    
 }
 
 
 // Rimuove un utente dato l'indice
-int userdb_remove(int index) {
+int userdb_remove(int index) {    
+
     oled_write_text("rem user", true);    
     if (index < 0 || index >= user_count) return -1;
     for (size_t i = index; i < user_count - 1; ++i) {
@@ -185,10 +178,9 @@ int userdb_remove(int index) {
     }
     user_count--;
     userdb_save();
-
     userdb_load(); 
     oled_write_text("User removed", true);
-    ESP_LOGI(TAG, "User removed at index: %d", index);
+    ESP_LOGI(TAG, "User removed at index: %d", index);    
     return 0;
 }
 
@@ -237,7 +229,7 @@ void userdb_clear() {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void send_user_entry(int8_t index) {
+int send_user_entry(int8_t index) {
     if (index < 0 || index >= user_count) {
         ESP_LOGW(TAG, "Index not valid or end of list (%d)\n", user_count);
     }
@@ -253,7 +245,7 @@ void send_user_entry(int8_t index) {
         payload_data[payload_size++] = index; // Indice dell'utente corrente
         if (size > sizeof(payload_data) - 2) {
             ESP_LOGE(TAG, "User entry size exceeds maximum payload size");
-            return;
+            return -1;
         }
 
         // Set label and password in the payload
@@ -268,7 +260,9 @@ void send_user_entry(int8_t index) {
         payload_data[payload_size++] = entry.winlogin ? 1 : 0; 
         payload_data[payload_size++] = entry.magicfinger ? 1 : 0; 
         payload_data[payload_size++] = entry.fingerprint_id;
-        memset(plain, 0, sizeof(plain));
+        payload_data[payload_size++] = entry.login_type;
+
+        memset(plain, 0, sizeof(plain));        
     }
     
     esp_ble_gatts_send_indicate(
@@ -279,6 +273,8 @@ void send_user_entry(int8_t index) {
         (uint8_t *)&payload_data,
         true
     );
+
+    return (index >= user_count) ? -1 : user_count;
 }
 
 

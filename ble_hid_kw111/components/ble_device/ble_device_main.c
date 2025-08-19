@@ -199,7 +199,7 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
     }
 }
 
-static void char_to_code(uint8_t *buffer, wint_t ch)
+void char_to_code(uint8_t *buffer, wint_t ch)
 {
 	// Check if lower or upper case
 	if(ch >= 'a' && ch <= 'z')
@@ -280,6 +280,8 @@ void send_keyboard(wint_t c)
     uint8_t release_key = 0;
     esp_hidd_send_keyboard_value(hid_conn_id, 0, &release_key, 0);
 }
+
+
 
 void send_string(const char* str) {
   size_t i = 0;

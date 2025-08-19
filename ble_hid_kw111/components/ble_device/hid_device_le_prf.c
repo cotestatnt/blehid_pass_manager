@@ -14,10 +14,11 @@
 #include "user_list.h"
 #include "ble_userlist_auth.h"
 
-static const char *TAG = "BLE_CUSTOM";
+// Forward declarations for fingerprint functions (implemented in C++)
+extern bool enrollFinger();
+extern bool clearFingerprintDB();
 
-extern void enrollFinger();
-extern void clearFingerprintDB();
+static const char *TAG = "BLE_CUSTOM";
 
 /// characteristic presentation information
 struct prf_char_pres_fmt
@@ -538,6 +539,7 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_
                     user.winlogin = (bool)param->write.value[offset++];
                     user.magicfinger = (bool)param->write.value[offset++];
                     user.fingerprint_id = (uint8_t)param->write.value[offset++];
+                    user.login_type = (uint8_t)param->write.value[offset++];
 
                     if (idx < user_count) {
                         // Edit user
@@ -575,9 +577,10 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_
                     break;
                 }
 
-                case GET_USERS_LIST: {                    
-                    printf("Sending user %d\n", idx);
-                    send_user_entry(idx);                    
+                case GET_USERS_LIST: {                   
+                    if (send_user_entry(idx) != -1) {
+                        printf("Sending user %d\n", idx);
+                    }
                     break;
                 }
                 

@@ -1,4 +1,8 @@
 #pragma once
+#ifndef CONFIG_H
+#define CONFIG_H
+
+
 #include "driver/gpio.h"
 
 #define ESP32C3_TOI 0
@@ -9,7 +13,6 @@
 #define ESP_BOARD ESP32S3_TEST
 
 #if ESP_BOARD == ESP32C3_TOI
-    #define TARGET_ESP32C3       1
     #define VBAT_GPIO            1
     #define BUTTON_UP            6
     #define BUTTON_DOWN          7
@@ -24,7 +27,6 @@
     #define PIN_NUM_RST          -1
 
 #elif ESP_BOARD == ESP32C3_SUPERMINI
-    #define TARGET_ESP32C3       1
     #define VBAT_GPIO            2  
     #define BUTTON_UP            3
     #define BUTTON_DOWN          10
@@ -39,7 +41,6 @@
     #define PIN_NUM_RST          -1
 
 #elif ESP_BOARD == ESP32S3_SUPERMINI
-    #define TARGET_ESP32S3      1
     #define FP_UART_PORT         UART_NUM_1
 
     #define BUZZER_GPIO          10
@@ -55,7 +56,6 @@
     #define PIN_NUM_RST          -1
 
 #elif ESP_BOARD == ESP32S3_TEST
-    #define TARGET_ESP32S3       1
     #define FP_UART_PORT         UART_NUM_1
   
     #define BUTTON_UP            7
@@ -91,3 +91,6 @@
     #define PULLDOWN_TYPE GPIO_PULLDOWN_DISABLE
     #define ACTIVE_LEVEL 0 // R503 touch is active low
 #endif
+
+
+#endif // CONFIG_H

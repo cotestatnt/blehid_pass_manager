@@ -1,146 +1,215 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <inttypes.h>
+#include <wchar.h>
+#include <locale.h>
+
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/event_groups.h"
+#include "esp_system.h"
+#include "esp_wifi.h"
+#include "esp_event.h"
 #include "esp_log.h"
-#include "fpm.h" // header adattato
-#include "transport/espidf_uart_stream.h"
+#include "nvs_flash.h"
+#include "driver/gpio.h"
+#include "esp_sleep.h"
+
+
+#if CONFIG_IDF_TARGET_ESP32S3
+#include "driver/rtc_io.h"
+#endif
+
+// Local components
 #include "config.h"
+#include "fingerprint.h"
+#include "ble_device_main.h"
+// #include "hid_device_usb.h"
+#include "user_list.h"
+#include "oled.h"
 
-static const char *TAG = "APP";
+static const char *TAG = "MAIN";
+static bool go_to_deep_sleep = false;
+static TaskHandle_t fingerprintTaskHandle = nullptr;
+static TaskHandle_t buttonsTaskHandle = nullptr;
+// static TaskHandle_t oledTaskHandle = nullptr;
 
-int searchDatabase(FPM &finger) {
-    FPMStatus status;
-    uint16_t fid = 0xFFFF, score = 0;
 
-    /* Take a snapshot of the input finger */
-    ESP_LOGI(TAG, "Place a finger.");
+void enter_deep_sleep() {
+    gpio_set_level((gpio_num_t)FP_ACTIVATE, 0);
+    
+#if CONFIG_IDF_TARGET_ESP32C3
+    // ESP32-C3: usa gpio wakeup
+    esp_deep_sleep_enable_gpio_wakeup((1ULL << FP_TOUCH), ESP_GPIO_WAKEUP_GPIO_LOW);
 
-    do {
-        status = finger.getImage();
+#elif CONFIG_IDF_TARGET_ESP32S3
+    // ESP32-S3: usa ext1 wakeup con RTC_IO
+    esp_sleep_enable_ext1_wakeup((1ULL << FP_TOUCH), ESP_EXT1_WAKEUP_ANY_LOW);
+    
+    // Configura il pin come RTC_IO
+    rtc_gpio_init((gpio_num_t)FP_TOUCH);
+    rtc_gpio_set_direction((gpio_num_t)FP_TOUCH, RTC_GPIO_MODE_INPUT_ONLY);
+    rtc_gpio_pullup_en((gpio_num_t)FP_TOUCH);
+    rtc_gpio_pulldown_dis((gpio_num_t)FP_TOUCH);
+#else
+    ESP_LOGW("MAIN", "Deep sleep wakeup not configured for this target");
+#endif
 
-        switch (status) {
-        case FPMStatus::OK:
-            ESP_LOGI(TAG, "Image taken");
-            break;
-
-        case FPMStatus::NOFINGER:
-            // ESP_LOGI(TAG, ".");
-            vTaskDelay(200 / portTICK_PERIOD_MS);
-            break;
-
-        default:
-            /* allow retries even when an error happens */
-            ESP_LOGE(TAG, "getImage(): error 0x%X", static_cast<uint16_t>(status));
-            break;
-        }
-
-        taskYIELD();
-    } while (status != FPMStatus::OK);
-
-    /* Extract the fingerprint features */
-    status = finger.image2Tz();
-
-    switch (status) {
-    case FPMStatus::OK:
-        ESP_LOGI(TAG, "Image converted");
-        break;
-
-    default:
-        ESP_LOGE(TAG, "image2Tz(): error 0x%X", static_cast<uint16_t>(status));
-        return fid;
-    }
-
-    /* Search the database for the converted print */
-    status = finger.searchDatabase(&fid, &score);
-
-    switch (status){
-    case FPMStatus::OK:
-        ESP_LOGI(TAG, "Found a match at ID #%u with confidence %u", fid, score);
-        break;
-
-    case FPMStatus::NOTFOUND:
-        ESP_LOGI(TAG, "Did not find a match.");
-        return fid;
-
-    default:
-        ESP_LOGE(TAG, "searchDatabase(): error 0x%X", static_cast<uint16_t>(status));
-        return fid;
-    }
-
-    /* Now wait for the finger to be removed, though not necessary.
-         This was moved here after the Search operation because of the R503 sensor,
-         whose searches oddly fail if they happen after the image buffer is cleared  */
-    ESP_LOGI(TAG, "Remove finger.");
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
-
-    do {
-        status = finger.getImage();
-        vTaskDelay(200 / portTICK_PERIOD_MS);
-    } while (status != FPMStatus::NOFINGER);
-
-    return fid;
+    esp_deep_sleep_start();
 }
 
-extern "C" void app_main(void) {
+void button_task(void *pvParameters)
+{
+    int last_btn_up = 1, last_btn_down = 1;
 
-    // Configura UART1: cambiare i GPIO secondo la propria scheda
-    EspIdfUartStream uart{UART_NUM_1, /*TX*/ 4, /*RX*/ 3, /*baud*/ 57600};
-    if (uart.begin() != ESP_OK) {
-        ESP_LOGE(TAG, "UART init failed");
-        return;
-    }
-
-    // Inizializza FPM usando il trasporto UART di ESP-IDF
-    FPM fpm(&uart);
-
-    if (!fpm.begin()) {
-        ESP_LOGE(TAG, "FPM begin() failed (verifica cavi, baud, alimentazione)");
-        return;
-    }
-
-    // Lettura parametri prodotto
-    FPMSystemParams params{};
-    if (fpm.readParams(&params) == FPMStatus::OK) {
-        ESP_LOGI(TAG, "Found fingerprint sensor!");
-        ESP_LOGI(TAG, "Capacity: %u", params.capacity);
-        ESP_LOGI(TAG, "Packet length: %u", FPM::packetLengths[static_cast<uint8_t>(params.packetLen)]);
-    }
-    else {
-        ESP_LOGE(TAG, "readParams non eseguito correttamente");
-    }
-
-    // Leggi informazioni sul numero di fingerprint memorizzati
-    int16_t count = 0;
-    if (fpm.getLastIndex(&count) == FPMStatus::OK) {
-        ESP_LOGI(TAG, "Numero di fingerprint nel database: %u", (unsigned)count + 1); // +1 perché l'indice parte da 0
-    }
-    else {
-        ESP_LOGW(TAG, "Impossibile leggere il numero di fingerprint registrati");
-    }
-
-
-    // Configura GPIO come input per il segnale "touch"
+    // Configura i pin dei pulsanti come input con pull-up
     gpio_config_t io_conf = {};
     io_conf.intr_type = GPIO_INTR_DISABLE;
     io_conf.mode = GPIO_MODE_INPUT;
-    io_conf.pin_bit_mask = (1ULL << FP_TOUCH);
-    io_conf.pull_down_en = PULLDOWN_TYPE;
-    io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
+    io_conf.pin_bit_mask = (1ULL << (gpio_num_t)BUTTON_UP) | (1ULL << (gpio_num_t)BUTTON_DOWN);
+    io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
+    io_conf.pull_up_en = GPIO_PULLUP_ENABLE;
     gpio_config(&io_conf);
 
+    while (1) {
+        int btn_up = gpio_get_level((gpio_num_t)BUTTON_UP);
+        int btn_down = gpio_get_level((gpio_num_t)BUTTON_DOWN);
 
-    while(1) {
-        if (gpio_get_level((gpio_num_t)FP_TOUCH) == ACTIVE_LEVEL) {
-           
-            ESP_LOGI(TAG, "Touch detected, starting fingerprint search...");
-            // Esegui la ricerca del fingerprint
-            uint16_t finger_index = searchDatabase(fpm);
+        // Pulsante su (PIN 6) premuto (da HIGH a LOW)
+        if (last_btn_up == 1 && btn_up == 0) {
+            last_interaction_time = xTaskGetTickCount();
+            user_index = (user_index + 1) ;
 
-            if (finger_index != 0xFFFF) {
-                ESP_LOGI(TAG, "Fingerprint found at index %d", finger_index);
-            } else {
-                ESP_LOGI(TAG, "No fingerprint found");
+            if (user_index >= user_count) {
+                user_index = 0;
+            } 
+        
+            const char* username = user_list[user_index].label;                            
+            printf("Account selezionato (%d): %s\n", user_index, username);
+            oled_write_text(username, true);
+            last_interaction_time = xTaskGetTickCount();
+            display_reset_pending = 1;
+            #if DEBUG_PASSWD
+            uint8_t* encoded = user_list[user_index].password_enc;
+            size_t len = user_list[user_index].password_len;
+            char plain[128];
+            if (userdb_decrypt_password(encoded, len, plain) == 0)            
+                printf("Password (decrypted): %s\n", plain);
+            else 
+                printf("Decrypt error");
+            #endif
+            
+        }
+        // Pulsante giù (PIN 7) premuto (da HIGH a LOW)
+        if (last_btn_down == 1 && btn_down == 0) {
+            last_interaction_time = xTaskGetTickCount();
+            user_index = (user_index - 1);            
+            if (user_index < 0) {
+                user_index = user_count - 1;
+            }
+
+            const char* username = user_list[user_index].label;
+            printf("Account selezionato (%d): %s\n", user_index, username);
+            oled_write_text(username, true);
+            last_interaction_time = xTaskGetTickCount();
+            display_reset_pending = 1;
+            #if DEBUG_PASSWD
+            uint8_t* encoded = user_list[user_index].password_enc;
+            size_t len = user_list[user_index].password_len;
+            char plain[128];
+            if (userdb_decrypt_password(encoded, len, plain) == 0)
+                printf("Password (decrypted): %s\n", plain);
+            else 
+                printf("Decrypt error");
+            #endif            
+        }
+
+        last_btn_up = btn_up;
+        last_btn_down = btn_down;
+
+        if (display_reset_pending) {
+            uint32_t now = xTaskGetTickCount();
+            if (now - last_interaction_time > pdMS_TO_TICKS(15000)) {  // 15 secondi
+                oled_write_text("BLE PassMan", false);
+                display_reset_pending = 0;
+                vTaskDelay(pdMS_TO_TICKS(100));
+                go_to_deep_sleep = true;                            
             }
         }
 
-        // Attendi un po' prima di ripetere la ricerca
+        vTaskDelay(pdMS_TO_TICKS(100));
+    }
+}
+
+
+extern "C" void app_main(void) {
+
+    // Inizializza ed avvia il task di gestione BLE
+    ble_device_init();    
+    ESP_LOGI(TAG, "BLE HID Device initialized. Waiting for input...");
+
+    // Initialize NVS
+    esp_err_t ret;
+    ret = nvs_flash_init();
+    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+        ESP_ERROR_CHECK(nvs_flash_erase());
+        ret = nvs_flash_init();
+    }
+    ESP_ERROR_CHECK( ret );
+
+    // Start buttons task
+    ESP_LOGI(TAG, "Starting button task...");
+    xTaskCreate(button_task, "button_task", 2048, NULL, 5, &buttonsTaskHandle);
+
+    // Initialize fingerprint task
+    ESP_LOGI(TAG, "Starting fingerprint task...");
+    xTaskCreate(fingerprint_task, "fingerprint_task", 4096, NULL, 5, &fingerprintTaskHandle);
+
+    // Start OLED display handling
+    oled_init();
+
+    // Load user database
+    // userdb_clear();
+    vTaskDelay(pdMS_TO_TICKS(500));
+    userdb_load();    
+    userdb_dump();
+
+    // Initialize USB devices if needed
+    // for (size_t i = 0; i < user_count; ++i) {
+    //     if (user_list[i].login_type >= 1) {
+    //         ESP_LOGI(TAG, "Initializing USB device for users");
+    //         usb_device_init();
+
+    //         vTaskDelay(pdMS_TO_TICKS(1000));
+    //         usb_send_string("Test USB HID device");
+    //         break;
+    //     }
+    // }
+
+    last_interaction_time = xTaskGetTickCount();
+    
+    while(true) {
+        TickType_t now = xTaskGetTickCount();
+             
+        if (go_to_deep_sleep && now - last_interaction_time > pdMS_TO_TICKS(180000)) {            
+            go_to_deep_sleep = false;
+            oled_off();
+            #if SLEEP_ENABLE  
+            ESP_LOGI(TAG, "Entering deep sleep...\n"); 
+            enter_deep_sleep();
+            #endif
+        }
+        
+        
+        // Aggiorna il livello della batteria ogni 30 secondi
+        static TickType_t last_battery_update = 0;
+        if (now - last_battery_update > pdMS_TO_TICKS(30000)) {
+            // ble_battery_set_level(98);
+            // ble_battery_notify_level(98);
+            last_battery_update = now;
+            // printf("Battery level notified: %d%%\n", 98);
+        }
         vTaskDelay(pdMS_TO_TICKS(100));
     }
 }

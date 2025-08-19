@@ -31,6 +31,7 @@ Page {
                     cleanUserObject.winlogin = users[i].winlogin;
                     cleanUserObject.autoFinger = users[i].autoFinger;
                     cleanUserObject.fingerprintIndex = users[i].fingerprintIndex;
+                    cleanUserObject.loginType = users[i].loginType;
                     jsArray.push(cleanUserObject);
                 }                
                 // console.log("Contenuto di jsArray convertito:", JSON.stringify(jsArray, null, 2));
@@ -96,7 +97,8 @@ Page {
             }
 
             function onEditUser(index, user) {
-                console.log("QML ha richiesto di modificare l'utente all'indice:", index)
+                console.log("QML ha richiesto di modificare l'utente all'indice:", index)                
+                console.log(JSON.stringify(user, null, 2));
                 deviceHandler.editUser(index, user)
             }
 

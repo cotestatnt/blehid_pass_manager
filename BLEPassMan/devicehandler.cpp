@@ -212,6 +212,7 @@ QVariantList DeviceHandler::userList() const
         entry["winlogin"] = it.value().winlogin;
         entry["autoFinger"] = it.value().autoFinger;
         entry["fingerprintIndex"] = it.value().fingerprintIndex;
+        entry["loginType"] = it.value().loginType;
         list.append(entry);
     }
     return list;
@@ -230,6 +231,14 @@ void DeviceHandler::addUser(const QVariantMap &user)
     entry.winlogin = user["winlogin"].toBool();
     entry.autoFinger = user["autoFinger"].toBool();
     entry.fingerprintIndex = user["fingerprintIndex"].toInt();
+    entry.loginType = user["loginType"].toInt();
+
+    qDebug() << "User:" << entry.username;
+    // qDebug() << "Pass:" << entry.password;
+    qDebug() << "Winlogin:" << entry.winlogin;
+    qDebug() << "Fingerprint:" << entry.fingerprintIndex;
+    qDebug() << "Fingerprint automatic:" << entry.autoFinger;
+    qDebug() << "Login type:" << entry.loginType;
 
     // Converti username e password in array di lunghezza fissa (32 byte)
     QByteArray usernameBytes = entry.username.toUtf8();
@@ -251,6 +260,7 @@ void DeviceHandler::addUser(const QVariantMap &user)
     data.append(entry.winlogin);
     data.append(entry.autoFinger);
     data.append(entry.fingerprintIndex);
+    data.append(entry.loginType);
     writeCustomCharacteristic(data);
     m_userList[newIndex] = entry;
     emit userListUpdated(userList());
@@ -268,6 +278,14 @@ void DeviceHandler::editUser(int index, const QVariantMap &user)
     entry.winlogin = user["winlogin"].toBool();
     entry.autoFinger = user["autoFinger"].toBool();
     entry.fingerprintIndex = user["fingerprintIndex"].toInt();
+    entry.loginType = user["loginType"].toInt();
+
+    qDebug() << "User:" << entry.username;
+    // qDebug() << "Pass:" << entry.password;
+    qDebug() << "Winlogin:" << entry.winlogin;
+    qDebug() << "Fingerprint:" << entry.fingerprintIndex;
+    qDebug() << "Fingerprint automatic:" << entry.autoFinger;
+    qDebug() << "Login type:" << entry.loginType;
 
     // Converti username e password in array di lunghezza fissa (32 byte)
     QByteArray usernameBytes = entry.username.toUtf8();
@@ -289,6 +307,7 @@ void DeviceHandler::editUser(int index, const QVariantMap &user)
     data.append(entry.winlogin);
     data.append(entry.autoFinger);
     data.append(entry.fingerprintIndex);
+    data.append(entry.loginType);
 
     writeCustomCharacteristic(data);
     m_userList[index] = entry;
@@ -406,6 +425,7 @@ UserEntry DeviceHandler::parseUserEntry(const QByteArray &data) {
     entry.winlogin = (data[offset++] == 1);
     entry.autoFinger = (data[offset++] == 1);
     entry.fingerprintIndex = static_cast<uint8_t>(data[offset++]);
+    entry.loginType = static_cast<uint8_t>(data[offset++]);
     return entry;
 }
 
@@ -457,12 +477,14 @@ void DeviceHandler::updateCharacteristicValue(const QLowEnergyCharacteristic &c,
             m_userList[index].winlogin = user.winlogin;
             m_userList[index].autoFinger = user.autoFinger;
             m_userList[index].fingerprintIndex = user.fingerprintIndex;
+            m_userList[index].loginType = user.loginType;
 
             qDebug() << "User:" << user.username;
             // qDebug() << "Pass:" << user.password;
             qDebug() << "Winlogin:" << user.winlogin;
             qDebug() << "Fingerprint:" << user.fingerprintIndex;
             qDebug() << "Fingerprint automatic:" << user.autoFinger;
+            qDebug() << "Login type:" << user.loginType;
             getUserFromDevice(index + 1);
             break;
         }

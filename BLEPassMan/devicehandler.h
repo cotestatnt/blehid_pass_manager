@@ -33,8 +33,9 @@ struct UserEntry {
     QString username;
     QString password;
     quint8 fingerprintIndex;
+    quint8 loginType;
     bool autoFinger;
-    bool winlogin;
+    bool winlogin;    
 };
 
 

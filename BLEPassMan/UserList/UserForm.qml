@@ -12,6 +12,8 @@ GridLayout {
     property alias winlogin: winlogin
     property alias autoFinger: autoFinger
     property alias fingerprintIndex: fingerprintIndex
+    property alias loginType: loginType
+    property int loginTypeIndex: -1
     property int minimumInputSize: 120
 
     rows: 3
@@ -47,6 +49,16 @@ GridLayout {
     }
 
     Label {
+        text: qsTr("Login type")
+
+    }
+    ComboBox {
+        id: loginType
+        model: ["BLE", "USB", "Both"]
+        onAccepted: loginTypeIndex = loginType.currentIndex
+    }
+
+    Label {
         text: qsTr("CTRL+ALT+DEL")
         Layout.alignment: Qt.AlignLeft | Qt.AlignBaseline
     }
@@ -54,7 +66,6 @@ GridLayout {
         id: winlogin
         checked: false
     }
-
 
     Label {
         text: qsTr("Magic finger")
@@ -67,10 +78,11 @@ GridLayout {
 
     Label {
         text: qsTr("Fingerprint ID")
+        visible: autoFinger.checked
     }
     ComboBox {
         id: fingerprintIndex
         model: [-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        visible: autoFinger.checked
     }
-
 }
