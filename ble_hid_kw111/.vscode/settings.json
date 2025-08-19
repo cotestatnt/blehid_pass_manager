@@ -29,7 +29,7 @@
     "cstddef": "cpp",
     "cstdio": "cpp"
   },
-  "idf.espIdfPathWin": "d:\\Espressif\\v5.5\\esp-idf",
-  "idf.toolsPathWin": "d:\\Espressif\\tools",
-  "idf.pythonInstallPath": "d:\\Espressif\\tools\\tools\\idf-python\\3.11.2\\python.exe"
+  "idf.espIdfPathWin": "c:\\Espressif\\v5.5\\esp-idf",
+  "idf.toolsPathWin": "c:\\Espressif\\tools",
+  "idf.pythonInstallPath": "c:\\Espressif\\tools\\tools\\idf-python\\3.11.2\\python.exe"
 }
