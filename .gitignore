@@ -46,3 +46,8 @@ inols-clangd.log
 /ble_hid_kw111/build
 /ble_hid_kw111/.vscode
 /ble_hid_kw111/managed_components
+/tusb_hid/build
+/tusb_hid/managed_components
+*.cmake
+/ble_hid_r503/build
+/ble_hid_r503/managed_components

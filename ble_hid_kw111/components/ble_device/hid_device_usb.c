@@ -12,13 +12,30 @@
 #include "class/hid/hid_device.h"
 #include "driver/gpio.h"
 #include "ble_device_main.h"
+#include "hid_keycodes.h"
 
-#define APP_BUTTON (GPIO_NUM_0) // Use BOOT signal by default
-static const char *TAG = "example";
+
+static const char *TAG = "USB HID";
 
 /************* TinyUSB descriptors ****************/
 
-#define TUSB_DESC_TOTAL_LEN      (TUD_CONFIG_DESC_LEN + CFG_TUD_HID * TUD_HID_DESC_LEN)
+// Enumeration for interface numbers
+enum {
+    ITF_NUM_HID = 0,
+    ITF_NUM_CDC_DATA,
+    ITF_NUM_CDC_CTRL,
+    ITF_NUM_TOTAL
+};
+
+// Enumeration for endpoint addresses
+enum {
+    EPNUM_HID = 0x81,
+    EPNUM_CDC_NOTIF = 0x82,
+    EPNUM_CDC_OUT = 0x03,
+    EPNUM_CDC_IN = 0x83,
+};
+
+#define TUSB_DESC_TOTAL_LEN      (TUD_CONFIG_DESC_LEN + TUD_HID_DESC_LEN + TUD_CDC_DESC_LEN)
 
 /**
  * @brief HID report descriptor
@@ -28,33 +45,61 @@ static const char *TAG = "example";
  */
 const uint8_t hid_report_descriptor[] = {
     TUD_HID_REPORT_DESC_KEYBOARD(HID_REPORT_ID(HID_ITF_PROTOCOL_KEYBOARD)),
-    // TUD_HID_REPORT_DESC_MOUSE(HID_REPORT_ID(HID_ITF_PROTOCOL_MOUSE))
+    TUD_HID_REPORT_DESC_MOUSE(HID_REPORT_ID(HID_ITF_PROTOCOL_MOUSE))
+};
+
+/**
+ * @brief Composite Configuration Descriptor
+ * 
+ * This descriptor defines a composite device with HID + CDC interfaces
+ */
+static const uint8_t composite_configuration_descriptor[] = {
+    // Configuration number, interface count, string index, total length, attribute, power in mA
+    TUD_CONFIG_DESCRIPTOR(1, ITF_NUM_TOTAL, 0, TUSB_DESC_TOTAL_LEN, TUSB_DESC_CONFIG_ATT_REMOTE_WAKEUP, 100),
+
+    // Interface 0: HID
+    TUD_HID_DESCRIPTOR(ITF_NUM_HID, 4, false, sizeof(hid_report_descriptor), EPNUM_HID, 16, 10),
+
+    // Interface 1-2: CDC
+    TUD_CDC_DESCRIPTOR(ITF_NUM_CDC_CTRL, 5, EPNUM_CDC_NOTIF, 8, EPNUM_CDC_OUT, EPNUM_CDC_IN, 64),
 };
 
 /**
  * @brief String descriptor
  */
-const char* hid_string_descriptor[5] = {
+const char* hid_string_descriptor[6] = {
     // array of pointer to string descriptors
     (char[]){0x09, 0x04},  // 0: is supported language is English (0x0409)
     "TinyUSB",             // 1: Manufacturer
-    "TinyUSB Device",      // 2: Product
+    "TinyUSB Composite Device",      // 2: Product
     "123456",              // 3: Serials, should use chip ID
-    "PassMan HID",         // 4: HID
+    "Example HID interface",  // 4: HID
+    "Example CDC interface",  // 5: CDC
 };
 
-/**
- * @brief Configuration descriptor
- *
- * This is a simple configuration descriptor that defines 1 configuration and 1 HID interface
- */
-static const uint8_t hid_configuration_descriptor[] = {
-    // Configuration number, interface count, string index, total length, attribute, power in mA
-    TUD_CONFIG_DESCRIPTOR(1, 1, 0, TUSB_DESC_TOTAL_LEN, TUSB_DESC_CONFIG_ATT_REMOTE_WAKEUP, 100),
+/********* TinyUSB CDC callbacks ***************/
 
-    // Interface number, string index, boot protocol, report descriptor len, EP In address, size & polling interval
-    TUD_HID_DESCRIPTOR(0, 4, false, sizeof(hid_report_descriptor), 0x81, 16, 10),
-};
+// Invoked when cdc when line state changed e.g connected/disconnected
+void tud_cdc_line_state_cb(uint8_t itf, bool dtr, bool rts)
+{
+    (void) itf;
+    (void) rts;
+
+    // TODO set some indicator
+    if (dtr) {
+        // Terminal connected
+        ESP_LOGI(TAG, "CDC connected");
+    } else {
+        // Terminal disconnected
+        ESP_LOGI(TAG, "CDC disconnected");
+    }
+}
+
+// Invoked when CDC interface received data from host
+void tud_cdc_rx_cb(uint8_t itf)
+{
+    (void) itf;
+}
 
 /********* TinyUSB HID callbacks ***************/
 
@@ -87,68 +132,82 @@ void tud_hid_set_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_
 }
 
 /********* Application ***************/
-void usb_send_keyboard(wint_t c)
-{
-    uint8_t keycode[6] = {0};
-    char_to_code(keycode, c);
+uint8_t const conv_table[128][2] =  { HID_IT_IT_ASCII_TO_KEYCODE };
 
+// Invia una sequenza HID: pressione e rilascio
+void usb_send_hid_key(uint8_t modifier, uint8_t keycode[6]) {
     // Send key press
-    tud_hid_keyboard_report(HID_ITF_PROTOCOL_KEYBOARD, 0, keycode);
-    vTaskDelay(10 / portTICK_PERIOD_MS);
-    // Send key release    
-    tud_hid_keyboard_report(HID_ITF_PROTOCOL_KEYBOARD, 0, NULL);
+    while (!tud_hid_ready()) vTaskDelay(pdMS_TO_TICKS(1));
+    tud_hid_keyboard_report(HID_ITF_PROTOCOL_KEYBOARD, modifier, keycode);
+    vTaskDelay(pdMS_TO_TICKS(20));
+    // Send key release
+    uint8_t empty[6] = {0};
+    while (!tud_hid_ready()) vTaskDelay(pdMS_TO_TICKS(1));
+    tud_hid_keyboard_report(HID_ITF_PROTOCOL_KEYBOARD, 0, empty);
+    vTaskDelay(pdMS_TO_TICKS(5));
 }
+ 
+void usb_send_char(wint_t chr)
+{    
+    uint8_t keycode[6] = { 0 };
+    uint8_t modifier   = 0;
+    
+    modifier = conv_table[chr][0];    
+    keycode[0] = conv_table[chr][1];
+
+    usb_send_hid_key(modifier, keycode);
+}
+
 
 void usb_send_string(const char* str) {
   size_t i = 0;
-  while (str[i]) {
+  while (str[i]) {    
     wint_t wc = (wint_t)str[i];
-    uint32_t codepoint = 0x00;
-    if ((wc & 0x80) != 0) {
-        // Multi-byte UTF-8 character, print all bytes
-        int len = 1;
-        int pos = i;
-        if ((wc & 0xE0) == 0xC0) len = 2;
-        else if ((wc & 0xF0) == 0xE0) len = 3;
-        else if ((wc & 0xF8) == 0xF0) len = 4;
-        // printf("multi-byte char ");
-        for (int j = 0; j < len; ++j) {
-            // printf("0x%02X ", (unsigned char)str[pos + j]);
-            codepoint = (codepoint << 8) | (unsigned char)str[pos + j];
-            i += 1;
-        }
-        // printf(" - Codepoint %lX: \n", codepoint);
-    } 
-    else {
-        // printf("single byte char: 0x%X\n", wc);
-        usb_send_keyboard(wc);
+
+    // Single-byte character      
+    if ((wc & 0x80) == 0) {          
+        usb_send_char(wc);            
         i += 1;
-        continue;
+        // Skip to next character
+        continue; 
     }
+
+    // Multi-byte UTF-8 character
+    int len = 1;
+    int pos = i;
+    uint32_t codepoint = 0;
+
+    if ((wc & 0xE0) == 0xC0) len = 2;
+    else if ((wc & 0xF0) == 0xE0) len = 3;
+    else if ((wc & 0xF8) == 0xF0) len = 4;
+
+    for (int j = 0; j < len; ++j) {  
+        codepoint = (codepoint << 8) | (unsigned char)str[pos + j];
+        i += 1;
+    }    
+    // printf("codepoint: %lX: \n",  codepoint);
 
     // Convert codepoint to UTF-8 and handle special characters
-    uint8_t buffer[8] = {0};
-    switch (codepoint) {
-      case 0xE282AC: buffer[0] = HID_MODIFIER_RIGHT_ALT; buffer[2] = 0x08; break;  // €
-      case 0xC2A3: buffer[0] = HID_MODIFIER_LEFT_SHIFT; buffer[2] = 0x20;  break;  // £
-      case 0xC2B0: buffer[0] = HID_MODIFIER_LEFT_SHIFT; buffer[2] = 0x34;  break;  // °
-      case 0xC3A7: buffer[0] = HID_MODIFIER_LEFT_SHIFT; buffer[2] = 0x33;  break;  // ç
-      case 0xC3A0: buffer[2] = 0x34; break;                                        // à
-      case 0xC3A8: buffer[2] = 0x2F; break;                                        // è
-      case 0xC3A9: buffer[0] = HID_MODIFIER_LEFT_SHIFT; buffer[2] = 0x2F; break;   // é
-      case 0xC3AC: buffer[2] = 0x2E; break;                                        // ì
-      case 0xC3B2: buffer[2] = 0x33; break;                                        // ò
-      case 0xC3B9: buffer[2] = 0x31; break;                                        // ù
-    }
-    
-    // Send the special key
-    tud_hid_keyboard_report(HID_ITF_PROTOCOL_KEYBOARD, 0, buffer);
-    vTaskDelay(10 / portTICK_PERIOD_MS);
-    // Send key release    
-    tud_hid_keyboard_report(HID_ITF_PROTOCOL_KEYBOARD, 0, NULL);
+    uint8_t keycode[6] = {0};
+    uint8_t modifier   = 0;
+
+    switch (codepoint) {    
+        case 'à': modifier = KEYBOARD_MODIFIER_NONE;        keycode[1] = 0x34; break;
+        case 'è': modifier = KEYBOARD_MODIFIER_NONE;        keycode[1] = 0x2F; break;
+        case 'é': modifier = KEYBOARD_MODIFIER_LEFTSHIFT;   keycode[1] = 0x2F; break;
+        case 'ì': modifier = KEYBOARD_MODIFIER_NONE;        keycode[1] = 0x2E; break;
+        case 'ò': modifier = KEYBOARD_MODIFIER_NONE;        keycode[1] = 0x33; break;
+        case 'ù': modifier = KEYBOARD_MODIFIER_NONE;        keycode[1] = 0x31; break;
+
+        case '€': modifier = KEYBOARD_MODIFIER_RIGHTALT;    keycode[1] = 0x08; break; 
+        case '£': modifier = KEYBOARD_MODIFIER_LEFTSHIFT;   keycode[1] = 0x20; break;
+        case 'ç': modifier = KEYBOARD_MODIFIER_LEFTSHIFT;   keycode[1] = 0x33; break; 
+        case '§': modifier = KEYBOARD_MODIFIER_LEFTSHIFT;   keycode[1] = 0x31; break; 
+        case '°': modifier = KEYBOARD_MODIFIER_LEFTSHIFT;   keycode[1] = 0x34; break;         
+    }    
+    usb_send_hid_key(modifier, keycode);
   }
 }
-
 
 // void usb_send_key_combination(uint8_t modifiers, uint8_t key)
 // {
@@ -177,14 +236,15 @@ void usb_device_init(void)
         .string_descriptor_count = sizeof(hid_string_descriptor) / sizeof(hid_string_descriptor[0]),
         .external_phy = false,
 #if (TUD_OPT_HIGH_SPEED)
-        .fs_configuration_descriptor = hid_configuration_descriptor, // HID configuration descriptor for full-speed and high-speed are the same
-        .hs_configuration_descriptor = hid_configuration_descriptor,
+        .fs_configuration_descriptor = composite_configuration_descriptor, 
+        .hs_configuration_descriptor = composite_configuration_descriptor,a
         .qualifier_descriptor = NULL,
 #else
-        .configuration_descriptor = hid_configuration_descriptor,
+        .configuration_descriptor = composite_configuration_descriptor,
 #endif // TUD_OPT_HIGH_SPEED
     };
 
     ESP_ERROR_CHECK(tinyusb_driver_install(&tusb_cfg));
-    ESP_LOGI(TAG, "USB initialization DONE");    
+    ESP_LOGI(TAG, "USB initialization DONE");
+    
 }

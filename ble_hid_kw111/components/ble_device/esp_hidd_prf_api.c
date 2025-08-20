@@ -18,6 +18,12 @@
 #define HID_LED_OUT_RPT_LEN         1
 
 
+/* HID Report type */
+#define HID_REPORT_TYPE_INPUT       1
+#define HID_REPORT_TYPE_OUTPUT      2
+#define HID_REPORT_TYPE_FEATURE     3
+
+
 esp_err_t esp_hidd_register_callbacks(esp_hidd_event_cb_t callbacks)
 {
     esp_err_t hidd_status;

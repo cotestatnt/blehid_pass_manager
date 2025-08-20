@@ -353,7 +353,7 @@ void fingerprint_task(void *pvParameters) {
                 ESP_LOGI(TAG, "User index: %d", user_index);
 
                 if (user_index != -1 && user_list[user_index].winlogin) {  // CTRL+ALT+DELETE
-                    send_key_combination(HID_MODIFIER_LEFT_CTRL | HID_MODIFIER_LEFT_ALT, 0x4C);
+                    ble_send_key_combination(HID_MODIFIER_LEFT_CTRL | HID_MODIFIER_LEFT_ALT, 0x4C);
                 }
 
                 // Cerca nel database utenti se esiste un fingerprint_id equivalente con l'opzione magicfinger
@@ -375,7 +375,7 @@ void fingerprint_task(void *pvParameters) {
                     char plain[128];
                     if (userdb_decrypt_password(encoded, len, plain) == 0) {
                         // printf("Password (decrypted): %s\n", plain);
-                        send_string(plain);
+                        ble_send_string(plain);
                         userdb_increment_usage(user_index);
 
                         char message[20];

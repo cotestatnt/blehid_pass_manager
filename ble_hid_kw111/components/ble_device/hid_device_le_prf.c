@@ -14,6 +14,11 @@
 #include "user_list.h"
 #include "ble_userlist_auth.h"
 
+/* HID Report type */
+#define HID_REPORT_TYPE_INPUT       1
+#define HID_REPORT_TYPE_OUTPUT      2
+#define HID_REPORT_TYPE_FEATURE     3
+
 // Forward declarations for fingerprint functions (implemented in C++)
 extern bool enrollFinger();
 extern bool clearFingerprintDB();

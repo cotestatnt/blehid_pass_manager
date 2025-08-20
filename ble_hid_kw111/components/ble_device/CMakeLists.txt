@@ -10,4 +10,5 @@ idf_component_register( SRCS
     PRIV_REQUIRES nvs_flash
 )
 
-target_compile_options(${COMPONENT_LIB} PRIVATE -Wno-unused-const-variable)
+target_compile_options(${COMPONENT_LIB} PRIVATE -Wno-unused-const-variable )
+target_compile_options(${COMPONENT_LIB} PRIVATE -Wno-multichar)

@@ -29,9 +29,14 @@
     "cstddef": "cpp",
     "cstdio": "cpp",
     "fpm.h": "c",
-    "stddef.h": "c"
+    "stddef.h": "c",
+    "hid_dev.h": "c",
+    "ble_device_main.h": "c",
+    "hid_device.h": "c",
+    "hid_keycodes.h": "c",
+    "hid.h": "c"
   },
-  "idf.espIdfPathWin": "d:\\Espressif\\v5.5\\esp-idf",
-  "idf.toolsPathWin": "d:\\Espressif\\tools",
-  "idf.pythonInstallPath": "d:\\Espressif\\tools\\tools\\idf-python\\3.11.2\\python.exe"
+  "idf.espIdfPathWin": "c:\\Espressif\\v5.5\\esp-idf",
+  "idf.toolsPathWin": "c:\\Espressif\\tools",
+  "idf.pythonInstallPath": "c:\\Espressif\\tools\\tools\\idf-python\\3.11.2\\python.exe"
 }

@@ -28,11 +28,12 @@
 #include "esp_bt_main.h"
 #include "esp_bt_device.h"
 #include "hid_dev.h"
-
 #include "ble_device_main.h"
 #include "oled.h"
+#include "hid_keycodes.h"
 
-#define HID_DEMO_TAG "HID_DEMO"
+#define HID_DEMO_TAG        "HID BLE"
+#define HIDD_DEVICE_NAME    "BLE PwdMan"
 
 static uint16_t hid_conn_id = 0;
 static bool sec_conn = false;
@@ -43,7 +44,6 @@ uint32_t passkey;
 
 static void hidd_event_callback(esp_hidd_cb_event_t event, esp_hidd_cb_param_t *param);
 
-#define HIDD_DEVICE_NAME            "BLE PwdMan"
 static uint8_t hidd_service_uuid128[] = {
     /* LSB <--------------------------------------------------------------------------------> MSB */
     //first uuid, 16bit, [12],[13] is the value
@@ -74,7 +74,6 @@ static esp_ble_adv_params_t hidd_adv_params = {
     .channel_map        = ADV_CHNL_ALL,
     .adv_filter_policy = ADV_FILTER_ALLOW_SCAN_ANY_CON_ANY,
 };
-
 
 static void show_bonded_devices(void)
 {
@@ -199,6 +198,11 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
     }
 }
 
+
+/************* Application ****************/
+/******************************************/
+
+
 void char_to_code(uint8_t *buffer, wint_t ch)
 {
 	// Check if lower or upper case
@@ -267,7 +271,7 @@ void char_to_code(uint8_t *buffer, wint_t ch)
 	}
 }
 
-void send_keyboard(wint_t c)
+void ble_send_char(wint_t c)
 {
     uint8_t buffer[8] = {0}; // HID report: [modifier, reserved, key1, key2, key3, key4, key5, key6]
     char_to_code(buffer, c);
@@ -283,7 +287,7 @@ void send_keyboard(wint_t c)
 
 
 
-void send_string(const char* str) {
+void ble_send_string(const char* str) {
   size_t i = 0;
   while (str[i]) {
     wint_t wc = (wint_t)str[i];
@@ -305,7 +309,7 @@ void send_string(const char* str) {
     } 
     else {
         // printf("single byte char: 0x%X\n", wc);
-        send_keyboard(wc);
+        ble_send_char(wc);
         i += 1;
         continue;
     }
@@ -335,7 +339,7 @@ void send_string(const char* str) {
 }
 
 
-void send_key_combination(uint8_t modifiers, uint8_t key)
+void ble_send_key_combination(uint8_t modifiers, uint8_t key)
 {
     uint8_t buffer[8] = {0}; // HID report: [modifier, reserved, key1, key2, key3, key4, key5, key6]
     
@@ -351,13 +355,13 @@ void send_key_combination(uint8_t modifiers, uint8_t key)
     esp_hidd_send_keyboard_value(hid_conn_id, 0, &release_key, 0);
 }
 
+/*
 void hid_demo_task(void *pvParameters)
 {
     static const char* help_string = 
     "########################################################################\n"\
     "BT hid keyboard demo usage:\n"\
-    "########################################################################\n";
-    /* TODO : Add support for function keys and ctrl, alt, esc, etc. */
+    "########################################################################\n";    
     printf("%s\n", help_string);
      
     wint_t wc;
@@ -370,6 +374,7 @@ void hid_demo_task(void *pvParameters)
         vTaskDelay(10 / portTICK_PERIOD_MS);
     }
 }
+*/
 
 void ble_device_init(void)
 {

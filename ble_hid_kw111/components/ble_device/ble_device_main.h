@@ -28,8 +28,8 @@ extern "C" {
 
 void char_to_code(uint8_t *buffer, wint_t ch);
 
-void send_string(const char* str);
-void send_key_combination(uint8_t modifiers, uint8_t key);
+void ble_send_string(const char* str);
+void ble_send_key_combination(uint8_t modifiers, uint8_t key);
 void ble_device_init(void);
 
 extern uint32_t passkey;
