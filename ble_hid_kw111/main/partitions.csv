@@ -1,5 +1,11 @@
 # Nome, Tipo, SubTipo, Offset, Dimensione, Flags
 nvs,      data, nvs,     0x9000,   0x5000,
 otadata,  data, ota,     0xe000,   0x2000,
-factory,  app,  factory, 0x10000,  0x140000,
-storage,  data, fat,     0x150000, 0x60000,
+factory,  app,  factory, 0x10000,  0x160000,
+storage,  data, fat,     0x170000, 0x60000,
+
+# If your flash size is 4MB (4096k), update the partition sizes to fit within 0x400000 bytes.
+# The current partitions sum to 0x1d0000 (1900544 bytes), which fits in 2MB (0x200000).
+# To use the full 4MB, you can add another partition or increase existing sizes.
+# Example: Add an additional data partition
+data2,    data, nvs,     0x1d0000, 0x230000,

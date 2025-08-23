@@ -1,8 +1,8 @@
 idf_component_register(
     SRCS "main.cpp" "fingerprint.cpp" 
     INCLUDE_DIRS "." "include"
-    REQUIRES esp_hid mbedtls ble_device oled fpm user_list
-    PRIV_REQUIRES nvs_flash
+    REQUIRES esp_hid mbedtls ble_device oled fpm user_list hal
+    PRIV_REQUIRES nvs_flash esp_adc
 )
 
 # Rendi config.h disponibile a tutti i componenti

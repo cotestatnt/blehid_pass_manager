@@ -15,6 +15,9 @@
 #include "nvs_flash.h"
 #include "driver/gpio.h"
 #include "esp_sleep.h"
+#include "esp_adc/adc_oneshot.h"
+#include "esp_adc/adc_cali.h"
+#include "esp_adc/adc_cali_scheme.h"
 
 
 #if CONFIG_IDF_TARGET_ESP32S3
@@ -29,11 +32,23 @@
 #include "user_list.h"
 #include "oled.h"
 
+
 static const char *TAG = "MAIN";
 static bool go_to_deep_sleep = false;
 static TaskHandle_t fingerprintTaskHandle = nullptr;
 static TaskHandle_t buttonsTaskHandle = nullptr;
-// static TaskHandle_t oledTaskHandle = nullptr;
+
+// ADC per monitoraggio alimentazione (basato su esempio ESP-IDF 5.5.0)
+static adc_oneshot_unit_handle_t adc1_handle = NULL;
+static adc_cali_handle_t adc1_cali_vbus_handle = NULL;
+static adc_cali_handle_t adc1_cali_battery_handle = NULL;
+static bool vbus_calibrated = false;
+static bool battery_calibrated = false;
+
+#define VBUS_ADC_CHANNEL    ADC_CHANNEL_2   // GPIO 3 
+#define BATTERY_ADC_CHANNEL ADC_CHANNEL_1   // GPIO 2
+#define ADC_ATTEN           ADC_ATTEN_DB_12
+#define ADC_BITWIDTH        ADC_BITWIDTH_DEFAULT
 
 
 void enter_deep_sleep() {
@@ -57,6 +72,194 @@ void enter_deep_sleep() {
 #endif
 
     esp_deep_sleep_start();
+}
+
+
+// Funzione di calibrazione ADC (dall'esempio ESP-IDF 5.5.0)
+static bool adc_calibration_init(adc_unit_t unit, adc_channel_t channel, adc_atten_t atten, adc_cali_handle_t *out_handle)
+{
+    adc_cali_handle_t handle = NULL;
+    esp_err_t ret = ESP_FAIL;
+    bool calibrated = false;
+
+#if ADC_CALI_SCHEME_CURVE_FITTING_SUPPORTED
+    if (!calibrated) {
+        ESP_LOGI(TAG, "calibration scheme version is %s", "Curve Fitting");
+        adc_cali_curve_fitting_config_t cali_config = {
+            .unit_id = unit,
+            .chan = channel,
+            .atten = atten,
+            .bitwidth = ADC_BITWIDTH,
+        };
+        ret = adc_cali_create_scheme_curve_fitting(&cali_config, &handle);
+        if (ret == ESP_OK) {
+            calibrated = true;
+        }
+    }
+#endif
+
+#if ADC_CALI_SCHEME_LINE_FITTING_SUPPORTED
+    if (!calibrated) {
+        ESP_LOGI(TAG, "calibration scheme version is %s", "Line Fitting");
+        adc_cali_line_fitting_config_t cali_config = {
+            .unit_id = unit,
+            .atten = atten,
+            .bitwidth = ADC_BITWIDTH,
+        };
+        ret = adc_cali_create_scheme_line_fitting(&cali_config, &handle);
+        if (ret == ESP_OK) {
+            calibrated = true;
+        }
+    }
+#endif
+
+    *out_handle = handle;
+    if (ret == ESP_OK) {
+        ESP_LOGI(TAG, "Calibration Success");
+    } else if (ret == ESP_ERR_NOT_SUPPORTED || !calibrated) {
+        ESP_LOGW(TAG, "eFuse not burnt, skip software calibration");
+    } else {
+        ESP_LOGE(TAG, "Invalid arg or no memory");
+    }
+
+    return calibrated;
+}
+
+// Inizializzazione ADC per monitoraggio alimentazione (basato su esempio ESP-IDF 5.5.0)
+esp_err_t init_power_monitoring_adc(void) {
+    esp_err_t ret = ESP_OK;
+    
+    // Configurazione ADC1 oneshot
+    adc_oneshot_unit_init_cfg_t init_config1 = {
+        .unit_id = ADC_UNIT_1,
+    };
+    ret = adc_oneshot_new_unit(&init_config1, &adc1_handle);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "ADC1 init failed: %s", esp_err_to_name(ret));
+        return ret;
+    }
+
+    // Configurazione canale VBUS (GPIO 3)
+    adc_oneshot_chan_cfg_t vbus_config = {
+        .atten = ADC_ATTEN,
+        .bitwidth = ADC_BITWIDTH,
+    };
+    ret = adc_oneshot_config_channel(adc1_handle, VBUS_ADC_CHANNEL, &vbus_config);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "VBUS ADC channel config failed: %s", esp_err_to_name(ret));
+        return ret;
+    }
+
+    // Configurazione canale batteria (GPIO 2)
+    adc_oneshot_chan_cfg_t battery_config = {
+        .atten = ADC_ATTEN,
+        .bitwidth = ADC_BITWIDTH,
+    };
+    ret = adc_oneshot_config_channel(adc1_handle, BATTERY_ADC_CHANNEL, &battery_config);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Battery ADC channel config failed: %s", esp_err_to_name(ret));
+        return ret;
+    }
+
+    // Calibrazione per VBUS
+    vbus_calibrated = adc_calibration_init(ADC_UNIT_1, VBUS_ADC_CHANNEL, ADC_ATTEN, &adc1_cali_vbus_handle);
+    
+    // Calibrazione per batteria  
+    battery_calibrated = adc_calibration_init(ADC_UNIT_1, BATTERY_ADC_CHANNEL, ADC_ATTEN, &adc1_cali_battery_handle);
+
+    return ESP_OK;
+}
+
+// Lettura tensione VBUS per detection USB
+int read_vbus_voltage_mv(void) {
+    if (adc1_handle == NULL) {
+        return -1;
+    }
+    
+    int adc_raw = 0;
+    esp_err_t ret = adc_oneshot_read(adc1_handle, VBUS_ADC_CHANNEL, &adc_raw);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "VBUS ADC read failed: %s", esp_err_to_name(ret));
+        return -1;
+    }
+    
+    int voltage_mv = 0;
+    if (vbus_calibrated && adc1_cali_vbus_handle) {
+        ret = adc_cali_raw_to_voltage(adc1_cali_vbus_handle, adc_raw, &voltage_mv);
+        if (ret != ESP_OK) {
+            ESP_LOGE(TAG, "VBUS calibration failed: %s", esp_err_to_name(ret));
+            return -1;
+        }
+        // Compensazione per divisore di tensione VBUS 100K/100K (divisore 2:1)
+        voltage_mv *= 2;
+    } else {
+        // Conversione approssimativa senza calibrazione
+        voltage_mv = (adc_raw * 3300) / 4095;
+        voltage_mv *= 2;  // Compensazione divisore 2:1
+    }
+    
+    return voltage_mv;
+}
+
+// USB detection tramite lettura VBUS
+bool is_usb_connected_simple(void) {
+    int vbus_mv = read_vbus_voltage_mv();
+    
+    if (vbus_mv < 0) {
+        ESP_LOGW(TAG, "Cannot read VBUS voltage - assuming USB disconnected");
+        return false;
+    }
+    
+    // VBUS USB dovrebbe essere ~5000mV quando connesso
+    // Consideriamo connesso se > 4000mV per tolleranza
+    bool usb_connected = (vbus_mv > 4000);
+    
+    ESP_LOGD(TAG, "VBUS voltage: %dmV, USB %s", 
+             vbus_mv, usb_connected ? "CONNECTED" : "DISCONNECTED");
+    
+    return usb_connected;
+}
+
+// Lettura tensione batteria e calcolo percentuale
+int get_battery_percentage(void) {
+    if (adc1_handle == NULL) {
+        return -1;
+    }
+    
+    int adc_raw = 0;
+    esp_err_t ret = adc_oneshot_read(adc1_handle, BATTERY_ADC_CHANNEL, &adc_raw);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Battery ADC read failed: %s", esp_err_to_name(ret));
+        return -1;
+    }
+    
+    int voltage_mv = 0;
+    if (battery_calibrated && adc1_cali_battery_handle) {
+        ret = adc_cali_raw_to_voltage(adc1_cali_battery_handle, adc_raw, &voltage_mv);
+        if (ret != ESP_OK) {
+            ESP_LOGE(TAG, "Battery calibration failed: %s", esp_err_to_name(ret));
+            return -1;
+        }
+        // Compensazione per divisore di tensione batteria 100K-100K (divisore 2:1)
+        voltage_mv *= 2;
+    } else {
+        voltage_mv = (adc_raw * 3300) / 4095;
+        voltage_mv *= 2;  // Compensazione divisore 2:1
+    }
+    
+    // Calcolo percentuale batteria (per Li-Po 3.0V-4.2V)
+    int percentage;
+    if (voltage_mv >= 4200) {
+        percentage = 100;
+    } else if (voltage_mv <= 3000) {
+        percentage = 0;
+    } else {
+        // Mappatura lineare 3.0V-4.2V -> 0%-100%
+        percentage = ((voltage_mv - 3000) * 100) / (4200 - 3000);
+    }
+    
+    ESP_LOGD(TAG, "Battery: %dmV, %d%%", voltage_mv, percentage);
+    return percentage;
 }
 
 void button_task(void *pvParameters)
@@ -144,19 +347,59 @@ void button_task(void *pvParameters)
 
 
 extern "C" void app_main(void) {
-
-    // Inizializza ed avvia il task di gestione BLE
-    ble_device_init();    
-    ESP_LOGI(TAG, "BLE HID Device initialized. Waiting for input...");
+    esp_err_t ret;
 
     // Initialize NVS
-    esp_err_t ret;
     ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
         ESP_ERROR_CHECK(nvs_flash_erase());
         ret = nvs_flash_init();
     }
-    ESP_ERROR_CHECK( ret );
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "NVS initialization failed: %s", esp_err_to_name(ret));
+        oled_debug_error("NVS FAIL");
+    } 
+
+    // Start OLED display handling first
+    ret = oled_init();
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to initialize OLED: %s", esp_err_to_name(ret));
+        oled_debug_error("OLED FAIL");
+        // Continue without OLED if it fails
+    } else {
+        // Show initial message
+        oled_write_text("BLE PassMan", false);
+    }
+
+    // Initialize power monitoring ADC
+    ret = init_power_monitoring_adc();
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "ADC initialization failed: %s", esp_err_to_name(ret));
+        oled_debug_error("ADC FAIL");
+        // Continue without power monitoring if it fails
+    } else {
+        ESP_LOGI(TAG, "Power monitoring ADC initialized");
+    }
+
+    // Check USB connection status
+    bool usb_connected = is_usb_connected_simple();
+    
+    if (usb_connected) {
+        oled_debug_status("USB Connected");
+        ESP_LOGI(TAG, "USB connection detected - enabling USB HID");
+    } else {
+        oled_debug_status("USB Disconnected");
+        ESP_LOGI(TAG, "No USB connection - USB HID will be skipped");
+    }
+
+    // Inizializza ed avvia il task di gestione BLE
+    ret = ble_device_init();
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "BLE initialization failed: %s", esp_err_to_name(ret));
+        oled_debug_error("BLE FAIL");
+    }
+
+    
 
     // Start buttons task
     ESP_LOGI(TAG, "Starting button task...");
@@ -166,49 +409,73 @@ extern "C" void app_main(void) {
     ESP_LOGI(TAG, "Starting fingerprint task...");
     xTaskCreate(fingerprint_task, "fingerprint_task", 4096, NULL, 5, &fingerprintTaskHandle);
 
-    // Start OLED display handling
-    oled_init();
-
     // Load user database
     // userdb_clear();
     vTaskDelay(pdMS_TO_TICKS(500));
     userdb_load();    
     userdb_dump();
 
-    // Initialize USB devices if needed
-    for (size_t i = 0; i < user_count; ++i) {
-        if (user_list[i].login_type >= 1) {
-            ESP_LOGI(TAG, "Initializing USB device for users");
-            usb_device_init();
-
-            vTaskDelay(pdMS_TO_TICKS(1000));
-            usb_send_string("Test USB HID device");
-            break;
+    // Check if USB connection is available
+    bool usb_needed = false;
+    bool usb_available = is_usb_connected_simple();
+    ESP_LOGI(TAG, "USB connection status: %s", usb_available ? "Connected" : "Not connected");
+    
+    if (usb_available) {
+        // Check if any user needs USB HID functionality
+        for (size_t i = 0; i < user_count; ++i) {
+            if (user_list[i].login_type >= 1) {
+                usb_needed = true;
+                break;
+            }
         }
+        
+        if (usb_needed) {
+            ESP_LOGI(TAG, "USB connected and needed - initializing USB HID");            
+            esp_err_t ret = usb_device_init();
+            if (ret != ESP_OK) {
+                ESP_LOGE(TAG, "USB device init failed: %s", esp_err_to_name(ret));
+                oled_debug_error("USB FAIL");
+            } else {
+                ESP_LOGI(TAG, "USB HID initialized successfully");
+                oled_debug_status("USB Ready");
+            }
+        } else {
+            ESP_LOGI(TAG, "USB connected but no users need USB HID");
+            oled_debug_status("USB Skip");
+        }
+    } else {
+        ESP_LOGI(TAG, "USB not connected - skipping USB HID initialization");
+        oled_debug_status("USB NC");
     }
 
     last_interaction_time = xTaskGetTickCount();
-    
     while(true) {
         TickType_t now = xTaskGetTickCount();
-             
-        if (go_to_deep_sleep && now - last_interaction_time > pdMS_TO_TICKS(180000)) {            
-            go_to_deep_sleep = false;
-            oled_off();
-            #if SLEEP_ENABLE  
-            ESP_LOGI(TAG, "Entering deep sleep...\n"); 
-            enter_deep_sleep();
-            #endif
+        if (!usb_needed) {
+            if (go_to_deep_sleep && now - last_interaction_time > pdMS_TO_TICKS(180000)) {
+                go_to_deep_sleep = false;
+                oled_off();
+                #if SLEEP_ENABLE
+                ESP_LOGI(TAG, "Entering deep sleep...\n");
+                enter_deep_sleep();
+                #endif
+            }
         }
-        
         
         // Aggiorna il livello della batteria ogni 30 secondi
         static TickType_t last_battery_update = 0;
         if (now - last_battery_update > pdMS_TO_TICKS(30000)) {
-            // ble_battery_set_level(98);
-            // ble_battery_notify_level(98);
+            int battery_percentage = get_battery_percentage();
+            if (battery_percentage >= 0) {
+                // ble_battery_set_level(battery_percentage);
+                // ble_battery_notify_level(battery_percentage);
+                ESP_LOGI(TAG, "Battery level: %d%%", battery_percentage);
+                
+                // Controlla anche lo stato USB per aggiornamenti
+                bool usb_status = is_usb_connected_simple();
+                ESP_LOGI(TAG, "USB status: %s", usb_status ? "Connected" : "Disconnected");
+            }
             last_battery_update = now;
-            // printf("Battery level notified: %d%%\n", 98);
         }
         vTaskDelay(pdMS_TO_TICKS(100));
     }

@@ -201,217 +201,117 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
 
 /************* Application ****************/
 /******************************************/
+uint8_t const ble_conv_table[128][2] =  { HID_IT_IT_ASCII_TO_KEYCODE };
 
-
-void char_to_code(uint8_t *buffer, wint_t ch)
-{
-	// Check if lower or upper case
-	if(ch >= 'a' && ch <= 'z')
-	{
-		buffer[0] = 0;
-		// convert ch to HID letter, starting at a = 4
-		buffer[2] = (uint8_t)(4 + (ch - 'a'));
-	}
-	else if(ch >= 'A' && ch <= 'Z')
-	{
-		// Add left shift
-		buffer[0] = HID_MODIFIER_LEFT_SHIFT;
-		// convert ch to lower case
-		ch = ch - ('A'-'a');
-		// convert ch to HID letter, starting at a = 4
-		buffer[2] = (uint8_t)(4 + (ch - 'a'));
-	}
-	else if(ch >= '0' && ch <= '9') // Check if number
-	{
-		buffer[0] = 0;
-		// convert ch to HID number, starting at 1 = 30, 0 = 39
-		buffer[2] = ch == '0' ? 39 : (uint8_t)(30 + (ch - '1'));  
-	}
-	else // not a letter nor a number
-	{
-        switch(ch)
-		{
-            CASE(0x7F, HID_MODIFIER_NONE, 0x00); // null         
-            CASE('/',  HID_MODIFIER_LEFT_SHIFT, 0x24);
-            CASE(8,    HID_MODIFIER_NONE, 0x2A); // backspace
-            CASE('-',  HID_MODIFIER_NONE, 0x38);
-            CASE('\t', HID_MODIFIER_NONE, 0x2B);
-            CASE(' ',  HID_MODIFIER_NONE, HID_SPACE);
-            CASE('.',  HID_MODIFIER_NONE, HID_DOT);
-            CASE(',',  HID_MODIFIER_NONE, HID_COMMA);
-            CASE(':',  HID_MODIFIER_LEFT_SHIFT, HID_DOT);
-            CASE(';',  HID_MODIFIER_LEFT_SHIFT, HID_COMMA);
-            CASE('\'', HID_MODIFIER_NONE, 0x2D);
-            CASE('\"', HID_MODIFIER_LEFT_SHIFT, 0x1F);
-            CASE('\n', HID_MODIFIER_NONE, HID_NEWLINE);
-            CASE('\\', HID_MODIFIER_NONE, 0x35);
-            CASE('|',  HID_MODIFIER_LEFT_SHIFT, 0x35);
-            CASE('=',  HID_MODIFIER_LEFT_SHIFT, 0x27);
-            CASE('?',  HID_MODIFIER_LEFT_SHIFT, 0x2D);
-            CASE('<',  HID_MODIFIER_NONE,       0x64);
-            CASE('>',  HID_MODIFIER_LEFT_SHIFT, 0x64);
-            CASE('@',  HID_MODIFIER_RIGHT_ALT,  0x33);
-            CASE('!',  HID_MODIFIER_LEFT_SHIFT, 0x1E);
-            CASE('#',  HID_MODIFIER_RIGHT_ALT,  0x34);
-            CASE('$',  HID_MODIFIER_LEFT_SHIFT, 0x21);
-            CASE('%',  HID_MODIFIER_LEFT_SHIFT, 0x22);
-            CASE('^',  HID_MODIFIER_LEFT_SHIFT, 0x2E);
-            CASE('&',  HID_MODIFIER_LEFT_SHIFT, 0x23);
-            CASE('*',  HID_MODIFIER_LEFT_SHIFT, 0x30);
-            CASE('(',  HID_MODIFIER_LEFT_SHIFT, 0x25);
-            CASE(')',  HID_MODIFIER_LEFT_SHIFT, 0x26);
-            CASE('_',  HID_MODIFIER_LEFT_SHIFT, 0x38);
-            CASE('+',  HID_MODIFIER_NONE,       0x30);
-            CASE('[',  HID_MODIFIER_RIGHT_ALT,  0x2F);
-            CASE(']',  HID_MODIFIER_RIGHT_ALT,  0x30);
-            CASE('{',  HID_MODIFIER_RIGHT_ALT,  0x24);
-            CASE('}',  HID_MODIFIER_RIGHT_ALT,  0x27);
-            default:   buffer[0] = 0; buffer[2] = 0;
-        }
-	}
-}
-
-void ble_send_char(wint_t c)
-{
-    uint8_t buffer[8] = {0}; // HID report: [modifier, reserved, key1, key2, key3, key4, key5, key6]
-    char_to_code(buffer, c);
-
-    // Send key press
-    esp_hidd_send_keyboard_value(hid_conn_id, buffer[0], &buffer[2], 1);
-    vTaskDelay(10 / portTICK_PERIOD_MS);
-
-    // Send key release
-    uint8_t release_key = 0;
-    esp_hidd_send_keyboard_value(hid_conn_id, 0, &release_key, 0);
-}
-
-
-
-void ble_send_string(const char* str) {
-  size_t i = 0;
-  while (str[i]) {
-    wint_t wc = (wint_t)str[i];
-    uint32_t codepoint = 0x00;
-    if ((wc & 0x80) != 0) {
-        // Multi-byte UTF-8 character, print all bytes
-        int len = 1;
-        int pos = i;
-        if ((wc & 0xE0) == 0xC0) len = 2;
-        else if ((wc & 0xF0) == 0xE0) len = 3;
-        else if ((wc & 0xF8) == 0xF0) len = 4;
-        // printf("multi-byte char ");
-        for (int j = 0; j < len; ++j) {
-            // printf("0x%02X ", (unsigned char)str[pos + j]);
-            codepoint = (codepoint << 8) | (unsigned char)str[pos + j];
-            i += 1;
-        }
-        // printf(" - Codepoint %lX: \n", codepoint);
-    } 
-    else {
-        // printf("single byte char: 0x%X\n", wc);
-        ble_send_char(wc);
-        i += 1;
-        continue;
-    }
-
-    // Convert codepoint to UTF-8 and handle special characters
-    uint8_t buffer[8] = {0};
-    switch (codepoint) {
-      case 0xE282AC: buffer[0] = HID_MODIFIER_RIGHT_ALT; buffer[2] = 0x08; break;  // €
-      case 0xC2A3: buffer[0] = HID_MODIFIER_LEFT_SHIFT; buffer[2] = 0x20;  break;  // £
-      case 0xC2B0: buffer[0] = HID_MODIFIER_LEFT_SHIFT; buffer[2] = 0x34;  break;  // °
-      case 0xC3A7: buffer[0] = HID_MODIFIER_LEFT_SHIFT; buffer[2] = 0x33;  break;  // ç
-      case 0xC3A0: buffer[2] = 0x34; break;                                        // à
-      case 0xC3A8: buffer[2] = 0x2F; break;                                        // è
-      case 0xC3A9: buffer[0] = HID_MODIFIER_LEFT_SHIFT; buffer[2] = 0x2F; break;   // é
-      case 0xC3AC: buffer[2] = 0x2E; break;                                        // ì
-      case 0xC3B2: buffer[2] = 0x33; break;                                        // ò
-      case 0xC3B9: buffer[2] = 0x31; break;                                        // ù
-    }
+// Invia una sequenza HID: pressione e rilascio
+static void ble_send_hid_key(uint8_t keycode[8]) {
+    // HID report: [modifier, reserved, key1, key2, key3, key4, key5, key6]
     
-    // Send the special key
-    esp_hidd_send_keyboard_value(hid_conn_id, buffer[0], &buffer[2], 1);
+    // Send key press
+    esp_hidd_send_keyboard_value(hid_conn_id, keycode[0], &keycode[2], 1);
     vTaskDelay(10 / portTICK_PERIOD_MS);
+
     // Send key release
     uint8_t release_key = 0;
     esp_hidd_send_keyboard_value(hid_conn_id, 0, &release_key, 0);
-  }
+}
+
+ 
+void ble_send_char(wint_t chr)
+{    
+    uint8_t keycode[8] = { 0 };
+    keycode[0] = ble_conv_table[chr][0];    
+    keycode[2] = ble_conv_table[chr][1];
+    ble_send_hid_key(keycode);
 }
 
 
 void ble_send_key_combination(uint8_t modifiers, uint8_t key)
 {
-    uint8_t buffer[8] = {0}; // HID report: [modifier, reserved, key1, key2, key3, key4, key5, key6]
-    
-    buffer[0] = modifiers;  // Combinazione di modificatori
-    buffer[2] = key;        // Tasto principale
-    
-    // Send key press
-    esp_hidd_send_keyboard_value(hid_conn_id, buffer[0], &buffer[2], 1);
-    vTaskDelay(10 / portTICK_PERIOD_MS);
-    
-    // Send key release
-    uint8_t release_key = 0;
-    esp_hidd_send_keyboard_value(hid_conn_id, 0, &release_key, 0);
+    uint8_t keycode[8] = {0}; 
+    keycode[0] = modifiers;  // Combinazione di modificatori
+    keycode[2] = key;        // Tasto principale
+    ble_send_hid_key(keycode);
 }
 
-/*
-void hid_demo_task(void *pvParameters)
-{
-    static const char* help_string = 
-    "########################################################################\n"\
-    "BT hid keyboard demo usage:\n"\
-    "########################################################################\n";    
-    printf("%s\n", help_string);
-     
-    wint_t wc;
-    while (1) {
-        wc = fgetwc(stdin);
-        if (wc != EOF) {
-            // printf("Key pressed: %X %c\n", wc, wc);
-            send_keyboard(wc);
-        }          
-        vTaskDelay(10 / portTICK_PERIOD_MS);
+
+void ble_send_string(const char* str) {
+  size_t i = 0;
+  while (str[i]) {    
+    wint_t wc = (wint_t)str[i];
+
+    // Single-byte character      
+    if ((wc & 0x80) == 0) {          
+        ble_send_char(wc);            
+        i += 1;
+        // Skip to next character
+        continue; 
     }
-}
-*/
 
-void ble_device_init(void)
+    // Multi-byte UTF-8 character
+    int len = 1;
+    int pos = i;
+    uint32_t codepoint = 0;
+
+    if ((wc & 0xE0) == 0xC0) len = 2;
+    else if ((wc & 0xF0) == 0xE0) len = 3;
+    else if ((wc & 0xF8) == 0xF0) len = 4;
+
+    for (int j = 0; j < len; ++j) {  
+        codepoint = (codepoint << 8) | (unsigned char)str[pos + j];
+        i += 1;
+    }    
+    // printf("codepoint: %lX: \n",  codepoint);
+
+    // Convert codepoint to UTF-8 and handle special characters
+    uint8_t keycode[8] = {0};
+
+    switch (codepoint) {    
+        case 'à': keycode[0] = KEYBOARD_MODIFIER_NONE;        keycode[2] = 0x34; break;
+        case 'è': keycode[0] = KEYBOARD_MODIFIER_NONE;        keycode[2] = 0x2F; break;
+        case 'é': keycode[0] = KEYBOARD_MODIFIER_LEFTSHIFT;   keycode[2] = 0x2F; break;
+        case 'ì': keycode[0] = KEYBOARD_MODIFIER_NONE;        keycode[2] = 0x2E; break;
+        case 'ò': keycode[0] = KEYBOARD_MODIFIER_NONE;        keycode[2] = 0x33; break;
+        case 'ù': keycode[0] = KEYBOARD_MODIFIER_NONE;        keycode[2] = 0x31; break;
+
+        case '€': keycode[0] = KEYBOARD_MODIFIER_RIGHTALT;    keycode[2] = 0x08; break; 
+        case '£': keycode[0] = KEYBOARD_MODIFIER_LEFTSHIFT;   keycode[2] = 0x20; break;
+        case 'ç': keycode[0] = KEYBOARD_MODIFIER_LEFTSHIFT;   keycode[2] = 0x33; break;
+        case '§': keycode[0] = KEYBOARD_MODIFIER_LEFTSHIFT;   keycode[2] = 0x31; break;
+        case '°': keycode[0] = KEYBOARD_MODIFIER_LEFTSHIFT;   keycode[2] = 0x34; break;
+    }
+    ble_send_hid_key(keycode);
+  }
+}
+
+esp_err_t ble_device_init(void)
 {
     esp_err_t ret;
-
-    // Initialize NVS.
-    ret = nvs_flash_init();
-    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-        ESP_ERROR_CHECK(nvs_flash_erase());
-        ret = nvs_flash_init();
-    }
-    ESP_ERROR_CHECK( ret );    
     ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT));
 
     esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
     ret = esp_bt_controller_init(&bt_cfg);
     if (ret) {
         ESP_LOGE(HID_DEMO_TAG, "%s initialize controller failed", __func__);
-        return;
+        return ret;
     }
 
     ret = esp_bt_controller_enable(ESP_BT_MODE_BLE);
     if (ret) {
         ESP_LOGE(HID_DEMO_TAG, "%s enable controller failed", __func__);
-        return;
+        return ret;
     }
 
     ret = esp_bluedroid_init();
     if (ret) {
         ESP_LOGE(HID_DEMO_TAG, "%s init bluedroid failed", __func__);
-        return;
+        return ret;
     }
 
     ret = esp_bluedroid_enable();
     if (ret) {
         ESP_LOGE(HID_DEMO_TAG, "%s init bluedroid failed", __func__);
-        return;
+        return ret;
     }
 
     if((ret = esp_hidd_profile_init()) != ESP_OK) {
@@ -459,4 +359,6 @@ void ble_device_init(void)
     }
 
     // xTaskCreate(&hid_demo_task, "hid_task", 2048, NULL, 5, NULL);
+
+    return ret;
 }

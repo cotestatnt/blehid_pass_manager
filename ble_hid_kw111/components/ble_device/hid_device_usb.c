@@ -132,7 +132,7 @@ void tud_hid_set_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_
 }
 
 /********* Application ***************/
-uint8_t const conv_table[128][2] =  { HID_IT_IT_ASCII_TO_KEYCODE };
+uint8_t const usb_conv_table[128][2] =  { HID_IT_IT_ASCII_TO_KEYCODE };
 
 // Invia una sequenza HID: pressione e rilascio
 void usb_send_hid_key(uint8_t modifier, uint8_t keycode[6]) {
@@ -149,12 +149,11 @@ void usb_send_hid_key(uint8_t modifier, uint8_t keycode[6]) {
  
 void usb_send_char(wint_t chr)
 {    
-    uint8_t keycode[6] = { 0 };
+    // HID report: [modifier, key1, key2, key3, key4, key5, key6]
+    uint8_t keycode[6] = { 0 }; 
     uint8_t modifier   = 0;
-    
-    modifier = conv_table[chr][0];    
-    keycode[0] = conv_table[chr][1];
-
+    modifier = usb_conv_table[chr][0];    
+    keycode[0] = usb_conv_table[chr][1];
     usb_send_hid_key(modifier, keycode);
 }
 
@@ -209,27 +208,22 @@ void usb_send_string(const char* str) {
   }
 }
 
-// void usb_send_key_combination(uint8_t modifiers, uint8_t key)
-// {
-//     uint8_t buffer[8] = {0}; // HID report: [modifier, reserved, key1, key2, key3, key4, key5, key6]
-    
-//     buffer[0] = modifiers;  // Combinazione di modificatori
-//     buffer[2] = key;        // Tasto principale
-    
-//     // Send key press
-//     esp_hidd_send_keyboard_value(hid_conn_id, buffer[0], &buffer[2], 1);
-//     vTaskDelay(10 / portTICK_PERIOD_MS);
-    
-//     // Send key release
-//     uint8_t release_key = 0;
-//     esp_hidd_send_keyboard_value(hid_conn_id, 0, &release_key, 0);
-// }
+void usb_send_key_combination(uint8_t modifiers, uint8_t key)
+{
+    uint8_t keycode[6] = {0};    
+    keycode[1] = key;       
+    usb_send_hid_key(modifiers, keycode);
+}
 
 
-void usb_device_init(void)
+esp_err_t usb_device_init(void)
 {
    
     ESP_LOGI(TAG, "USB initialization");
+    
+    // Ritarda l'inizializzazione per permettere al sistema di stabilizzarsi
+    vTaskDelay(pdMS_TO_TICKS(2000));
+    
     const tinyusb_config_t tusb_cfg = {
         .device_descriptor = NULL,
         .string_descriptor = hid_string_descriptor,
@@ -237,14 +231,20 @@ void usb_device_init(void)
         .external_phy = false,
 #if (TUD_OPT_HIGH_SPEED)
         .fs_configuration_descriptor = composite_configuration_descriptor, 
-        .hs_configuration_descriptor = composite_configuration_descriptor,a
+        .hs_configuration_descriptor = composite_configuration_descriptor,
         .qualifier_descriptor = NULL,
 #else
         .configuration_descriptor = composite_configuration_descriptor,
 #endif // TUD_OPT_HIGH_SPEED
     };
 
-    ESP_ERROR_CHECK(tinyusb_driver_install(&tusb_cfg));
+    esp_err_t ret = tinyusb_driver_install(&tusb_cfg);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "TinyUSB driver install failed: %s", esp_err_to_name(ret));
+        return ret;
+    }
+    
     ESP_LOGI(TAG, "USB initialization DONE");
+    return ESP_OK;
     
 }

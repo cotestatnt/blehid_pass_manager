@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "freertos/queue.h"
 #include "esp_lcd_panel_io.h"
 #include "esp_lcd_panel_ops.h"
 #include "esp_err.h"
@@ -33,10 +34,35 @@ extern "C" {
 #define LCD_CMD_BITS           8
 #define LCD_PARAM_BITS         8
 
-void oled_off(void);
+// Debug message types
+typedef enum {
+    OLED_MSG_TYPE_NORMAL,
+    OLED_MSG_TYPE_DEBUG,
+    OLED_MSG_TYPE_ERROR,
+    OLED_MSG_TYPE_STATUS
+} oled_msg_type_t;
 
-void oled_init(void);
+typedef struct {
+    char text[64];
+    oled_msg_type_t type;
+    uint32_t display_time_ms;  // 0 = permanent, >0 = auto-clear after this time
+    bool reset_display;        // true = reset display timer
+} oled_message_t;
+
+// Basic OLED functions
+esp_err_t oled_init(void);
+void oled_off(void);
 void oled_write_text(const char* text, bool reset_display);
+
+// Enhanced debug functions
+void oled_debug_printf(const char* format, ...);
+void oled_debug_error(const char* error);
+void oled_debug_status(const char* status);
+void oled_show_temporary(const char* text, uint32_t duration_ms);
+
+// Message queue management
+esp_err_t oled_send_message(const oled_message_t* msg);
+void oled_clear_queue(void);
 
 #ifdef __cplusplus
 }

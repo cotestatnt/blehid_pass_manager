@@ -1,4 +1,4 @@
-
+#pragma once
 #ifndef HID_KEYCODES_H
 #define HID_KEYCODES_H  
 
@@ -139,5 +139,6 @@
   {KEYBOARD_MODIFIER_LEFTSHIFT, HID_KEY_GRAVE         }, /* 0x7E ~         */ \
   {KEYBOARD_MODIFIER_NONE, HID_KEY_DELETE             }  /* 0x7F Delete    */
 
-
   #endif /* HID_KEYCODES_H */
+
+

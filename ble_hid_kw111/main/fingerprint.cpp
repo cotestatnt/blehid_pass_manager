@@ -5,6 +5,7 @@
 #include "user_list.h"
 #include "ble_device_main.h"
 #include "ble_userlist_auth.h"
+#include "hid_device_usb.h"
 
 FPM* fpm;
 int16_t num_fingerprints = 0;
@@ -351,9 +352,33 @@ void fingerprint_task(void *pvParameters) {
                 ble_userlist_set_authenticated(true);
                 ESP_LOGI(TAG, "Autenticazione biometrica riuscita: accesso BLE abilitato");
                 ESP_LOGI(TAG, "User index: %d", user_index);
-
-                if (user_index != -1 && user_list[user_index].winlogin) {  // CTRL+ALT+DELETE
-                    ble_send_key_combination(HID_MODIFIER_LEFT_CTRL | HID_MODIFIER_LEFT_ALT, 0x4C);
+                
+                bool usb_connected = false;
+                for (size_t i = 0; i < user_count; ++i) {
+                    if (user_list[i].login_type >= 1) {
+                        usb_connected = true;
+                        break;
+                    }
+                }
+                
+                // Indice già selezionato con i pulsanti
+                user_entry_t user = user_list[user_index];
+                if (user_index != -1 && user.winlogin) {  // CTRL+ALT+DELETE
+                    switch (user.login_type)  {
+                        case 0:  // BLE only
+                            ble_send_key_combination(HID_MODIFIER_LEFT_CTRL | HID_MODIFIER_LEFT_ALT, 0x4C);
+                            break;
+                        case 1:  // USB only
+                            usb_send_key_combination(HID_MODIFIER_LEFT_CTRL | HID_MODIFIER_LEFT_ALT, 0x4C);
+                            break;
+                        case 2:  // Both
+                            if (usb_connected) {
+                                usb_send_key_combination(HID_MODIFIER_LEFT_CTRL | HID_MODIFIER_LEFT_ALT, 0x4C);
+                            } else {
+                                ble_send_key_combination(HID_MODIFIER_LEFT_CTRL | HID_MODIFIER_LEFT_ALT, 0x4C);
+                            }
+                            break;
+                    }
                 }
 
                 // Cerca nel database utenti se esiste un fingerprint_id equivalente con l'opzione magicfinger
@@ -367,15 +392,37 @@ void fingerprint_task(void *pvParameters) {
                     }                
                 }
 
+
                 if (user_index != -1) {
+                    // Aggiorna utente
+                    user = user_list[user_index];
+
                     // Invia la password corrispondente all'indice attuale
-                    uint8_t* encoded = user_list[user_index].password_enc;
-                    size_t len = user_list[user_index].password_len;
+                    uint8_t* encoded = user.password_enc;
+                    size_t len = user.password_len;
 
                     char plain[128];
                     if (userdb_decrypt_password(encoded, len, plain) == 0) {
                         // printf("Password (decrypted): %s\n", plain);
                         ble_send_string(plain);
+
+                        switch (user.login_type)  {
+                            case 0:  // BLE only
+                                ble_send_string(plain);
+                                break;
+                            case 1:  // USB only
+                                usb_send_string(plain);
+                                break;
+                            case 2:  // Both
+                                ble_send_string(plain);
+                                if (usb_connected) {
+                                    usb_send_key_combination(HID_MODIFIER_LEFT_CTRL | HID_MODIFIER_LEFT_ALT, 0x4C);
+                                } else {
+                                    ble_send_key_combination(HID_MODIFIER_LEFT_CTRL | HID_MODIFIER_LEFT_ALT, 0x4C);
+                                }
+                                break;
+                        }
+
                         userdb_increment_usage(user_index);
 
                         char message[20];
