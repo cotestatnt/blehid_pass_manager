@@ -58,17 +58,15 @@
 #elif ESP_BOARD == ESP32S3_TEST
     #define FP_UART_PORT         UART_NUM_1
   
-    #define BUTTON_UP            7
-    #define BUTTON_DOWN          5
+    #define VBAT_GPIO            10 
+    #define BUZZER_GPIO          11
+    #define BUTTON_UP            12
+    #define BUTTON_DOWN          13
 
-    #define VBAT_GPIO            8  
-    #define BUZZER_GPIO          9
-
-    #define FP_ACTIVATE          10
-    #define FP_TOUCH             6
-    
-    #define FP_RX                3
-    #define FP_TX                4
+    #define FP_ACTIVATE          9
+    #define FP_TX                3
+    #define FP_RX                4
+    #define FP_TOUCH             5
 
     #define PIN_NUM_SDA          1
     #define PIN_NUM_SCL          2

@@ -41,15 +41,15 @@ static TaskHandle_t buttonsTaskHandle = nullptr;
 // ADC per monitoraggio alimentazione (basato su esempio ESP-IDF 5.5.0)
 static adc_oneshot_unit_handle_t adc1_handle = NULL;
 static adc_cali_handle_t adc1_cali_vbus_handle = NULL;
-static adc_cali_handle_t adc1_cali_battery_handle = NULL;
+static adc_cali_handle_t adc1_cali_battery_handle = NULL;  // Usato per 3.3V rail
 static bool vbus_calibrated = false;
-static bool battery_calibrated = false;
+static bool battery_calibrated = false;  // Usato per 3.3V rail
 
-#define VBUS_ADC_CHANNEL    ADC_CHANNEL_2   // GPIO 3 
-#define BATTERY_ADC_CHANNEL ADC_CHANNEL_1   // GPIO 2
+#define VBUS_ADC_CHANNEL    ADC_CHANNEL_2   // GPIO 3 - VBUS con divisore integrato dev board
+// #define BATTERY_ADC_CHANNEL ADC_CHANNEL_1   // GPIO 2 - non usato
+#define BATTERY_ADC_CHANNEL ADC_CHANNEL_7   // GPIO 8 - per test jumper GND/3.3V
 #define ADC_ATTEN           ADC_ATTEN_DB_12
 #define ADC_BITWIDTH        ADC_BITWIDTH_DEFAULT
-
 
 void enter_deep_sleep() {
     gpio_set_level((gpio_num_t)FP_ACTIVATE, 0);
@@ -139,7 +139,7 @@ esp_err_t init_power_monitoring_adc(void) {
         return ret;
     }
 
-    // Configurazione canale VBUS (GPIO 3)
+    // Configurazione canale VBUS (GPIO 3) - con divisore integrato nella dev board
     adc_oneshot_chan_cfg_t vbus_config = {
         .atten = ADC_ATTEN,
         .bitwidth = ADC_BITWIDTH,
@@ -150,14 +150,14 @@ esp_err_t init_power_monitoring_adc(void) {
         return ret;
     }
 
-    // Configurazione canale batteria (GPIO 2)
-    adc_oneshot_chan_cfg_t battery_config = {
+    // Configurazione canale GPIO 8 - per test jumper GND/3.3V
+    adc_oneshot_chan_cfg_t rail_3v3_config = {
         .atten = ADC_ATTEN,
         .bitwidth = ADC_BITWIDTH,
     };
-    ret = adc_oneshot_config_channel(adc1_handle, BATTERY_ADC_CHANNEL, &battery_config);
+    ret = adc_oneshot_config_channel(adc1_handle, BATTERY_ADC_CHANNEL, &rail_3v3_config);
     if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Battery ADC channel config failed: %s", esp_err_to_name(ret));
+        ESP_LOGE(TAG, "GPIO8 ADC channel config failed: %s", esp_err_to_name(ret));
         return ret;
     }
 
@@ -179,7 +179,6 @@ int read_vbus_voltage_mv(void) {
     int adc_raw = 0;
     esp_err_t ret = adc_oneshot_read(adc1_handle, VBUS_ADC_CHANNEL, &adc_raw);
     if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "VBUS ADC read failed: %s", esp_err_to_name(ret));
         return -1;
     }
     
@@ -187,15 +186,16 @@ int read_vbus_voltage_mv(void) {
     if (vbus_calibrated && adc1_cali_vbus_handle) {
         ret = adc_cali_raw_to_voltage(adc1_cali_vbus_handle, adc_raw, &voltage_mv);
         if (ret != ESP_OK) {
-            ESP_LOGE(TAG, "VBUS calibration failed: %s", esp_err_to_name(ret));
             return -1;
         }
-        // Compensazione per divisore di tensione VBUS 100K/100K (divisore 2:1)
-        voltage_mv *= 2;
+        
+        // Fattore di compensazione empirico basato sui test:
+        // Dovremmo leggere ~5000mV ma leggiamo 6292mV con compensazione 2x
+        // Fattore corretto = 5000 / 6292 * 2 = 1.59
+        voltage_mv = (voltage_mv * 159) / 100;  // Fattore 1.59 invece di 2.0
     } else {
-        // Conversione approssimativa senza calibrazione
-        voltage_mv = (adc_raw * 3300) / 4095;
-        voltage_mv *= 2;  // Compensazione divisore 2:1
+        voltage_mv = (adc_raw * 3100) / 4095;
+        voltage_mv = (voltage_mv * 159) / 100;  // Stesso fattore empirico
     }
     
     return voltage_mv;
@@ -213,14 +213,11 @@ bool is_usb_connected_simple(void) {
     // VBUS USB dovrebbe essere ~5000mV quando connesso
     // Consideriamo connesso se > 4000mV per tolleranza
     bool usb_connected = (vbus_mv > 4000);
-    
-    ESP_LOGD(TAG, "VBUS voltage: %dmV, USB %s", 
-             vbus_mv, usb_connected ? "CONNECTED" : "DISCONNECTED");
-    
+    ESP_LOGI(TAG, "VBUS voltage: %dmV, USB %s", vbus_mv, usb_connected ? "CONNECTED" : "DISCONNECTED");
     return usb_connected;
 }
 
-// Lettura tensione batteria e calcolo percentuale
+// Lettura batteria semplificata - GPIO 8
 int get_battery_percentage(void) {
     if (adc1_handle == NULL) {
         return -1;
@@ -229,7 +226,6 @@ int get_battery_percentage(void) {
     int adc_raw = 0;
     esp_err_t ret = adc_oneshot_read(adc1_handle, BATTERY_ADC_CHANNEL, &adc_raw);
     if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Battery ADC read failed: %s", esp_err_to_name(ret));
         return -1;
     }
     
@@ -237,29 +233,14 @@ int get_battery_percentage(void) {
     if (battery_calibrated && adc1_cali_battery_handle) {
         ret = adc_cali_raw_to_voltage(adc1_cali_battery_handle, adc_raw, &voltage_mv);
         if (ret != ESP_OK) {
-            ESP_LOGE(TAG, "Battery calibration failed: %s", esp_err_to_name(ret));
             return -1;
         }
-        // Compensazione per divisore di tensione batteria 100K-100K (divisore 2:1)
-        voltage_mv *= 2;
     } else {
-        voltage_mv = (adc_raw * 3300) / 4095;
-        voltage_mv *= 2;  // Compensazione divisore 2:1
+        voltage_mv = (adc_raw * 3100) / 4095;
     }
     
-    // Calcolo percentuale batteria (per Li-Po 3.0V-4.2V)
-    int percentage;
-    if (voltage_mv >= 4200) {
-        percentage = 100;
-    } else if (voltage_mv <= 3000) {
-        percentage = 0;
-    } else {
-        // Mappatura lineare 3.0V-4.2V -> 0%-100%
-        percentage = ((voltage_mv - 3000) * 100) / (4200 - 3000);
-    }
-    
-    ESP_LOGD(TAG, "Battery: %dmV, %d%%", voltage_mv, percentage);
-    return percentage;
+    ESP_LOGI(TAG, "Battery: %dmV, %d%%", voltage_mv, (voltage_mv * 100) / 3300);
+    return (voltage_mv * 100) / 3300;  // Percentuale basata su 3.3V max
 }
 
 void button_task(void *pvParameters)
@@ -381,25 +362,12 @@ extern "C" void app_main(void) {
         ESP_LOGI(TAG, "Power monitoring ADC initialized");
     }
 
-    // Check USB connection status
-    bool usb_connected = is_usb_connected_simple();
-    
-    if (usb_connected) {
-        oled_debug_status("USB Connected");
-        ESP_LOGI(TAG, "USB connection detected - enabling USB HID");
-    } else {
-        oled_debug_status("USB Disconnected");
-        ESP_LOGI(TAG, "No USB connection - USB HID will be skipped");
-    }
-
     // Inizializza ed avvia il task di gestione BLE
     ret = ble_device_init();
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "BLE initialization failed: %s", esp_err_to_name(ret));
         oled_debug_error("BLE FAIL");
     }
-
-    
 
     // Start buttons task
     ESP_LOGI(TAG, "Starting button task...");
@@ -415,7 +383,7 @@ extern "C" void app_main(void) {
     userdb_load();    
     userdb_dump();
 
-    // Check if USB connection is available
+    // // Check if USB connection is available
     bool usb_needed = false;
     bool usb_available = is_usb_connected_simple();
     ESP_LOGI(TAG, "USB connection status: %s", usb_available ? "Connected" : "Not connected");
@@ -429,6 +397,11 @@ extern "C" void app_main(void) {
             }
         }
         
+        // TEST ONLY
+        usb_needed = false;
+        // TEST ONLY
+        usb_needed = false;
+
         if (usb_needed) {
             ESP_LOGI(TAG, "USB connected and needed - initializing USB HID");            
             esp_err_t ret = usb_device_init();
@@ -451,7 +424,7 @@ extern "C" void app_main(void) {
     last_interaction_time = xTaskGetTickCount();
     while(true) {
         TickType_t now = xTaskGetTickCount();
-        if (!usb_needed) {
+        if (!usb_available) {
             if (go_to_deep_sleep && now - last_interaction_time > pdMS_TO_TICKS(180000)) {
                 go_to_deep_sleep = false;
                 oled_off();
@@ -462,14 +435,14 @@ extern "C" void app_main(void) {
             }
         }
         
-        // Aggiorna il livello della batteria ogni 30 secondi
+        // Aggiorna il livello della batteria ogni 10 secondi
         static TickType_t last_battery_update = 0;
-        if (now - last_battery_update > pdMS_TO_TICKS(30000)) {
+        if (now - last_battery_update > pdMS_TO_TICKS(10000)) {
             int battery_percentage = get_battery_percentage();
             if (battery_percentage >= 0) {
+                // TODO: Implementare notifiche BLE batteria
                 // ble_battery_set_level(battery_percentage);
                 // ble_battery_notify_level(battery_percentage);
-                ESP_LOGI(TAG, "Battery level: %d%%", battery_percentage);
                 
                 // Controlla anche lo stato USB per aggiornamenti
                 bool usb_status = is_usb_connected_simple();
