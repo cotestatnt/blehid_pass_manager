@@ -5,7 +5,7 @@
  */
 
 #include "esp_hidd_prf_api.h"
-#include "hid_device_le_prf.h"
+#include "hid_device_prf.h"
 #include "hid_dev.h"
 #include <stdlib.h>
 #include <string.h>

@@ -10,7 +10,7 @@
 #include "esp_hmac.h"
 #include "mbedtls/aes.h"
 
-#include "hid_device_le_prf.h"
+#include "hid_device_prf.h"
 #include "user_list.h"
 #include "oled.h"
 

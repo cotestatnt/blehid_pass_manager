@@ -4,16 +4,28 @@
  * SPDX-License-Identifier: Unlicense OR CC0-1.0
  */
 
-
-
-#ifndef __HID_DEVICE_LE_PRF__
-#define __HID_DEVICE_LE_PRF__
+#ifndef __HID_DEVICE_PRF__
+#define __HID_DEVICE_PRF__
 #include <stdbool.h>
 #include "esp_gatts_api.h"
 #include "esp_gatt_defs.h"
 #include "esp_hidd_prf_api.h"
 #include "esp_gap_ble_api.h"
 #include "hid_dev.h"
+
+// Battery Service Attributes Indexes
+enum
+{
+    BAS_IDX_SVC,
+    BAS_IDX_BATT_LVL_CHAR,
+    BAS_IDX_BATT_LVL_VAL,
+    BAS_IDX_BATT_LVL_NTF_CFG,
+    BAS_IDX_BATT_LVL_PRES_FMT,
+    BAS_IDX_NB,
+};
+
+void battery_set_level(uint8_t battery_percentage);
+void battery_notify_level(uint8_t battery_percentage);
 
 #define SUPPORT_REPORT_VENDOR                 false
 //HID BLE profile log tag
@@ -203,7 +215,6 @@ enum {
     HIDD_LE_BOOT_KB_IN_REPORT_EVT,
     HIDD_LE_BOOT_KB_OUT_REPORT_EVT,
     HIDD_LE_BOOT_MOUSE_IN_REPORT_EVT,
-
     HID_LE_EVT_MAX
 };
 
@@ -361,6 +372,8 @@ void hidd_set_attr_value(uint16_t handle, uint16_t val_len, const uint8_t *value
 void hidd_get_attr_value(uint16_t handle, uint16_t *length, uint8_t **value);
 
 esp_err_t hidd_register_cb(void);
+
+
 
 
 #endif  ///__HID_DEVICE_LE_PRF__

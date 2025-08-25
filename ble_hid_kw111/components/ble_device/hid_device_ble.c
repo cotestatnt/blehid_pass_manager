@@ -27,20 +27,23 @@
 #include "esp_gatt_common_api.h"
 #include "esp_bt_main.h"
 #include "esp_bt_device.h"
+
 #include "hid_dev.h"
-#include "ble_device_main.h"
+#include "hid_device_ble.h"
+#include "hid_device_prf.h"
+
 #include "oled.h"
-#include "hid_keycodes.h"
+#include "user_list.h"
+
 
 #define HID_DEMO_TAG        "HID BLE"
 #define HIDD_DEVICE_NAME    "BLE PwdMan"
 
-static uint16_t hid_conn_id = 0;
-static bool sec_conn = false;
-uint32_t passkey;
+uint32_t passkey = 123456;
+bool ble_userlist_authenticated = false;
 
-#define CHAR_DECLARATION_SIZE   (sizeof(uint8_t))
-#define CASE(a, b, c)  case a: buffer[0] = b; buffer[2] = c; break;
+uint16_t hid_conn_id = 0;
+bool sec_conn = false;
 
 static void hidd_event_callback(esp_hidd_cb_event_t event, esp_hidd_cb_param_t *param);
 
@@ -201,6 +204,15 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
 
 /************* Application ****************/
 /******************************************/
+void ble_userlist_set_authenticated(bool value) {
+    ble_userlist_authenticated = value;
+    send_authenticated(ble_userlist_authenticated);
+}
+
+bool ble_userlist_is_authenticated() {
+    return ble_userlist_authenticated;
+}
+
 uint8_t const ble_conv_table[128][2] =  { HID_IT_IT_ASCII_TO_KEYCODE };
 
 // Invia una sequenza HID: pressione e rilascio
@@ -362,3 +374,5 @@ esp_err_t ble_device_init(void)
 
     return ret;
 }
+
+

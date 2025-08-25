@@ -3,9 +3,11 @@
 #include "fingerprint.h"
 #include "oled.h"
 #include "user_list.h"
-#include "ble_device_main.h"
-#include "ble_userlist_auth.h"
+
+#include "hid_dev.h"
+#include "hid_device_ble.h"
 #include "hid_device_usb.h"
+
 
 FPM* fpm;
 int16_t num_fingerprints = 0;

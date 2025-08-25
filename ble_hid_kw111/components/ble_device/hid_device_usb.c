@@ -9,10 +9,9 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "tinyusb.h"
+
 #include "class/hid/hid_device.h"
-#include "driver/gpio.h"
-#include "ble_device_main.h"
-#include "hid_keycodes.h"
+#include "hid_dev.h"
 
 
 static const char *TAG = "USB HID";

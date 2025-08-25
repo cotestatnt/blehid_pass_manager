@@ -9,10 +9,12 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/event_groups.h"
-#include "hid_device_le_prf.h"
+
+#include "hid_dev.h"
+#include "hid_device_prf.h"
+#include "hid_device_ble.h"
 
 #include "user_list.h"
-#include "ble_userlist_auth.h"
 
 /* HID Report type */
 #define HID_REPORT_TYPE_INPUT       1
@@ -109,18 +111,6 @@ static const uint8_t hidReportMap[] = {
 
 };
 
-/// Battery Service Attributes Indexes
-enum
-{
-    BAS_IDX_SVC,
-    BAS_IDX_BATT_LVL_CHAR,
-    BAS_IDX_BATT_LVL_VAL,
-    BAS_IDX_BATT_LVL_NTF_CFG,
-    BAS_IDX_BATT_LVL_PRES_FMT,
-    BAS_IDX_NB,
-};
-
-
 
 // User Management Service UUID and Characteristic UUID
 #define USER_MGMT_SERVICE_UUID      0xFFF0
@@ -129,10 +119,15 @@ enum
 static const uint16_t user_mgmt_svc = USER_MGMT_SERVICE_UUID;   
 static const uint16_t user_mgmt_char = USER_MGMT_CHAR_UUID;
 
+// User management service BLE handles
 uint16_t user_mgmt_handle[USER_MGMT_IDX_NB];
 uint16_t user_mgmt_conn_id = 0;
 uint8_t user_mgmt_value[USER_MGMT_PAYLOAD_LEN] = {0};
 int user_list_index = 0;
+
+// Battery Service BLE handles
+uint16_t battery_handle[BAS_IDX_NB];
+uint16_t battery_conn_id = 0;
 
 ////////////////////////////////////////////////////////////////////
 
@@ -211,12 +206,20 @@ static const uint8_t char_prop_read_write_notify = ESP_GATT_CHAR_PROP_BIT_READ |
 static const uint8_t char_prop_read_write_write_nr = ESP_GATT_CHAR_PROP_BIT_READ | ESP_GATT_CHAR_PROP_BIT_WRITE | ESP_GATT_CHAR_PROP_BIT_WRITE_NR;
 
 /// battary Service
-static const uint16_t battary_svc = ESP_GATT_UUID_BATTERY_SERVICE_SVC;
+static const uint16_t battery_svc = ESP_GATT_UUID_BATTERY_SERVICE_SVC;
 static const uint16_t bat_lev_uuid = ESP_GATT_UUID_BATTERY_LEVEL;
 static const uint8_t bat_lev_ccc[2] = {0x00, 0x00};
 static const uint16_t char_format_uuid = ESP_GATT_UUID_CHAR_PRESENT_FORMAT;
-static uint8_t battary_lev = 50;
+static uint8_t battery_level = 50;
 
+// Battery level Presentation Format
+static const struct prf_char_pres_fmt bat_lev_pres_fmt = {
+    .format = 0x04,         // uint8 format
+    .exponent = 0,          // no exponent
+    .unit = 0x27AD,         // percentage unit (Bluetooth SIG)
+    .name_space = 0x01,     // Bluetooth SIG namespace
+    .description = 0x0000   // no description
+};
 
 
 /// Full HRS Database Description - Used to add attributes into the database
@@ -252,7 +255,7 @@ static const esp_gatts_attr_db_t bas_att_db[BAS_IDX_NB] =
         [BAS_IDX_SVC] = {
             {ESP_GATT_AUTO_RSP}, 
             {ESP_UUID_LEN_16, (uint8_t *)&primary_service_uuid, 
-             ESP_GATT_PERM_READ, sizeof(uint16_t), sizeof(battary_svc), (uint8_t *)&battary_svc}
+             ESP_GATT_PERM_READ, sizeof(uint16_t), sizeof(battery_svc), (uint8_t *)&battery_svc}
         },
 
         // Battary level Characteristic Declaration
@@ -266,7 +269,7 @@ static const esp_gatts_attr_db_t bas_att_db[BAS_IDX_NB] =
         [BAS_IDX_BATT_LVL_VAL] = {
             {ESP_GATT_AUTO_RSP}, 
             {ESP_UUID_LEN_16, (uint8_t *)&bat_lev_uuid, 
-             ESP_GATT_PERM_READ, sizeof(uint8_t), sizeof(uint8_t), &battary_lev}
+             ESP_GATT_PERM_READ, sizeof(uint8_t), sizeof(uint8_t), &battery_level}
         },
 
         // Battary level Characteristic - Client Characteristic Configuration Descriptor
@@ -280,7 +283,7 @@ static const esp_gatts_attr_db_t bas_att_db[BAS_IDX_NB] =
         [BAS_IDX_BATT_LVL_PRES_FMT] = {
             {ESP_GATT_AUTO_RSP}, 
             {ESP_UUID_LEN_16, (uint8_t *)&char_format_uuid, 
-             ESP_GATT_PERM_READ, sizeof(struct prf_char_pres_fmt), 0, NULL}
+             ESP_GATT_PERM_READ, sizeof(struct prf_char_pres_fmt), sizeof(struct prf_char_pres_fmt), (uint8_t *)&bat_lev_pres_fmt}
         },
 };
 
@@ -615,10 +618,19 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_
             param->add_attr_tab.svc_uuid.uuid.uuid16 == ESP_GATT_UUID_BATTERY_SERVICE_SVC &&
             param->add_attr_tab.status == ESP_GATT_OK)
         {
+            
+            // Salva gli handle del Battery Service
+            memcpy(battery_handle, param->add_attr_tab.handles, BAS_IDX_NB * sizeof(uint16_t));
+            ESP_LOGI(HID_LE_PRF_TAG, "Battery svc handle = %x", battery_handle[BAS_IDX_SVC]);
+            
             incl_svc.start_hdl = param->add_attr_tab.handles[BAS_IDX_SVC];
             incl_svc.end_hdl = incl_svc.start_hdl + BAS_IDX_NB - 1;
             ESP_LOGI(HID_LE_PRF_TAG, "%s(), start added the hid service to the stack database. incl_handle = %d",
                      __func__, incl_svc.start_hdl);
+            
+            // Avvia il Battery Service
+            esp_ble_gatts_start_service(battery_handle[BAS_IDX_SVC]);
+            
             esp_ble_gatts_create_attr_tab(hidd_le_gatt_db, gatts_if, HIDD_LE_IDX_NB, 0);
         }
         if (param->add_attr_tab.num_handle == HIDD_LE_IDX_NB &&
@@ -733,9 +745,33 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
                 hid_profile_tab[idx].gatts_cb(event, gatts_if, param);
             }
         }
-    }
-    
+    }    
 }
+
+
+static void hid_add_id_tbl(void)
+{
+    int idx = 0;
+
+    // Key input report
+    hid_rpt_map[idx].id = hidReportRefKeyIn[0];
+    hid_rpt_map[idx].type = hidReportRefKeyIn[1];
+    hid_rpt_map[idx].handle = hidd_le_env.hidd_inst.att_tbl[HIDD_LE_IDX_REPORT_KEY_IN_VAL];
+    hid_rpt_map[idx].cccdHandle = hidd_le_env.hidd_inst.att_tbl[HIDD_LE_IDX_REPORT_KEY_IN_CCC];
+    hid_rpt_map[idx].mode = HID_PROTOCOL_MODE_REPORT;
+    idx++;
+
+    // LED output report
+    hid_rpt_map[idx].id = hidReportRefLedOut[0];
+    hid_rpt_map[idx].type = hidReportRefLedOut[1];
+    hid_rpt_map[idx].handle = hidd_le_env.hidd_inst.att_tbl[HIDD_LE_IDX_REPORT_LED_OUT_VAL];
+    hid_rpt_map[idx].cccdHandle = 0;
+    hid_rpt_map[idx].mode = HID_PROTOCOL_MODE_REPORT;
+    idx++;
+
+    hid_dev_register_reports(idx, hid_rpt_map);
+}
+
 
 esp_err_t hidd_register_cb(void)
 {
@@ -747,8 +783,16 @@ esp_err_t hidd_register_cb(void)
 void hidd_set_attr_value(uint16_t handle, uint16_t val_len, const uint8_t *value)
 {
     hidd_inst_t *hidd_inst = &hidd_le_env.hidd_inst;
+    
+    // Controlla se è un handle del servizio HID
     if (hidd_inst->att_tbl[HIDD_LE_IDX_HID_INFO_VAL] <= handle &&
         hidd_inst->att_tbl[HIDD_LE_IDX_REPORT_REP_REF] >= handle)
+    {
+        esp_ble_gatts_set_attr_value(handle, val_len, value);
+    }
+    // Controlla se è un handle del Battery Service
+    else if (battery_handle[BAS_IDX_SVC] <= handle && 
+             battery_handle[BAS_IDX_BATT_LVL_PRES_FMT] >= handle)
     {
         esp_ble_gatts_set_attr_value(handle, val_len, value);
     }
@@ -775,26 +819,28 @@ void hidd_get_attr_value(uint16_t handle, uint16_t *length, uint8_t **value)
     return;
 }
 
-static void hid_add_id_tbl(void)
-{
-    int idx = 0;
 
-    // Key input report
-    hid_rpt_map[idx].id = hidReportRefKeyIn[0];
-    hid_rpt_map[idx].type = hidReportRefKeyIn[1];
-    hid_rpt_map[idx].handle = hidd_le_env.hidd_inst.att_tbl[HIDD_LE_IDX_REPORT_KEY_IN_VAL];
-    hid_rpt_map[idx].cccdHandle = hidd_le_env.hidd_inst.att_tbl[HIDD_LE_IDX_REPORT_KEY_IN_CCC];
-    hid_rpt_map[idx].mode = HID_PROTOCOL_MODE_REPORT;
-    idx++;
+// Imposta il livello della batteria nel servizio BLE
+void battery_set_level(uint8_t battery_percentage) {
+    battery_level = battery_percentage;
+    // Aggiorna il valore della caratteristica usando l'handle del Battery Service
+    hidd_set_attr_value(battery_handle[BAS_IDX_BATT_LVL_VAL], sizeof(uint8_t), &battery_level);
+}
 
-    // LED output report
-    hid_rpt_map[idx].id = hidReportRefLedOut[0];
-    hid_rpt_map[idx].type = hidReportRefLedOut[1];
-    hid_rpt_map[idx].handle = hidd_le_env.hidd_inst.att_tbl[HIDD_LE_IDX_REPORT_LED_OUT_VAL];
-    hid_rpt_map[idx].cccdHandle = 0;
-    hid_rpt_map[idx].mode = HID_PROTOCOL_MODE_REPORT;
-    idx++;
-
-    hid_dev_register_reports(idx, hid_rpt_map);
+// Notifica il livello della batteria tramite BLE
+void battery_notify_level(uint8_t battery_percentage) {
+    battery_set_level(battery_percentage);
+    
+    // Invia la notifica solo se c'è una connessione attiva
+    if (user_mgmt_conn_id != 0) {
+        esp_ble_gatts_send_indicate(
+            hidd_le_env.gatt_if,
+            user_mgmt_conn_id,
+            battery_handle[BAS_IDX_BATT_LVL_VAL],
+            sizeof(uint8_t),
+            &battery_level,
+            false
+        );
+    }
 }
 

@@ -38,12 +38,13 @@
     #define FP_ACTIVATE          7
     #define PIN_NUM_SDA          8
     #define PIN_NUM_SCL          9
-    #define PIN_NUM_RST          -1
+    #define PIN_NUM_RST          -1    
+    #define BATTERY_ADC_CHANNEL ADC_CHANNEL_3
 
 #elif ESP_BOARD == ESP32S3_SUPERMINI
     #define FP_UART_PORT         UART_NUM_1
 
-    #define BUZZER_GPIO          10
+    #define BUZZER_GPIO          9
     #define VBAT_GPIO            11  
     #define BUTTON_UP            12
     #define BUTTON_DOWN          4
@@ -54,16 +55,15 @@
     #define PIN_NUM_SDA          2
     #define PIN_NUM_SCL          3
     #define PIN_NUM_RST          -1
-
+    #define BATTERY_ADC_CHANNEL ADC_CHANNEL_3
 #elif ESP_BOARD == ESP32S3_TEST
     #define FP_UART_PORT         UART_NUM_1
   
-    #define VBAT_GPIO            10 
-    #define BUZZER_GPIO          11
+    #define BUZZER_GPIO          11        
     #define BUTTON_UP            12
     #define BUTTON_DOWN          13
 
-    #define FP_ACTIVATE          9
+    #define FP_ACTIVATE          10
     #define FP_TX                3
     #define FP_RX                4
     #define FP_TOUCH             5
@@ -71,7 +71,11 @@
     #define PIN_NUM_SDA          1
     #define PIN_NUM_SCL          2
     #define PIN_NUM_RST          -1
-
+    
+    // ESP32-S3, GPIO 9 corrisponde ad ADC1_CH8 (ADC_CHANNEL_8)    
+    #define VBAT_GPIO            9 
+    #define BATTERY_ADC_CHANNEL ADC_CHANNEL_8
+    
 #else
     #error "Unsupported ESP board configuration"    
 #endif
