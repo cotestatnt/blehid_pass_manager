@@ -241,7 +241,7 @@ void ble_send_char(wint_t chr)
 void ble_send_key_combination(uint8_t modifiers, uint8_t key)
 {
     uint8_t keycode[8] = {0}; 
-    keycode[0] = modifiers;  // Combinazione di modificatori
+    keycode[0] = modifiers;  // Modifier combination
     keycode[2] = key;        // Tasto principale
     ble_send_hid_key(keycode);
 }

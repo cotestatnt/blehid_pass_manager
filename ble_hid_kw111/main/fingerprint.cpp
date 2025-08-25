@@ -13,6 +13,7 @@ FPM* fpm;
 int16_t num_fingerprints = 0;
 bool enrolling_in_progress = false;
 
+extern uint32_t last_interaction_time;
 
 static const char *TAG = "FPM TASK";
 #define NUM_SNAPSHOTS 5
@@ -291,7 +292,7 @@ void fingerprint_task(void *pvParameters) {
         return;
     }
 
-    // Attiva il modulo fingerprint
+    // Activate the fingerprint module
     gpio_set_level((gpio_num_t)FP_ACTIVATE, 1);
     vTaskDelay(pdMS_TO_TICKS(100));
 
@@ -300,7 +301,7 @@ void fingerprint_task(void *pvParameters) {
     fpm = new FPM(&uart);
 
     if (!fpm->begin()) {
-        ESP_LOGE(TAG, "FPM begin() failed (verifica cavi, baud, alimentazione)");
+        ESP_LOGE(TAG, "FPM begin() failed (check cables, baud, power supply)");
         return;
     }
 
@@ -312,18 +313,18 @@ void fingerprint_task(void *pvParameters) {
         ESP_LOGI(TAG, "Packet length: %u", FPM::packetLengths[static_cast<uint8_t>(params.packetLen)]);
     }
     else {
-        ESP_LOGE(TAG, "readParams non eseguito correttamente");
+        ESP_LOGE(TAG, "readParams not executed correctly");
     }
 
-    // Leggi informazioni sul numero di fingerprint memorizzati    
+    // Read information about the number of stored fingerprints
     if (fpm->getLastIndex(&num_fingerprints) == FPMStatus::OK) {
-        ESP_LOGI(TAG, "Numero di fingerprint nel database: %u", (unsigned)num_fingerprints);
+        ESP_LOGI(TAG, "Number of fingerprints in database: %u", (unsigned)num_fingerprints);
     }
     else {
-        ESP_LOGW(TAG, "Impossibile leggere il numero di fingerprint registrati");
+        ESP_LOGW(TAG, "Unable to read the number of registered fingerprints");
     }
 
-    // E' necessario attendere che venga registrata almeno un'impronta "root"
+    // It's necessary to wait until at least one "root" fingerprint is registered
     while (!num_fingerprints) {
         fpm->getLastIndex(&num_fingerprints);
         vTaskDelay(pdMS_TO_TICKS(100));
@@ -336,17 +337,14 @@ void fingerprint_task(void *pvParameters) {
         }
     }
 
-    // Avvio del task ripetitivo per il controllo del fingerprint
+    // Start of the repetitive task for fingerprint control
     while(1) {
-        if (gpio_get_level((gpio_num_t)FP_TOUCH) == ACTIVE_LEVEL && !enrolling_in_progress) {
-
-            last_interaction_time = xTaskGetTickCount();
-           
-            ESP_LOGI(TAG, "Touch detected, starting fingerprint search...");
-            last_interaction_time = xTaskGetTickCount() - pdMS_TO_TICKS(10000);
-            display_reset_pending = 1;            
+        if (gpio_get_level((gpio_num_t)FP_TOUCH) == ACTIVE_LEVEL && !enrolling_in_progress) {            
                        
-            // Esegui la ricerca del fingerprint
+            ESP_LOGI(TAG, "Touch detected, starting fingerprint search...");
+            last_interaction_time = xTaskGetTickCount() - pdMS_TO_TICKS(10000);            
+                       
+            // Execute fingerprint search
             uint16_t finger_index = searchDatabase();
 
             if (finger_index != 0xFFFF) {

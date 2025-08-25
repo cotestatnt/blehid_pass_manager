@@ -26,15 +26,17 @@
 
 
 static const char *TAG = "MAIN";
-
 static TaskHandle_t fingerprintTaskHandle = nullptr;
 static TaskHandle_t buttonsTaskHandle = nullptr;
+
+// Stores the last user interaction time to start deep sleep countdown
+uint32_t last_interaction_time = 0;                 
 
 void button_task(void *pvParameters)
 {
     int last_btn_up = 1, last_btn_down = 1;
 
-    // Configura i pin dei pulsanti come input con pull-up
+    // Configure button pins as input with pull-up
     gpio_config_t io_conf = {};
     io_conf.intr_type = GPIO_INTR_DISABLE;
     io_conf.mode = GPIO_MODE_INPUT;
@@ -47,7 +49,7 @@ void button_task(void *pvParameters)
         int btn_up = gpio_get_level((gpio_num_t)BUTTON_UP);
         int btn_down = gpio_get_level((gpio_num_t)BUTTON_DOWN);
 
-        // Pulsante su (PIN 6) premuto (da HIGH a LOW)
+        // Up button (PIN 6) pressed (HIGH to LOW transition)
         if (last_btn_up == 1 && btn_up == 0) {
             last_interaction_time = xTaskGetTickCount();
             user_index = (user_index + 1) ;
@@ -57,10 +59,9 @@ void button_task(void *pvParameters)
             } 
         
             const char* username = user_list[user_index].label;                            
-            printf("Account selezionato (%d): %s\n", user_index, username);
-            oled_write_text(username, true);
-            last_interaction_time = xTaskGetTickCount();
-            display_reset_pending = 1;
+            printf("Selected account (%d): %s\n", user_index, username);
+            oled_write_text(username, true);            
+            
             #if DEBUG_PASSWD
             uint8_t* encoded = user_list[user_index].password_enc;
             size_t len = user_list[user_index].password_len;
@@ -72,7 +73,7 @@ void button_task(void *pvParameters)
             #endif
             
         }
-        // Pulsante giù (PIN 7) premuto (da HIGH a LOW)
+        // Down button (PIN 7) pressed (HIGH to LOW transition)
         if (last_btn_down == 1 && btn_down == 0) {
             last_interaction_time = xTaskGetTickCount();
             user_index = (user_index - 1);            
@@ -81,10 +82,9 @@ void button_task(void *pvParameters)
             }
 
             const char* username = user_list[user_index].label;
-            printf("Account selezionato (%d): %s\n", user_index, username);
-            oled_write_text(username, true);
-            last_interaction_time = xTaskGetTickCount();
-            display_reset_pending = 1;
+            printf("Selected account (%d): %s\n", user_index, username);
+            oled_write_text(username, true);            
+            
             #if DEBUG_PASSWD
             uint8_t* encoded = user_list[user_index].password_enc;
             size_t len = user_list[user_index].password_len;
@@ -127,7 +127,7 @@ extern "C" void app_main(void) {
         oled_write_text("BLE PassMan", false);
     }    
 
-    // Inizializza ed avvia il task di gestione BLE
+    // Initialize and start the BLE management task
     ret = ble_device_init();
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "BLE initialization failed: %s", esp_err_to_name(ret));
@@ -142,7 +142,7 @@ extern "C" void app_main(void) {
         // Continue without power monitoring if it fails
     } else {
         ESP_LOGI(TAG, "Power monitoring ADC initialized");
-        // Avvia il task di notifica BLE del livello batteria
+        // Start the battery level BLE notification task
         start_battery_notify_task();
     }
 
@@ -201,14 +201,15 @@ extern "C" void app_main(void) {
     while(true) {
         
         // if (!usb_available) {
-            if (xTaskGetTickCount() - last_interaction_time > pdMS_TO_TICKS(180000)) {                
+            if (xTaskGetTickCount() - last_interaction_time > pdMS_TO_TICKS(60000)) {                
                 oled_off();
                 #if SLEEP_ENABLE
                 ESP_LOGI(TAG, "Entering deep sleep...\n");
+                vTaskDelay(pdMS_TO_TICKS(10));
                 enter_deep_sleep();
                 #endif
             }
         // }
-        vTaskDelay(pdMS_TO_TICKS(100));
+        vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }

@@ -30,16 +30,13 @@ typedef struct {
 
 extern user_entry_t user_list[MAX_USERS];
 extern size_t user_count;
-extern volatile int user_index;
-extern int display_reset_pending;
-extern uint32_t last_interaction_time;
-
+extern int user_index;
 
 // Funzioni di crittografia password
 int userdb_encrypt_password(const char* plain, uint8_t* out_encrypted);
 int userdb_decrypt_password(const uint8_t* encrypted, size_t len, char* out_plain);
 
-// Funzioni di gestione
+// Management functions
 void userdb_load();
 void userdb_save();
 

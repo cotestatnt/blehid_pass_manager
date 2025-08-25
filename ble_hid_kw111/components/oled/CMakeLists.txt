@@ -4,4 +4,4 @@ idf_component_register(
     REQUIRES driver esp_timer esp_lcd esp_lvgl_port user_list main
 )
 
-target_compile_options(${COMPONENT_LIB} PRIVATE -Wno-deprecated-enum-enum-conversion)
+# target_compile_options(${COMPONENT_LIB} PRIVATE -Wno-deprecated-enum-enum-conversion)

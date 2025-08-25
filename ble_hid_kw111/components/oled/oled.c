@@ -70,13 +70,7 @@ static void oled_display_message(const oled_message_t* msg) {
 
     // Update current message tracking
     current_message = *msg;
-    message_start_time = xTaskGetTickCount();
-    
-    if (msg->reset_display) {
-        // Reset the display after writing text
-        display_reset_pending = 1;
-        last_interaction_time = xTaskGetTickCount();
-    }
+    message_start_time = xTaskGetTickCount();    
 }
 
 static void oled_task(void *pvParameters) {
@@ -230,8 +224,8 @@ esp_err_t oled_init(void) {
         .dev_addr = I2C_HW_ADDR,
         .scl_speed_hz = LCD_PIXEL_CLOCK_HZ,
         .control_phase_bytes = 1,               // According to SSD1306 datasheet
-        .lcd_cmd_bits = LCD_CMD_BITS,   // According to SSD1306 datasheet
-        .lcd_param_bits = LCD_CMD_BITS, // According to SSD1306 datasheet
+        .lcd_cmd_bits = LCD_CMD_BITS,           // According to SSD1306 datasheet
+        .lcd_param_bits = LCD_CMD_BITS,         // According to SSD1306 datasheet
         .dc_bit_offset = 6,                     // According to SSD1306 datasheet
     };
     ret = esp_lcd_new_panel_io_i2c(i2c_bus, &io_config, &io_handle);

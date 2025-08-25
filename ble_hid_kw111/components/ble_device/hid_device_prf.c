@@ -48,7 +48,7 @@ static hid_report_map_t hid_rpt_map[HID_NUM_REPORTS];
 // HID Report Map characteristic value
 // Keyboard report descriptor (using format for Boot interface descriptor)
 static const uint8_t hidReportMap[] = {
-    // --- INIZIO SEZIONE TASTIERA ---
+    // --- START KEYBOARD SECTION ---
     0x05, 0x01, // Usage Pg (Generic Desktop)
     0x09, 0x06, // Usage (Keyboard)
     0xA1, 0x01, // Collection: (Application)
@@ -94,7 +94,7 @@ static const uint8_t hidReportMap[] = {
     0x81, 0x00, //   Input: (Data, Array)
     //
     0xC0, // End Collection
-// --- FINE SEZIONE TASTIERA ---
+// --- END KEYBOARD SECTION ---
 
 #if (SUPPORT_REPORT_VENDOR == true)
     0x06, 0xFF, 0xFF, // Usage Page(Vendor defined)
@@ -422,8 +422,6 @@ static void hid_add_id_tbl(void);
 
 void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_ble_gatts_cb_param_t *param)
 {
-    last_interaction_time = xTaskGetTickCount();
-
     switch (event) {
     case ESP_GATTS_REG_EVT: {
         esp_ble_gap_config_local_icon(ESP_BLE_APPEARANCE_GENERIC_HID);
@@ -503,7 +501,7 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_
             uint8_t idx = param->write.value[1];
             
             if (!ble_userlist_is_authenticated()) {
-                printf("[BLE] Accesso lista utenti negato: non autenticato!\n");                
+                printf("[BLE] User list access denied: not authenticated!\n");                
                 send_authenticated(false);                
                 break;
             }
@@ -520,18 +518,18 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_
 
                 case ADD_NEW_USER:
                 case EDIT_USER: {
-                    // Comando di inserimento/modifica utente o password
+                    // User or password insert/modify command
                     if (param->write.len < 69) {
-                        ESP_LOGE(TAG, "Inserimento: dati insufficienti\n");
+                        ESP_LOGE(TAG, "Insert: insufficient data\n");
                         break;
                     }
 
                     if (idx >= MAX_USERS) {
-                        ESP_LOGE(TAG, "Indice utente non valido: %d", idx);
+                        ESP_LOGE(TAG, "Invalid user index: %d", idx);
                         return;
                     }
 
-                    size_t offset = 2; // Inizio dopo il comando e l'indice 
+                    size_t offset = 2; // Start after command and index 
                     user_entry_t user;  
                     
                     memset(&user, 0, sizeof(user));
@@ -560,13 +558,13 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_
                 }
 
                 case REMOVE_USER: {
-                    // Comando di cancellazione utente                            
+                    // User deletion command                            
                     userdb_remove(idx);                    
                     break;
                 }
 
                 case CLEAR_USER_DB: {
-                    // Comando di cancellazione del database utenti
+                    // User database deletion command
                     userdb_clear();                    
                     break;
                 }                
@@ -593,7 +591,7 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_
                 }
                 
                 default: {
-                    printf("[BLE] Comando non riconosciuto: %02X\n", cmd);                    
+                    printf("[BLE] Unrecognized command: %02X\n", cmd);                    
                     break;
                 }
             }
@@ -784,13 +782,13 @@ void hidd_set_attr_value(uint16_t handle, uint16_t val_len, const uint8_t *value
 {
     hidd_inst_t *hidd_inst = &hidd_le_env.hidd_inst;
     
-    // Controlla se è un handle del servizio HID
+    // Check if it's a HID service handle
     if (hidd_inst->att_tbl[HIDD_LE_IDX_HID_INFO_VAL] <= handle &&
         hidd_inst->att_tbl[HIDD_LE_IDX_REPORT_REP_REF] >= handle)
     {
         esp_ble_gatts_set_attr_value(handle, val_len, value);
     }
-    // Controlla se è un handle del Battery Service
+    // Check if it's a Battery Service handle
     else if (battery_handle[BAS_IDX_SVC] <= handle && 
              battery_handle[BAS_IDX_BATT_LVL_PRES_FMT] >= handle)
     {
@@ -831,7 +829,7 @@ void battery_set_level(uint8_t battery_percentage) {
 void battery_notify_level(uint8_t battery_percentage) {
     battery_set_level(battery_percentage);
     
-    // Invia la notifica solo se c'è una connessione attiva
+    // Send notification only if there's an active connection
     if (user_mgmt_conn_id != 0) {
         esp_ble_gatts_send_indicate(
             hidd_le_env.gatt_if,

@@ -23,10 +23,10 @@ extern "C" {
 static const char *TAG = "BAT";
 static TaskHandle_t batteryNotifyTaskHandle = NULL;
 
-// ADC per monitoraggio alimentazione (basato su esempio ESP-IDF 5.5.0)
+// ADC for power monitoring (based on ESP-IDF 5.5.0 example)
 static adc_oneshot_unit_handle_t adc1_handle = NULL;
 static adc_cali_handle_t adc1_cali_vbus_handle = NULL;
-static adc_cali_handle_t adc1_cali_battery_handle = NULL;  // Usato per 3.3V rail
+static adc_cali_handle_t adc1_cali_battery_handle = NULL;  // Used for 3.3V rail
 static bool vbus_calibrated = false;
 static bool battery_calibrated = false; 
 
@@ -34,22 +34,22 @@ static bool battery_calibrated = false;
 #define ADC_ATTEN           ADC_ATTEN_DB_12
 #define ADC_BITWIDTH        ADC_BITWIDTH_DEFAULT
 
-// Task che notifica il livello batteria ogni 30 secondi
+// Task that notifies battery level every 30 seconds
 void battery_notify_task(void *pvParameters) {
-    extern uint16_t battery_handle[]; // dichiarazione esterna    
+    extern uint16_t battery_handle[]; // external declaration    
     while (1) {
         int battery_percentage = get_battery_percentage();
         if (battery_percentage >= 0) {
-            // Notifica solo se handle valido e connessione BLE attiva
+            // Notify only if handle is valid and BLE connection is active
             if (battery_handle[BAS_IDX_BATT_LVL_VAL] != 0) {
                 battery_notify_level((uint8_t)battery_percentage);
             }
         }
-        vTaskDelay(pdMS_TO_TICKS(30000)); // 30 secondi
+        vTaskDelay(pdMS_TO_TICKS(30000)); // 30 seconds
     }
 }
 
-// Funzione per avviare il task di notifica batteria
+// Function to start battery notification task
 void start_battery_notify_task(void) {
     if (batteryNotifyTaskHandle == NULL) {
         xTaskCreate(battery_notify_task, "battery_notify_task", 3000, NULL, 1, &batteryNotifyTaskHandle);
@@ -60,14 +60,14 @@ void enter_deep_sleep() {
     gpio_set_level((gpio_num_t)FP_ACTIVATE, 0);
     
 #if CONFIG_IDF_TARGET_ESP32C3
-    // ESP32-C3: usa gpio wakeup
-    esp_deep_sleep_enable_gpio_wakeup((1ULL << FP_TOUCH), ESP_GPIO_WAKEUP_GPIO_LOW);
+    // ESP32-C3: use gpio wakeup
+    esp_deep_sleep_enable_gpio_wakeup((1ULL << FP_TOUCH), ACTIVE_LEVEL ? ESP_GPIO_WAKEUP_GPIO_HIGH : ESP_GPIO_WAKEUP_GPIO_LOW);
 
 #elif CONFIG_IDF_TARGET_ESP32S3
-    // ESP32-S3: usa ext1 wakeup con RTC_IO
-    esp_sleep_enable_ext1_wakeup((1ULL << FP_TOUCH), ESP_EXT1_WAKEUP_ANY_LOW);
-    
-    // Configura il pin come RTC_IO
+    // ESP32-S3: use ext1 wakeup with RTC_IO
+    esp_sleep_enable_ext1_wakeup((1ULL << FP_TOUCH), ACTIVE_LEVEL ? ESP_EXT1_WAKEUP_ANY_HIGH: ESP_EXT1_WAKEUP_ANY_LOW);
+
+    // Configure pin as RTC_IO
     rtc_gpio_init((gpio_num_t)FP_TOUCH);
     rtc_gpio_set_direction((gpio_num_t)FP_TOUCH, RTC_GPIO_MODE_INPUT_ONLY);
     rtc_gpio_pullup_en((gpio_num_t)FP_TOUCH);
@@ -80,7 +80,7 @@ void enter_deep_sleep() {
 }
 
 
-// Funzione di calibrazione ADC (dall'esempio ESP-IDF 5.5.0)
+// ADC calibration function (from ESP-IDF 5.5.0 example)
 bool adc_calibration_init(adc_unit_t unit, adc_channel_t channel, adc_atten_t atten, adc_cali_handle_t *out_handle)
 {
     adc_cali_handle_t handle = NULL;
@@ -130,7 +130,7 @@ bool adc_calibration_init(adc_unit_t unit, adc_channel_t channel, adc_atten_t at
     return calibrated;
 }
 
-// Inizializzazione ADC per monitoraggio alimentazione (basato su esempio ESP-IDF 5.5.0)
+// ADC initialization for power monitoring (based on ESP-IDF 5.5.0 example)
 esp_err_t init_power_monitoring_adc(void) {
     esp_err_t ret = ESP_OK;
     
@@ -144,7 +144,7 @@ esp_err_t init_power_monitoring_adc(void) {
         return ret;
     }
 
-    // Configurazione canale VBUS (GPIO 3) - con divisore integrato nella dev board
+    // VBUS channel configuration (GPIO 3) - with integrated divider on dev board
     adc_oneshot_chan_cfg_t vbus_config = {
         .atten = ADC_ATTEN,
         .bitwidth = ADC_BITWIDTH,
@@ -155,7 +155,7 @@ esp_err_t init_power_monitoring_adc(void) {
         return ret;
     }
 
-    // Configurazione canale batteria - automatico da config.h
+    // Battery channel configuration - automatic from config.h
     adc_oneshot_chan_cfg_t battery_config = {
         .atten = ADC_ATTEN,
         .bitwidth = ADC_BITWIDTH,
@@ -166,16 +166,16 @@ esp_err_t init_power_monitoring_adc(void) {
         return ret;
     }
 
-    // Calibrazione per VBUS
+    // VBUS calibration
     vbus_calibrated = adc_calibration_init(ADC_UNIT_1, VBUS_ADC_CHANNEL, ADC_ATTEN, &adc1_cali_vbus_handle);
     
-    // Calibrazione per batteria  
+    // Battery calibration  
     battery_calibrated = adc_calibration_init(ADC_UNIT_1, BATTERY_ADC_CHANNEL, ADC_ATTEN, &adc1_cali_battery_handle);
 
     return ESP_OK;
 }
 
-// Lettura tensione VBUS per detection USB
+// VBUS voltage reading for USB detection
 int read_vbus_voltage_mv(void) {
     if (adc1_handle == NULL) {
         return -1;
@@ -194,10 +194,10 @@ int read_vbus_voltage_mv(void) {
             return -1;
         }
         
-        // Fattore di compensazione empirico basato sui test:
-        // Dovremmo leggere ~5000mV ma leggiamo 6292mV con compensazione 2x
-        // Fattore corretto = 5000 / 6292 * 2 = 1.59
-        voltage_mv = (voltage_mv * 159) / 100;  // Fattore 1.59 invece di 2.0
+        // Empirical compensation factor based on tests:
+        // We should read ~5000mV but we read 6292mV with 2x compensation
+        // Correct factor = 5000 / 6292 * 2 = 1.59
+        voltage_mv = (voltage_mv * 159) / 100;  // Factor 1.59 instead of 2.0
     } else {
         voltage_mv = (adc_raw * 3100) / 4095;
         voltage_mv = (voltage_mv * 159) / 100;  // Stesso fattore empirico

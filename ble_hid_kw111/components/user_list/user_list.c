@@ -15,13 +15,10 @@
 #include "oled.h"
 
 
-user_entry_t user_list[MAX_USERS]; // Lista degli account
-size_t user_count = 0;             // Numero totale degli account memorizzati
-volatile int user_index = -1;      // Indice dell'account attualmente selezionato
+user_entry_t user_list[MAX_USERS];  // Lista degli account
+size_t user_count = 0;              // Numero totale degli account memorizzati
+int user_index = -1;                // Indice dell'account attualmente selezionato
 
-// Oled handling
-int display_reset_pending = 0;      // Reset del display dopo 15 secondi
-uint32_t last_interaction_time = 0; // Memorizza il momento in cui viene scritto qualcosa sul display
 
 #define NVS_NAMESPACE "userdb"
 #define NVS_KEY "users"
@@ -33,7 +30,7 @@ static const char *TAG = "USER_DB";
 
 void send_ble_message(const char* message, uint8_t type);
 
-// Deriva una chiave sicura a 128 bit da eFuse HMAC_KEY0
+// Derives a secure 128-bit key from eFuse HMAC_KEY0
 esp_err_t get_device_key_hmac(uint8_t out_key[16]) {
     const char* context = "userdb-password-key";
     return esp_hmac_calculate(HMAC_KEY0, (const uint8_t*)context, strlen(context), out_key);
@@ -45,9 +42,9 @@ int userdb_encrypt_password(const char* plain, uint8_t* out_encrypted) {
     if (padded_len > MAX_PASSWORD_LEN) 
         return -1;
 
-    uint8_t iv[16] = {0};  // IV statico; per più sicurezza si può randomizzare
+    uint8_t iv[16] = {0};  // Static IV; for more security it can be randomized
     uint8_t input[128] = {0};
-    memcpy(input, plain, len);  // padding con 0 (puoi usare PKCS#7 se preferisci)
+    memcpy(input, plain, len);  // padding with 0 (you can use PKCS#7 if you prefer)
     mbedtls_aes_context aes;
     mbedtls_aes_init(&aes);
     mbedtls_aes_setkey_enc(&aes, decrypt_key, 128);
@@ -98,7 +95,7 @@ void userdb_dump() {
     printf("============================\n");
 }
 
-// Salva la lista utenti e il conteggio su NVS
+// Saves the user list and count to NVS
 void userdb_save() {
     nvs_handle_t handle;
     esp_err_t err = nvs_open(NVS_NAMESPACE, NVS_READWRITE, &handle);
@@ -113,7 +110,7 @@ void userdb_save() {
     printf("Users list saved (%d records)\n", user_count);
 }
 
-// Carica la lista utenti e il conteggio da NVS
+// Loads the user list and count from NVS
 void userdb_load() {
     if (get_device_key_hmac(decrypt_key) != ESP_OK)
         ESP_LOGE(TAG, "Error getting decrypt key");
@@ -135,16 +132,16 @@ void userdb_load() {
     nvs_get_u32(handle, "count", &count);
     user_count = count;
     nvs_close(handle);
-    user_index = -1;  // Reset index all'avvio
+    user_index = -1;  // Reset index at startup
 }
 
-// Aggiunge un nuovo utente 
+// Adds a new user 
 int userdb_add(user_entry_t* user) {
     if (user_count >= MAX_USERS) 
         return -1;
     user_print(user);
-    user_list[user_count] = *user; // Copia la struttura completa
-    user_list[user_count].usage_count = 0; // Inizializza il contatore di utilizzo
+    user_list[user_count] = *user; // Copy the complete structure
+    user_list[user_count].usage_count = 0; // Initialize usage counter
     user_count++;
     userdb_save();
     userdb_load();
@@ -160,7 +157,7 @@ void userdb_edit(int index, user_entry_t* user){
         return ;
 
     user_print(user);
-    user_list[index] = *user; // Copia la struttura completa
+    user_list[index] = *user; // Copy the complete structure
     userdb_save();
     userdb_load();
     oled_write_text("User update", true);
@@ -168,7 +165,7 @@ void userdb_edit(int index, user_entry_t* user){
 }
 
 
-// Rimuove un utente dato l'indice
+// Removes a user given the index
 int userdb_remove(int index) {    
 
     oled_write_text("rem user", true);    
@@ -184,7 +181,7 @@ int userdb_remove(int index) {
     return 0;
 }
 
-// Incrementa il contatore di utilizzo di un utente
+// Increments the usage counter of a user
 void userdb_increment_usage(int index) {
     if (index < 0 || index >= user_count) return;
     user_list[index].usage_count++;
@@ -192,7 +189,7 @@ void userdb_increment_usage(int index) {
     userdb_save();
 }
 
-// Ordina la lista utenti per frequenza di utilizzo (decrescente)
+// Sorts the user list by usage frequency (descending)
 void userdb_sort_by_usage() {
     for (size_t i = 0; i < user_count - 1; ++i) {
         for (size_t j = i + 1; j < user_count; ++j) {
@@ -241,8 +238,8 @@ int send_user_entry(int8_t index) {
         user_entry_t entry = user_list[index];
         size_t size = sizeof(entry);
 
-        payload_data[payload_size++] = 0xA1; // Comando per inviare un utente
-        payload_data[payload_size++] = index; // Indice dell'utente corrente
+        payload_data[payload_size++] = 0xA1; // Command to send a user
+        payload_data[payload_size++] = index; // Current user index
         if (size > sizeof(payload_data) - 2) {
             ESP_LOGE(TAG, "User entry size exceeds maximum payload size");
             return -1;
@@ -280,9 +277,9 @@ int send_user_entry(int8_t index) {
 
 void send_authenticated(bool auth) {
     user_mgmt_payload_t payload = {0};
-    payload.cmd = 0x99;  // Comando per indicare che l'utente non è autenticato
-    payload.index = 0;   // Non ha senso in questo contesto, ma serve per mantenere la struttura
-    payload.data[0] = auth ? 1 : 0; // 1 se autenticato, 0 altrimenti
+    payload.cmd = 0x99;  // Command to indicate that the user is not authenticated
+    payload.index = 0;   // Doesn't make sense in this context, but needed to maintain structure
+    payload.data[0] = auth ? 1 : 0; // 1 if authenticated, 0 otherwise
 
     esp_ble_gatts_send_indicate(
         hidd_le_env.gatt_if,
@@ -301,7 +298,7 @@ void send_authenticated(bool auth) {
 
 void send_ble_message(const char* message, uint8_t type) {
     user_mgmt_payload_t payload = {0};
-    payload.cmd = 0xAA;  // Comando per inviare un messaggio generico
+    payload.cmd = 0xAA;  // Command to send a generic message
     payload.index = type; // 0x00 Info, 0x01 Warning, 0x02 Error
 
     strncpy(payload.data, message, sizeof(payload.data) - 1);        
@@ -322,8 +319,8 @@ void send_ble_message(const char* message, uint8_t type) {
 
 void send_db_cleared() {
     user_mgmt_payload_t payload = {0};
-    payload.cmd = 0xFF;  // Comando per indicare che il db è stato cancellato
-    payload.index = 0;   // Non ha senso in questo contesto, ma serve per mantenere la struttura
+    payload.cmd = 0xFF;  // Command to indicate that the db has been cleared
+    payload.index = 0;   // Doesn't make sense in this context, but needed to maintain structure
 
     strcpy(payload.data, "Userd DB cleared");
 

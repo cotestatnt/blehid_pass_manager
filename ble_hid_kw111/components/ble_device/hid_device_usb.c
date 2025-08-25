@@ -220,7 +220,7 @@ esp_err_t usb_device_init(void)
    
     ESP_LOGI(TAG, "USB initialization");
     
-    // Ritarda l'inizializzazione per permettere al sistema di stabilizzarsi
+    // Delay initialization to allow system to stabilize
     vTaskDelay(pdMS_TO_TICKS(2000));
     
     const tinyusb_config_t tusb_cfg = {

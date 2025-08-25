@@ -12,13 +12,13 @@
 extern "C" {
 #endif
 
-// Funzione per entrare in deep sleep
+// Function to enter deep sleep
 void enter_deep_sleep();
 
 // Funzione di calibrazione ADC (dall'esempio ESP-IDF 5.5.0)
 bool adc_calibration_init(adc_unit_t unit, adc_channel_t channel, adc_atten_t atten, adc_cali_handle_t *out_handle);
 
-// Inizializzazione ADC per monitoraggio alimentazione (basato su esempio ESP-IDF 5.5.0)
+// ADC initialization for power monitoring (based on ESP-IDF 5.5.0 example)
 esp_err_t init_power_monitoring_adc(void);
 
 // Lettura tensione VBUS per detection USB
