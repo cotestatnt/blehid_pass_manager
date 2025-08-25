@@ -1,0 +1,18 @@
+menu "OLED options"
+
+config OLED_X_OFFSET
+    int "SSD1306 X column offset (pixels)"
+    default 0
+    range -8 8
+    help
+        Some SSD1306 modules have a small column offset.
+        Positive shifts text right; negative shifts left.
+
+config OLED_FONT_HEIGHT
+    int "Font height (pixels)"
+    default 10
+    range 7 14
+    help
+        Height of the resampled 5x7 font. 7 = original small, 10-12 = intermediate, 14 = near full screen.
+
+endmenu

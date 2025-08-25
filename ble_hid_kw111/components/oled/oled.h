@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/queue.h"
@@ -11,9 +12,6 @@
 #include "esp_err.h"
 #include "esp_log.h"
 #include "driver/i2c_master.h"
-
-#include "lvgl.h"
-#include "esp_lvgl_port.h"
 #include "esp_lcd_panel_vendor.h"
 
 #include "config.h"

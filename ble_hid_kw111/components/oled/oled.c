@@ -8,7 +8,6 @@
 #define OLED_TASK_PRIORITY 3
 
 static const char *TAG = "OLED";
-static lv_disp_t *disp;
 static esp_lcd_panel_handle_t panel_handle;
 
 // Debug message system
@@ -20,57 +19,214 @@ static volatile bool oled_initialized = false;
 static oled_message_t current_message = {0};
 static TickType_t message_start_time = 0;
 
-static void oled_display_message(const oled_message_t* msg) {
-    if (!oled_initialized || !disp) return;
-    
-    // Lock the mutex due to the LVGL APIs are not thread-safe
-    if (lvgl_port_lock(0)) {
-        lv_obj_t *scr = lv_disp_get_scr_act(disp);
-        lv_obj_clean(scr); // Clear the display before writing new text
-        
-        lv_obj_t *label = lv_label_create(scr);
-        lv_label_set_long_mode(label, LV_LABEL_LONG_CLIP);
-        lv_label_set_text(label, msg->text);
-        
-        // Set color/style based on message type
-        static lv_style_t style_normal, style_error, style_debug, style_status;
-        static bool styles_initialized = false;
-        
-        if (!styles_initialized) {
-            lv_style_init(&style_normal);
-            lv_style_init(&style_error);
-            lv_style_init(&style_debug);
-            lv_style_init(&style_status);
-            styles_initialized = true;
+// Simple 1bpp framebuffer (128x16 => 256 bytes)
+static uint8_t fb[LCD_H_RES * LCD_V_RES / 8];
+// Optional tuning for panel column offset if needed
+#include "sdkconfig.h"
+#ifndef OLED_X_OFFSET
+#ifdef CONFIG_OLED_X_OFFSET
+#define OLED_X_OFFSET CONFIG_OLED_X_OFFSET
+#else
+#define OLED_X_OFFSET 0
+#endif
+#endif
+
+#ifndef OLED_FONT_SCALE
+#ifdef CONFIG_OLED_FONT_SCALE
+#define OLED_FONT_SCALE CONFIG_OLED_FONT_SCALE
+#else
+#define OLED_FONT_SCALE 2
+#endif
+#endif
+
+#ifndef OLED_FONT_HEIGHT
+#ifdef CONFIG_OLED_FONT_HEIGHT
+#define OLED_FONT_HEIGHT CONFIG_OLED_FONT_HEIGHT
+#else
+#define OLED_FONT_HEIGHT 10
+#endif
+#endif
+
+// Minimal 5x7 ASCII font (columns, 5 bytes per glyph), range 0x20..0x7E
+// Each byte is a column, LSB at top. One column gap added when rendering.
+static const uint8_t font5x7[95][5] = {
+    {0x00,0x00,0x00,0x00,0x00}, // 0x20 ' '
+    {0x00,0x00,0x5F,0x00,0x00}, // 0x21 '!'
+    {0x00,0x07,0x00,0x07,0x00}, // '"'
+    {0x14,0x7F,0x14,0x7F,0x14}, // '#'
+    {0x24,0x2A,0x7F,0x2A,0x12}, // '$'
+    {0x23,0x13,0x08,0x64,0x62}, // '%'
+    {0x36,0x49,0x55,0x22,0x50}, // '&'
+    {0x00,0x05,0x03,0x00,0x00}, // '\''
+    {0x00,0x1C,0x22,0x41,0x00}, // '('
+    {0x00,0x41,0x22,0x1C,0x00}, // ')'
+    {0x14,0x08,0x3E,0x08,0x14}, // '*'
+    {0x08,0x08,0x3E,0x08,0x08}, // '+'
+    {0x00,0x50,0x30,0x00,0x00}, // ','
+    {0x08,0x08,0x08,0x08,0x08}, // '-'
+    {0x00,0x60,0x60,0x00,0x00}, // '.'
+    {0x20,0x10,0x08,0x04,0x02}, // '/'
+    {0x3E,0x51,0x49,0x45,0x3E}, // '0'
+    {0x00,0x42,0x7F,0x40,0x00}, // '1'
+    {0x72,0x49,0x49,0x49,0x46}, // '2'
+    {0x21,0x41,0x49,0x4D,0x33}, // '3'
+    {0x18,0x14,0x12,0x7F,0x10}, // '4'
+    {0x27,0x45,0x45,0x45,0x39}, // '5'
+    {0x3C,0x4A,0x49,0x49,0x31}, // '6'
+    {0x01,0x71,0x09,0x05,0x03}, // '7'
+    {0x36,0x49,0x49,0x49,0x36}, // '8'
+    {0x46,0x49,0x49,0x29,0x1E}, // '9'
+    {0x00,0x36,0x36,0x00,0x00}, // ':'
+    {0x00,0x56,0x36,0x00,0x00}, // ';'
+    {0x08,0x14,0x22,0x41,0x00}, // '<'
+    {0x14,0x14,0x14,0x14,0x14}, // '='
+    {0x00,0x41,0x22,0x14,0x08}, // '>'
+    {0x02,0x01,0x59,0x09,0x06}, // '?'
+    {0x3E,0x41,0x5D,0x59,0x4E}, // '@'
+    {0x7E,0x11,0x11,0x11,0x7E}, // 'A'
+    {0x7F,0x49,0x49,0x49,0x36}, // 'B'
+    {0x3E,0x41,0x41,0x41,0x22}, // 'C'
+    {0x7F,0x41,0x41,0x22,0x1C}, // 'D'
+    {0x7F,0x49,0x49,0x49,0x41}, // 'E'
+    {0x7F,0x09,0x09,0x09,0x01}, // 'F'
+    {0x3E,0x41,0x49,0x49,0x7A}, // 'G'
+    {0x7F,0x08,0x08,0x08,0x7F}, // 'H'
+    {0x00,0x41,0x7F,0x41,0x00}, // 'I'
+    {0x20,0x40,0x41,0x3F,0x01}, // 'J'
+    {0x7F,0x08,0x14,0x22,0x41}, // 'K'
+    {0x7F,0x40,0x40,0x40,0x40}, // 'L'
+    {0x7F,0x02,0x0C,0x02,0x7F}, // 'M'
+    {0x7F,0x04,0x08,0x10,0x7F}, // 'N'
+    {0x3E,0x41,0x41,0x41,0x3E}, // 'O'
+    {0x7F,0x09,0x09,0x09,0x06}, // 'P'
+    {0x3E,0x41,0x51,0x21,0x5E}, // 'Q'
+    {0x7F,0x09,0x19,0x29,0x46}, // 'R'
+    {0x46,0x49,0x49,0x49,0x31}, // 'S'
+    {0x01,0x01,0x7F,0x01,0x01}, // 'T'
+    {0x3F,0x40,0x40,0x40,0x3F}, // 'U'
+    {0x1F,0x20,0x40,0x20,0x1F}, // 'V'
+    {0x3F,0x40,0x38,0x40,0x3F}, // 'W'
+    {0x63,0x14,0x08,0x14,0x63}, // 'X'
+    {0x07,0x08,0x70,0x08,0x07}, // 'Y'
+    {0x61,0x51,0x49,0x45,0x43}, // 'Z'
+    {0x00,0x7F,0x41,0x41,0x00}, // '['
+    {0x02,0x04,0x08,0x10,0x20}, // '\\'
+    {0x00,0x41,0x41,0x7F,0x00}, // ']'
+    {0x04,0x02,0x01,0x02,0x04}, // '^'
+    {0x40,0x40,0x40,0x40,0x40}, // '_'
+    {0x00,0x01,0x02,0x04,0x00}, // '`'
+    {0x20,0x54,0x54,0x54,0x78}, // 'a'
+    {0x7F,0x48,0x44,0x44,0x38}, // 'b'
+    {0x38,0x44,0x44,0x44,0x20}, // 'c'
+    {0x38,0x44,0x44,0x48,0x7F}, // 'd'
+    {0x38,0x54,0x54,0x54,0x18}, // 'e'
+    {0x08,0x7E,0x09,0x01,0x02}, // 'f'
+    {0x0C,0x52,0x52,0x52,0x3E}, // 'g'
+    {0x7F,0x08,0x04,0x04,0x78}, // 'h'
+    {0x00,0x44,0x7D,0x40,0x00}, // 'i'
+    {0x20,0x40,0x44,0x3D,0x00}, // 'j'
+    {0x7F,0x10,0x28,0x44,0x00}, // 'k'
+    {0x00,0x41,0x7F,0x40,0x00}, // 'l'
+    {0x7C,0x04,0x18,0x04,0x78}, // 'm'
+    {0x7C,0x08,0x04,0x04,0x78}, // 'n'
+    {0x38,0x44,0x44,0x44,0x38}, // 'o'
+    {0x7C,0x14,0x14,0x14,0x08}, // 'p'
+    {0x08,0x14,0x14,0x18,0x7C}, // 'q'
+    {0x7C,0x08,0x04,0x04,0x08}, // 'r'
+    {0x48,0x54,0x54,0x54,0x20}, // 's'
+    {0x04,0x3F,0x44,0x40,0x20}, // 't'
+    {0x3C,0x40,0x40,0x20,0x7C}, // 'u'
+    {0x1C,0x20,0x40,0x20,0x1C}, // 'v'
+    {0x3C,0x40,0x30,0x40,0x3C}, // 'w'
+    {0x44,0x28,0x10,0x28,0x44}, // 'x'
+    {0x0C,0x50,0x50,0x50,0x3C}, // 'y'
+    {0x44,0x64,0x54,0x4C,0x44}, // 'z'
+    {0x00,0x08,0x36,0x41,0x00}, // '{'
+    {0x00,0x00,0x7F,0x00,0x00}, // '|'
+    {0x00,0x41,0x36,0x08,0x00}, // '}'
+    {0x10,0x08,0x08,0x10,0x08}, // '~'
+};
+
+static inline void fb_clear(void) {
+    memset(fb, 0x00, sizeof(fb));
+}
+
+static inline void fb_set_pixel(int x, int y, bool on) {
+    if (x < 0 || x >= LCD_H_RES || y < 0 || y >= LCD_V_RES) return;
+    size_t idx = x + (y / 8) * LCD_H_RES; // page-oriented
+    uint8_t bit = 1u << (y % 8);
+    if (on) fb[idx] |= bit; else fb[idx] &= (uint8_t)~bit;
+}
+
+static void fb_draw_char(int x, int y, char c) {
+    if (c < 0x20 || c > 0x7E) c = '?';
+    const uint8_t *glyph = font5x7[c - 0x20];
+    for (int col = 0; col < 5; col++) {
+        uint8_t bits = glyph[col];
+        for (int row = 0; row < 7; row++) {
+            bool on = bits & (1u << row);
+            fb_set_pixel(x + col, y + row, on);
         }
-        
-        switch (msg->type) {
-            case OLED_MSG_TYPE_ERROR:
-                // For monochrome display, we can't change color but we can style differently
-                lv_obj_add_style(label, &style_error, 0);
-                break;
-            case OLED_MSG_TYPE_DEBUG:
-                lv_obj_add_style(label, &style_debug, 0);
-                break;
-            case OLED_MSG_TYPE_STATUS:
-                lv_obj_add_style(label, &style_status, 0);
-                break;
-            default:
-                lv_obj_add_style(label, &style_normal, 0);
-                break;
-        }
-        
-        /* Size of the screen */
-        lv_obj_set_width(label, disp->driver->hor_res);
-        lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
-        
-        // Release the mutex
-        lvgl_port_unlock();
     }
+    // one pixel spacing column
+}
+
+static int text_width_px(const char *s) {
+    int len = (int)strlen(s);
+    if (len <= 0) return 0;
+    // 5px per char + 1px space, last char no trailing space
+    return len * 6 - 1;
+}
+
+// Resample 5x7 glyph to dest size using nearest-neighbor
+static void fb_draw_char_resampled(int x, int y, char c, int dest_w, int dest_h) {
+    if (c < 0x20 || c > 0x7E) c = '?';
+    if (dest_w < 5) dest_w = 5;
+    if (dest_h < 7) dest_h = 7;
+    const uint8_t *glyph = font5x7[c - 0x20];
+    for (int dx = 0; dx < dest_w; ++dx) {
+        int sc = (dx * 5) / dest_w; // 0..4
+        uint8_t colbits = glyph[sc];
+        for (int dy = 0; dy < dest_h; ++dy) {
+            int sr = (dy * 7) / dest_h; // 0..6
+            bool on = (colbits >> sr) & 0x1;
+            if (on) fb_set_pixel(x + dx, y + dy, true);
+        }
+    }
+}
+
+static void fb_draw_text_left_resampled(const char *text, int dest_h) {
+    fb_clear();
+    if (dest_h < 7) dest_h = 7;
+    // Keep approximate aspect ratio: width ~ 5 * dest_h / 7
+    int glyph_w = (5 * dest_h + 3) / 7;
+    if (glyph_w < 5) glyph_w = 5;
+    int y0 = (LCD_V_RES - dest_h) / 2; // vertical center in 16px
+    if (y0 < 0) y0 = 0;
+    int x = 0;
+    for (const char *p = text; *p; ++p) {
+        if (x + glyph_w > LCD_H_RES) break;
+        fb_draw_char_resampled(x, y0, *p, glyph_w, dest_h);
+        x += glyph_w + 1; // 1px spacing
+    }
+}
+
+static void oled_flush(void) {
+    // Draw full frame buffer to panel
+    // SSD1306 expects page order; esp_lcd driver accepts a packed 1bpp buffer.
+    esp_lcd_panel_draw_bitmap(panel_handle, 0, 0, LCD_H_RES, LCD_V_RES, fb);
+}
+
+static void oled_display_message(const oled_message_t* msg) {
+    if (!oled_initialized) return;
+    // Fixed single size for all messages, left-aligned
+    int target_h = OLED_FONT_HEIGHT;
+    fb_draw_text_left_resampled(msg->text, target_h);
+    oled_flush();
 
     // Update current message tracking
     current_message = *msg;
-    message_start_time = xTaskGetTickCount();    
+    message_start_time = xTaskGetTickCount();
 }
 
 static void oled_task(void *pvParameters) {
@@ -79,7 +235,7 @@ static void oled_task(void *pvParameters) {
     
     while (1) {
         // Check for new messages (non-blocking)
-        if (xQueueReceive(oled_msg_queue, &msg, 0) == pdTRUE) {
+    if (xQueueReceive(oled_msg_queue, &msg, 0) == (BaseType_t)pdTRUE) {
             // New message received - display immediately (replaces current)
             oled_display_message(&msg);
         } else {
@@ -188,7 +344,7 @@ esp_err_t oled_send_message(const oled_message_t* msg) {
     }
     
     // Send new message (non-blocking)
-    if (xQueueSend(oled_msg_queue, msg, 0) == pdTRUE) {
+    if (xQueueSend(oled_msg_queue, msg, 0) == (BaseType_t)pdTRUE) {
         return ESP_OK;
     }
     
@@ -268,36 +424,13 @@ esp_err_t oled_init(void) {
         return ret;
     }
 
-    ESP_LOGI(TAG, "Initialize LVGL");
-    const lvgl_port_cfg_t lvgl_cfg = ESP_LVGL_PORT_INIT_CONFIG();
-    ret = lvgl_port_init(&lvgl_cfg);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to initialize LVGL port: %s", esp_err_to_name(ret));
-        return ret;
+    // Rotate display 180 degrees to match previous orientation
+    // Using panel mirror in both axes is equivalent to 180deg rotation
+    esp_lcd_panel_mirror(panel_handle, true, true);
+    // Apply horizontal gap (column offset) if configured
+    if (OLED_X_OFFSET != 0) {
+        esp_lcd_panel_set_gap(panel_handle, OLED_X_OFFSET, 0);
     }
-
-    const lvgl_port_display_cfg_t disp_cfg = {
-        .io_handle = io_handle,
-        .panel_handle = panel_handle,
-        .buffer_size = LCD_H_RES * LCD_V_RES,
-        .double_buffer = true,
-        .hres = LCD_H_RES,
-        .vres = LCD_V_RES,
-        .monochrome = true,
-        .rotation = {
-            .swap_xy = false,
-            .mirror_x = false,
-            .mirror_y = false,
-        }
-    };
-    disp = lvgl_port_add_disp(&disp_cfg);
-    if (disp == NULL) {
-        ESP_LOGE(TAG, "Failed to add LVGL display");
-        return ESP_ERR_NO_MEM;
-    }
-
-    /* Rotation of the screen */
-    lv_disp_set_rotation(disp, LV_DISP_ROT_180);
 
     // Initialize debug message system
     ESP_LOGI(TAG, "Initialize OLED debug message system");
@@ -326,24 +459,21 @@ esp_err_t oled_init(void) {
     
     oled_initialized = true;
     ESP_LOGI(TAG, "OLED debug system initialized");
+
+    // Show default banner at startup
+    oled_display_message(&(oled_message_t){ .text = "BLE PassMan", .type = OLED_MSG_TYPE_STATUS, .display_time_ms = 0 });
         
     return ESP_OK;
 }
 
 
 void oled_off(void) {
-    if (disp) {
-        // Lock the mutex due to the LVGL APIs are not thread-safe
-        if (lvgl_port_lock(0)) {
-            lv_obj_t *scr = lv_disp_get_scr_act(disp);
-            lv_obj_clean(scr); // Clear the display
-            // Release the mutex
-            lvgl_port_unlock();
-        }
-        ESP_LOGI(TAG, "Turning off OLED display");
-        esp_lcd_panel_disp_on_off(panel_handle, false);
-    }
-    
+    // Clear the display content
+    fb_clear();
+    oled_flush();
+    ESP_LOGI(TAG, "Turning off OLED display");
+    esp_lcd_panel_disp_on_off(panel_handle, false);
+
     // Clean up debug system
     oled_initialized = false;
     if (oled_task_handle) {
