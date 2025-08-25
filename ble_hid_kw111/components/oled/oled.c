@@ -61,7 +61,7 @@ static void oled_display_message(const oled_message_t* msg) {
         }
         
         /* Size of the screen */
-        lv_obj_set_width(label, disp->driver->hor_res);
+        lv_obj_set_width(label, lv_disp_get_hor_res(disp));
         lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
         
         // Release the mutex
@@ -297,7 +297,7 @@ esp_err_t oled_init(void) {
     }
 
     /* Rotation of the screen */
-    lv_disp_set_rotation(disp, LV_DISP_ROT_180);
+    lv_disp_set_rotation(disp, LV_DISP_ROTATION_180);
 
     // Initialize debug message system
     ESP_LOGI(TAG, "Initialize OLED debug message system");

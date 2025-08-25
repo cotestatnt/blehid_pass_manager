@@ -1,9 +1,9 @@
 # Name, Type, SubType, Offset, Size, Flags
 nvs,      data, nvs,     0x9000,   0x6000,
 otadata,  data, ota,     0xf000,   0x2000,
-factory,  app,  factory, 0x11000,  0x180000,
-storage,  data, fat,     0x191000, 0x100000,
+factory,  app,  factory, 0x11000,  0x200000,
+storage,  data, fat,     0x211000, 0x100000,
 
 # Updated for 4MB flash - using more space efficiently
-# Total used: ~2.9MB out of 4MB available (leaves room for safety margin)
-data2,    data, nvs,     0x291000, 0x16F000,
+# Total used: ~3.1MB out of 4MB available (leaves room for safety margin)
+data2,    data, nvs,     0x311000, 0xEF000,
