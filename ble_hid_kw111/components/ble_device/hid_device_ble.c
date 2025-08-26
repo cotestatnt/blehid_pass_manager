@@ -43,7 +43,20 @@ uint32_t passkey = 123456;
 bool ble_userlist_authenticated = false;
 
 uint16_t hid_conn_id = 0;
-bool sec_conn = false;
+esp_bd_addr_t remote_bd_addr = {0}; // Store remote device address
+
+// Blacklist management for preventing immediate reconnection
+static esp_bd_addr_t blacklisted_addr = {0};
+static uint32_t blacklist_timestamp = 0;
+static const uint32_t BLACKLIST_DURATION_MS = 30000; // 30 seconds
+
+// Whitelist management variables
+static bool whitelist_enabled = false;
+static int whitelist_count = 0;
+#define MAX_WHITELIST_SIZE 10
+static esp_bd_addr_t whitelist_devices[MAX_WHITELIST_SIZE];
+
+
 
 static void hidd_event_callback(esp_hidd_cb_event_t event, esp_hidd_cb_param_t *param);
 
@@ -105,7 +118,6 @@ static void hidd_event_callback(esp_hidd_cb_event_t event, esp_hidd_cb_param_t *
     switch(event) {                
         case ESP_HIDD_EVENT_REG_FINISH: {
             if (param->init_finish.state == ESP_HIDD_INIT_OK) {
-                //esp_bd_addr_t rand_addr = {0x04,0x11,0x11,0x11,0x11,0x05};
                 esp_ble_gap_set_device_name(HIDD_DEVICE_NAME);
                 esp_ble_gap_config_adv_data(&hidd_adv_data);
             }
@@ -117,13 +129,30 @@ static void hidd_event_callback(esp_hidd_cb_event_t event, esp_hidd_cb_param_t *
 	        break;
 		case ESP_HIDD_EVENT_BLE_CONNECT: {
             ESP_LOGI(HID_DEMO_TAG, "ESP_HIDD_EVENT_BLE_CONNECT");
+            
+            // Check if the connecting device is blacklisted
+            if (is_device_blacklisted(param->connect.remote_bda)) {
+                ESP_LOGW(HID_DEMO_TAG, "Rejecting connection from blacklisted device: "ESP_BD_ADDR_STR"", 
+                         ESP_BD_ADDR_HEX(param->connect.remote_bda));
+                // Immediately disconnect the blacklisted device
+                esp_ble_gap_disconnect(param->connect.remote_bda);
+                break;
+            }
+            
             hid_conn_id = param->connect.conn_id;
+            // Store the remote device address for potential disconnection
+            memcpy(remote_bd_addr, param->connect.remote_bda, sizeof(esp_bd_addr_t));
+            ESP_LOGI(HID_DEMO_TAG, "Connected. conn_id: %u, device: "ESP_BD_ADDR_STR"", hid_conn_id, ESP_BD_ADDR_HEX(remote_bd_addr));
             break;
         }
         case ESP_HIDD_EVENT_BLE_DISCONNECT: {
-            sec_conn = false;
+            ESP_LOGI(HID_DEMO_TAG, "ESP_HIDD_EVENT_BLE_DISCONNECT - conn_id was: %u", hid_conn_id);
+            ESP_LOGI(HID_DEMO_TAG, "Remote device was: "ESP_BD_ADDR_STR"", ESP_BD_ADDR_HEX(remote_bd_addr));
+            
             hid_conn_id = 0; // Reset connection ID on disconnect
-            ESP_LOGI(HID_DEMO_TAG, "ESP_HIDD_EVENT_BLE_DISCONNECT");
+            memset(remote_bd_addr, 0, sizeof(esp_bd_addr_t)); // Clear remote address
+            ble_userlist_authenticated = false; // Reset authentication status
+            ESP_LOGI(HID_DEMO_TAG, "ESP_HIDD_EVENT_BLE_DISCONNECT - all connection variables reset");
             esp_ble_gap_start_advertising(&hidd_adv_params);
             break;
         }
@@ -161,6 +190,13 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
             ESP_LOGI(HID_DEMO_TAG, "Advertising start successfully");
             break;
         case ESP_GAP_BLE_SEC_REQ_EVT:
+            /* Check if device is blacklisted before accepting security request */
+            if (is_device_blacklisted(param->ble_security.ble_req.bd_addr)) {
+                ESP_LOGW(HID_DEMO_TAG, "Rejecting security request from blacklisted device: "ESP_BD_ADDR_STR"", 
+                         ESP_BD_ADDR_HEX(param->ble_security.ble_req.bd_addr));
+                esp_ble_gap_security_rsp(param->ble_security.ble_req.bd_addr, false);
+                break;
+            }
             /* send the positive(true) security response to the peer device to accept the security request.
             If not accept the security request, should send the security response with negative(false) accept value*/
             esp_ble_gap_security_rsp(param->ble_security.ble_req.bd_addr, true);
@@ -170,7 +206,7 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
             ESP_LOGI(HID_DEMO_TAG, "Passkey notify, passkey %06" PRIu32, param->ble_security.key_notif.passkey);
             char passkey_str[7];
             snprintf(passkey_str, sizeof(passkey_str), "%06" PRIu32, passkey); 
-            oled_write_text(passkey_str);
+            oled_write_text_permanent(passkey_str);
             break;
         case ESP_GAP_BLE_AUTH_CMPL_EVT: {
             esp_bd_addr_t bd_addr;
@@ -180,6 +216,14 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
                 ESP_LOGI(HID_DEMO_TAG, "Pairing failed, reason 0x%x",param->ble_security.auth_cmpl.fail_reason);
             } else {
                 ESP_LOGI(HID_DEMO_TAG, "Pairing successfully, auth_mode ESP_LE_AUTH_REQ_MITM");
+                
+                // Update whitelist with all bonded devices (this was a new device that just bonded)
+                // But only if whitelist is currently enabled (meaning we're in filtered mode)
+                if (whitelist_enabled) {
+                    ESP_LOGI(HID_DEMO_TAG, "New device bonded - updating whitelist");
+                    update_whitelist_from_bonded_devices();
+                    update_advertising_filter_policy();
+                }
             }
             show_bonded_devices();
             oled_write_text("BLE PassMan");            
@@ -197,7 +241,16 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
             }
             ESP_LOGI(HID_DEMO_TAG, "Local privacy config successfully");
             break;
+        case ESP_GAP_BLE_UPDATE_CONN_PARAMS_EVT: {
+            ESP_LOGI(HID_DEMO_TAG, "Connection params updated: status=%d, conn_int=%d, latency=%d, timeout=%d",
+                     param->update_conn_params.status,
+                     param->update_conn_params.conn_int,
+                     param->update_conn_params.latency,
+                     param->update_conn_params.timeout);
+            break;
+        }
         default:
+            ESP_LOGD(HID_DEMO_TAG, "Unhandled GAP BLE event: %d", event);
             break;
     }
 }
@@ -219,7 +272,6 @@ uint8_t const ble_conv_table[128][2] =  { HID_IT_IT_ASCII_TO_KEYCODE };
 // Invia una sequenza HID: pressione e rilascio
 static void ble_send_hid_key(uint8_t keycode[8]) {
     // HID report: [modifier, reserved, key1, key2, key3, key4, key5, key6]
-    
     // Send key press
     esp_hidd_send_keyboard_value(hid_conn_id, keycode[0], &keycode[2], 1);
     vTaskDelay(10 / portTICK_PERIOD_MS);
@@ -363,47 +415,362 @@ esp_err_t ble_device_init(void)
     esp_ble_gap_set_security_param(ESP_BLE_SM_SET_INIT_KEY, &init_key, sizeof(uint8_t));
     esp_ble_gap_set_security_param(ESP_BLE_SM_SET_RSP_KEY, &rsp_key, sizeof(uint8_t));
 
-    // Increare MTU size
-    // The default MTU size is 23 bytes, which is too small for HID reports    
+    // Increare MTU size. The default MTU size is 23 bytes, which is too small for HID reports    
     if ((ret = esp_ble_gatt_set_local_mtu(MAX_MTU_SIZE)) != ESP_OK) {
         ESP_LOGE("BLE", "esp_ble_gatt_set_local_mtu failed: %s", esp_err_to_name(ret));
     }
+    
+    // Initialize whitelist state - at startup accept all devices (bonded and non-bonded)
+    whitelist_enabled = false;
+    whitelist_count = 0;
+    ESP_LOGI(HID_DEMO_TAG, "Whitelist initialized - accepting all connections (bonded and non-bonded)");
+    
     return ret;
 }
 
 bool ble_is_connected(void)
 {
-    // Check if there's an active BLE connection
-    // We only need to verify hid_conn_id is not 0, as sec_conn might not always be required for basic HID functionality
-    return (hid_conn_id != 0);
+    bool has_remote_addr = false;
+    for (int i = 0; i < 6; i++) {
+        if (remote_bd_addr[i] != 0) {
+            has_remote_addr = true;
+            break;
+        }
+    }
+    return has_remote_addr;
 }
 
-uint16_t ble_get_conn_id(void)
-{
-    return hid_conn_id;
-}
 
 esp_err_t ble_force_disconnect(void)
 {
-    if (hid_conn_id != 0) {
-        ESP_LOGI(HID_DEMO_TAG, "Force disconnecting BLE connection");
-        esp_err_t ret = esp_ble_gatts_close(hidd_le_env.gatt_if, hid_conn_id);
+    static bool disconnect_in_progress = false;
+    
+    // Prevent recursive calls
+    if (disconnect_in_progress) {
+        ESP_LOGW(HID_DEMO_TAG, "ble_force_disconnect already in progress - ignoring call");
+        return ESP_ERR_INVALID_STATE;
+    }
+    disconnect_in_progress = true;
+    
+    ESP_LOGI(HID_DEMO_TAG, "ble_force_disconnect called - hid_conn_id: %u", hid_conn_id);
+    ESP_LOGI(HID_DEMO_TAG, "Remote address: "ESP_BD_ADDR_STR"", ESP_BD_ADDR_HEX(remote_bd_addr));
+        
+    if (ble_is_connected()) {
+        ESP_LOGI(HID_DEMO_TAG, "Attempting to disconnect BLE connection");
+
+        // Add device to blacklist before disconnecting
+        blacklist_device(remote_bd_addr);
+        
+        // Enable whitelist filtering to prevent immediate reconnection
+        enable_whitelist_filtering();
+        
+        esp_err_t ret = esp_ble_gap_disconnect(remote_bd_addr);
         if (ret != ESP_OK) {
-            ESP_LOGE(HID_DEMO_TAG, "Failed to close GATTS connection: %s", esp_err_to_name(ret));
-            return ret;
+            ESP_LOGE(HID_DEMO_TAG, "esp_ble_gap_disconnect failed: %s", esp_err_to_name(ret));
+        } else {
+            ESP_LOGI(HID_DEMO_TAG, "GAP disconnect request sent successfully");
+            disconnect_in_progress = false;
+            return ret; // Return early on success
         }
         
-        // Reset connection variables
-        hid_conn_id = 0;
-        sec_conn = false;
-        ble_userlist_authenticated = false;
-        
-        // Restart advertising for configuration mode
-        ESP_LOGI(HID_DEMO_TAG, "Restarting advertising for configuration mode");
-        return esp_ble_gap_start_advertising(&hidd_adv_params);
+        disconnect_in_progress = false;
+        return ret;
+    }
+    
+    ESP_LOGW(HID_DEMO_TAG, "No active connection to disconnect (hid_conn_id=0 and no remote address)");
+    
+    // Make sure advertising is running if we're not connected
+    esp_err_t adv_ret = esp_ble_gap_start_advertising(&hidd_adv_params);
+    if (adv_ret == ESP_OK) {
+        ESP_LOGI(HID_DEMO_TAG, "Advertising restarted");
+    } else {
+        ESP_LOGW(HID_DEMO_TAG, "Failed to restart advertising: %s", esp_err_to_name(adv_ret));
+    }
+    
+    disconnect_in_progress = false;
+    return ESP_OK;
+}
+
+esp_err_t ble_force_disconnect_and_clear(void)
+{
+    ESP_LOGI(HID_DEMO_TAG, "ble_force_disconnect_and_clear called - forcing cleanup regardless of connection state");
+    
+    // First try the normal disconnect
+    esp_err_t ret = ble_force_disconnect();
+    
+    // Then force cleanup regardless of the result
+    ESP_LOGI(HID_DEMO_TAG, "Forcing connection state reset");
+    hid_conn_id = 0;
+    
+    ble_userlist_authenticated = false;
+    memset(remote_bd_addr, 0, sizeof(esp_bd_addr_t));
+    
+    // Make sure advertising is running
+    ret = esp_ble_gap_start_advertising(&hidd_adv_params);
+    if (ret == ESP_OK) {
+        ESP_LOGI(HID_DEMO_TAG, "Advertising restarted after forced cleanup");
+    } else {
+        ESP_LOGW(HID_DEMO_TAG, "Failed to restart advertising after forced cleanup: %s", esp_err_to_name(ret));
     }
     
     return ESP_OK;
+}
+
+void ble_clear_blacklist(void)
+{
+    if (blacklist_timestamp != 0) {
+        ESP_LOGI(HID_DEMO_TAG, "Manually clearing blacklist for device: "ESP_BD_ADDR_STR"", 
+                 ESP_BD_ADDR_HEX(blacklisted_addr));
+        memset(blacklisted_addr, 0, sizeof(esp_bd_addr_t));
+        blacklist_timestamp = 0;
+        
+        // Return to initial state: disable whitelist to accept all devices (bonded and non-bonded)
+        ESP_LOGI(HID_DEMO_TAG, "Returning to initial state - accepting all devices");
+        disable_whitelist_filtering();
+    } else {
+        ESP_LOGI(HID_DEMO_TAG, "Blacklist is already empty");
+    }
+}
+
+void ble_get_connection_info(esp_bd_addr_t *remote_addr, bool *is_bonded)
+{
+    if (remote_addr) {
+        if (hid_conn_id != 0) {
+            memcpy(remote_addr, remote_bd_addr, sizeof(esp_bd_addr_t));
+        } else {
+            memset(remote_addr, 0, sizeof(esp_bd_addr_t));
+        }
+    }
+    
+    if (is_bonded) {
+        *is_bonded = false;
+        if (hid_conn_id != 0) {
+            // Get bonded devices to check if current connection is bonded
+            int dev_num = esp_ble_get_bond_device_num();
+            if (dev_num > 0) {
+                esp_ble_bond_dev_t *dev_list = (esp_ble_bond_dev_t *)malloc(sizeof(esp_ble_bond_dev_t) * dev_num);
+                if (dev_list) {
+                    esp_ble_get_bond_device_list(&dev_num, dev_list);
+                    
+                    // Check if the current remote address is in the bonded devices list
+                    for (int i = 0; i < dev_num; i++) {
+                        if (memcmp(remote_bd_addr, dev_list[i].bd_addr, sizeof(esp_bd_addr_t)) == 0) {
+                            *is_bonded = true;
+                            break;
+                        }
+                    }
+                    free(dev_list);
+                }
+            }
+        }
+    }
+}
+
+esp_err_t ble_remove_all_bonded_devices(void)
+{
+    esp_err_t ret = ESP_OK;
+    int dev_num = esp_ble_get_bond_device_num();
+    
+    if (dev_num == 0) {
+        ESP_LOGI(HID_DEMO_TAG, "No bonded devices to remove");
+        return ESP_OK;
+    }
+
+    ESP_LOGI(HID_DEMO_TAG, "Removing %d bonded device(s)", dev_num);
+    
+    esp_ble_bond_dev_t *dev_list = (esp_ble_bond_dev_t *)malloc(sizeof(esp_ble_bond_dev_t) * dev_num);
+    if (!dev_list) {
+        ESP_LOGE(HID_DEMO_TAG, "Failed to allocate memory for device list");
+        return ESP_ERR_NO_MEM;
+    }
+    
+    esp_ble_get_bond_device_list(&dev_num, dev_list);
+    
+    for (int i = 0; i < dev_num; i++) {
+        ESP_LOGI(HID_DEMO_TAG, "Removing bonded device [%d]: "ESP_BD_ADDR_STR"", 
+                 i, ESP_BD_ADDR_HEX(dev_list[i].bd_addr));
+        
+        esp_err_t remove_ret = esp_ble_remove_bond_device(dev_list[i].bd_addr);
+        if (remove_ret != ESP_OK) {
+            ESP_LOGE(HID_DEMO_TAG, "Failed to remove bonded device [%d]: %s", 
+                     i, esp_err_to_name(remove_ret));
+            ret = remove_ret;
+        }
+    }
+    
+    free(dev_list);
+    
+    if (ret == ESP_OK) {
+        ESP_LOGI(HID_DEMO_TAG, "All bonded devices removed successfully");
+    }
+    
+    return ret;
+}
+
+
+/*
+Logica di funzionamento.
+All'avvio: whitelist disabilitata (whitelist_enabled = false)
+hidd_adv_params.adv_filter_policy = ADV_FILTER_ALLOW_SCAN_ANY_CON_ANY
+Accetta connessioni da qualsiasi dispositivo (bonded e non bonded)
+
+Connessione di un dispositivo non bonded: Il dispositivo può connettersi e fare pairing
+Dopo il pairing completato con successo (ESP_GAP_BLE_AUTH_CMPL_EVT), se la whitelist è attiva, viene aggiornata
+
+Pressione dei pulsanti (3 secondi): Il dispositivo corrente viene blacklistato
+Si attiva la whitelist con tutti i dispositivi bonded ECCETTO quello blacklistato
+hidd_adv_params.adv_filter_policy = ADV_FILTER_ALLOW_SCAN_ANY_CON_WLST
+Solo i dispositivi in whitelist possono connettersi
+
+Dopo 30 secondi: La blacklist scade automaticamente
+Si disattiva la whitelist e si torna alle condizioni iniziali (accetta tutti i dispositivi)
+*/
+
+// Blacklist management functions
+bool is_device_blacklisted(const esp_bd_addr_t addr) {
+    // Check if blacklist has expired
+    uint32_t current_time = xTaskGetTickCount() * portTICK_PERIOD_MS;
+    if (blacklist_timestamp != 0 && (current_time - blacklist_timestamp) > BLACKLIST_DURATION_MS) {
+        // Blacklist expired, clear it
+        memset(blacklisted_addr, 0, sizeof(esp_bd_addr_t));
+        blacklist_timestamp = 0;
+        ESP_LOGI(HID_DEMO_TAG, "Blacklist expired and cleared");
+        return false;
+    }
+    
+    // Check if device is blacklisted
+    if (blacklist_timestamp != 0 && memcmp(blacklisted_addr, addr, sizeof(esp_bd_addr_t)) == 0) {
+        uint32_t remaining_time = BLACKLIST_DURATION_MS - (current_time - blacklist_timestamp);
+        ESP_LOGI(HID_DEMO_TAG, "Device "ESP_BD_ADDR_STR" is blacklisted for %lu more seconds", ESP_BD_ADDR_HEX(addr), remaining_time / 1000);
+        return true;
+    }
+    
+    return false;
+}
+
+void blacklist_device(const esp_bd_addr_t addr) {
+    memcpy(blacklisted_addr, addr, sizeof(esp_bd_addr_t));
+    blacklist_timestamp = xTaskGetTickCount() * portTICK_PERIOD_MS;
+    ESP_LOGI(HID_DEMO_TAG, "Device "ESP_BD_ADDR_STR" blacklisted for %d seconds", ESP_BD_ADDR_HEX(addr), BLACKLIST_DURATION_MS / 1000);
+}
+
+// Whitelist management functions
+void update_whitelist_from_bonded_devices(void) {
+    // Clear current whitelist
+    whitelist_count = 0;
+    memset(whitelist_devices, 0, sizeof(whitelist_devices));
+    
+    // Get bonded devices
+    int dev_num = esp_ble_get_bond_device_num();
+    if (dev_num == 0) {
+        ESP_LOGI(HID_DEMO_TAG, "No bonded devices for whitelist");
+        return;
+    }
+
+    esp_ble_bond_dev_t *dev_list = (esp_ble_bond_dev_t *)malloc(sizeof(esp_ble_bond_dev_t) * dev_num);
+    if (!dev_list) {
+        ESP_LOGE(HID_DEMO_TAG, "Failed to allocate memory for device list");
+        return;
+    }
+    
+    esp_ble_get_bond_device_list(&dev_num, dev_list);
+    
+    // Add bonded devices to whitelist (excluding blacklisted device)
+    for (int i = 0; i < dev_num && whitelist_count < MAX_WHITELIST_SIZE; i++) {
+        if (!is_device_blacklisted(dev_list[i].bd_addr)) {
+            memcpy(whitelist_devices[whitelist_count], dev_list[i].bd_addr, sizeof(esp_bd_addr_t));
+            ESP_LOGI(HID_DEMO_TAG, "Added to whitelist[%d]: "ESP_BD_ADDR_STR"", whitelist_count, ESP_BD_ADDR_HEX(dev_list[i].bd_addr));
+            whitelist_count++;
+        } else {
+            ESP_LOGI(HID_DEMO_TAG, "Excluded blacklisted device from whitelist: "ESP_BD_ADDR_STR"", ESP_BD_ADDR_HEX(dev_list[i].bd_addr));
+        }
+    }
+    
+    free(dev_list);
+    ESP_LOGI(HID_DEMO_TAG, "Whitelist updated with %d devices", whitelist_count);
+}
+
+esp_err_t update_advertising_filter_policy(void) {
+    extern esp_ble_adv_params_t hidd_adv_params;  // Access to global variable
+    esp_err_t ret;
+    
+    // Stop current advertising
+    ret = esp_ble_gap_stop_advertising();
+    if (ret != ESP_OK) {
+        ESP_LOGE(HID_DEMO_TAG, "Failed to stop advertising: %s", esp_err_to_name(ret));
+        return ret;
+    }
+    
+    // Wait a bit for advertising to stop
+    vTaskDelay(100 / portTICK_PERIOD_MS);
+    
+    if (whitelist_enabled && whitelist_count > 0) {
+        // Clear existing whitelist first
+        ret = esp_ble_gap_clear_whitelist();
+        if (ret != ESP_OK) {
+            ESP_LOGE(HID_DEMO_TAG, "Failed to clear whitelist: %s", esp_err_to_name(ret));
+        }
+        
+        // Add devices to whitelist
+        for (int i = 0; i < whitelist_count; i++) {
+            ret = esp_ble_gap_update_whitelist(true, whitelist_devices[i], BLE_ADDR_TYPE_PUBLIC);
+            if (ret != ESP_OK) {
+                ESP_LOGE(HID_DEMO_TAG, "Failed to add device %d to whitelist: %s", i, esp_err_to_name(ret));
+            } else {
+                ESP_LOGI(HID_DEMO_TAG, "Added device %d to whitelist: "ESP_BD_ADDR_STR"", i, ESP_BD_ADDR_HEX(whitelist_devices[i]));
+            }
+        }
+        
+        // Update advertising parameters to use whitelist for connections
+        hidd_adv_params.adv_filter_policy = ADV_FILTER_ALLOW_SCAN_ANY_CON_WLST;
+        ESP_LOGI(HID_DEMO_TAG, "Advertising with whitelist filter enabled (%d devices)", whitelist_count);
+    } else {
+        // Clear whitelist and allow all connections
+        ret = esp_ble_gap_clear_whitelist();
+        if (ret != ESP_OK) {
+            ESP_LOGE(HID_DEMO_TAG, "Failed to clear whitelist: %s", esp_err_to_name(ret));
+        }
+        
+        hidd_adv_params.adv_filter_policy = ADV_FILTER_ALLOW_SCAN_ANY_CON_ANY;
+        ESP_LOGI(HID_DEMO_TAG, "Advertising with no filter (allow all connections)");
+    }
+    
+    // Restart advertising with new filter policy
+    ret = esp_ble_gap_start_advertising(&hidd_adv_params);
+    if (ret != ESP_OK) {
+        ESP_LOGE(HID_DEMO_TAG, "Failed to restart advertising: %s", esp_err_to_name(ret));
+        return ret;
+    }
+    
+    return ESP_OK;
+}
+
+void enable_whitelist_filtering(void) {
+    whitelist_enabled = true;
+    update_whitelist_from_bonded_devices();
+    update_advertising_filter_policy();
+}
+
+void disable_whitelist_filtering(void) {
+    whitelist_enabled = false;
+    whitelist_count = 0;
+    update_advertising_filter_policy();
+}
+
+// Public function to check and update blacklist/whitelist status
+void ble_check_blacklist_expiry(void) {
+    if (blacklist_timestamp != 0) {
+        uint32_t current_time = xTaskGetTickCount() * portTICK_PERIOD_MS;
+        if ((current_time - blacklist_timestamp) > BLACKLIST_DURATION_MS) {
+            // Blacklist expired
+            memset(blacklisted_addr, 0, sizeof(esp_bd_addr_t));
+            blacklist_timestamp = 0;
+            ESP_LOGI(HID_DEMO_TAG, "Blacklist expired - returning to initial state (accept all devices)");
+            
+            // Return to initial state: disable whitelist to accept all devices (bonded and non-bonded)
+            disable_whitelist_filtering();
+        }
+    }
 }
 
 

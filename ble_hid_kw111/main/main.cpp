@@ -53,7 +53,7 @@ void button_task(void *pvParameters)
         int btn_down = gpio_get_level((gpio_num_t)BUTTON_DOWN);
 
         // Check if both buttons are pressed simultaneously
-        if (btn_up == 0 && btn_down == 0) {
+        if ( btn_down == 0  /*&& btn_up == 0*/ ) {
             if (!both_buttons_active) {
                 both_buttons_active = true;
                 both_buttons_pressed_time = xTaskGetTickCount();
@@ -64,8 +64,7 @@ void button_task(void *pvParameters)
                 uint32_t current_time = xTaskGetTickCount();
                 if ((current_time - both_buttons_pressed_time) >= pdMS_TO_TICKS(DISCONNECT_HOLD_TIME_MS)) {
                     bool is_connected = ble_is_connected();
-                    uint16_t conn_id = ble_get_conn_id();
-                    ESP_LOGI(TAG, "Disconnect timeout reached. BLE connected: %s, hid_conn_id: %u", is_connected ? "YES" : "NO", conn_id);
+                    ESP_LOGI(TAG, "Disconnect timeout reached. BLE connected: %s", is_connected ? "YES" : "NO");
                     
                     if (is_connected) {
                         ESP_LOGI(TAG, "Disconnecting BLE and restarting advertising for configuration mode");
@@ -143,6 +142,10 @@ void button_task(void *pvParameters)
 
         last_btn_up = btn_up;
         last_btn_down = btn_down;
+        
+        // Check if blacklist has expired (chiamata periodica ogni 100ms)
+        ble_check_blacklist_expiry();
+        
         vTaskDelay(pdMS_TO_TICKS(100));
     }
 }
@@ -193,7 +196,7 @@ extern "C" void app_main(void) {
 
     // Start buttons task
     ESP_LOGI(TAG, "Starting button task...");
-    xTaskCreate(button_task, "button_task", 2048, NULL, 5, &buttonsTaskHandle);
+    xTaskCreate(button_task, "button_task", 4096, NULL, 5, &buttonsTaskHandle);
 
     // Initialize fingerprint task
     ESP_LOGI(TAG, "Starting fingerprint task...");

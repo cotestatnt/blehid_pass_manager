@@ -21,24 +21,6 @@ static TickType_t message_start_time = 0;
 
 // Simple 1bpp framebuffer (128x16 => 256 bytes)
 static uint8_t fb[LCD_H_RES * LCD_V_RES / 8];
-// Optional tuning for panel column offset if needed
-#include "sdkconfig.h"
-#ifndef OLED_X_OFFSET
-#ifdef CONFIG_OLED_X_OFFSET
-#define OLED_X_OFFSET CONFIG_OLED_X_OFFSET
-#else
-#define OLED_X_OFFSET 0
-#endif
-#endif
-
-#ifndef OLED_FONT_HEIGHT
-#ifdef CONFIG_OLED_FONT_HEIGHT
-#define OLED_FONT_HEIGHT CONFIG_OLED_FONT_HEIGHT
-#else
-#define OLED_FONT_HEIGHT 10
-#endif
-#endif
-
 
 // 8x14 ASCII font - Struttura con 14 righe di uint8_t per carattere
 // Ogni uint8_t rappresenta una riga orizzontale del carattere (8 bit per riga)
@@ -402,11 +384,10 @@ esp_err_t oled_init(void) {
     // Rotate display 180 degrees to match previous orientation
     // Using panel mirror in both axes is equivalent to 180deg rotation
     esp_lcd_panel_mirror(panel_handle, true, true);
-    // Apply horizontal gap (column offset) if configured
-    if (OLED_X_OFFSET != 0) {
-        esp_lcd_panel_set_gap(panel_handle, OLED_X_OFFSET, 0);
-    }
 
+    // Apply horizontal gap (column offset) if configured
+    // esp_lcd_panel_set_gap(panel_handle, OLED_X_OFFSET, 0);
+    
     // Initialize debug message system
     ESP_LOGI(TAG, "Initialize OLED debug message system");
     oled_msg_queue = xQueueCreate(OLED_QUEUE_SIZE, sizeof(oled_message_t));
