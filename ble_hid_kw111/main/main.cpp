@@ -35,6 +35,9 @@ uint32_t last_interaction_time = 0;
 void button_task(void *pvParameters)
 {
     int last_btn_up = 1, last_btn_down = 1;
+    uint32_t both_buttons_pressed_time = 0;
+    bool both_buttons_active = false;
+    const uint32_t DISCONNECT_HOLD_TIME_MS = 3000; // 3 secondi
 
     // Configure button pins as input with pull-up
     gpio_config_t io_conf = {};
@@ -49,51 +52,93 @@ void button_task(void *pvParameters)
         int btn_up = gpio_get_level((gpio_num_t)BUTTON_UP);
         int btn_down = gpio_get_level((gpio_num_t)BUTTON_DOWN);
 
-        // Up button (PIN 6) pressed (HIGH to LOW transition)
-        if (last_btn_up == 1 && btn_up == 0) {
-            last_interaction_time = xTaskGetTickCount();
-            user_index = (user_index + 1) ;
-
-            if (user_index >= user_count) {
-                user_index = 0;
-            } 
-        
-            const char* username = user_list[user_index].label;                            
-            printf("Selected account (%d): %s\n", user_index, username);
-            oled_write_text(username, true);            
-            
-            #if DEBUG_PASSWD
-            uint8_t* encoded = user_list[user_index].password_enc;
-            size_t len = user_list[user_index].password_len;
-            char plain[128];
-            if (userdb_decrypt_password(encoded, len, plain) == 0)            
-                printf("Password (decrypted): %s\n", plain);
-            else 
-                printf("Decrypt error");
-            #endif
-            
-        }
-        // Down button (PIN 7) pressed (HIGH to LOW transition)
-        if (last_btn_down == 1 && btn_down == 0) {
-            last_interaction_time = xTaskGetTickCount();
-            user_index = (user_index - 1);            
-            if (user_index < 0) {
-                user_index = user_count - 1;
+        // Check if both buttons are pressed simultaneously
+        if (btn_up == 0 && btn_down == 0) {
+            if (!both_buttons_active) {
+                both_buttons_active = true;
+                both_buttons_pressed_time = xTaskGetTickCount();
+                ESP_LOGI(TAG, "Both buttons pressed - hold for 3 seconds to disconnect");
+                oled_write_text("Hold to disconnect");
+            } else {
+                // Check if buttons have been held for the required time
+                uint32_t current_time = xTaskGetTickCount();
+                if ((current_time - both_buttons_pressed_time) >= pdMS_TO_TICKS(DISCONNECT_HOLD_TIME_MS)) {
+                    bool is_connected = ble_is_connected();
+                    uint16_t conn_id = ble_get_conn_id();
+                    ESP_LOGI(TAG, "Disconnect timeout reached. BLE connected: %s, hid_conn_id: %u", is_connected ? "YES" : "NO", conn_id);
+                    
+                    if (is_connected) {
+                        ESP_LOGI(TAG, "Disconnecting BLE and restarting advertising for configuration mode");
+                        oled_write_text("Disconnect BT");
+                        ble_force_disconnect();
+                        vTaskDelay(pdMS_TO_TICKS(1000));
+                        oled_write_text("Config Mode");
+                    } else {
+                        ESP_LOGI(TAG, "No BLE connection to disconnect");
+                        oled_write_text("Not connected");
+                        vTaskDelay(pdMS_TO_TICKS(1000));
+                        oled_write_text("BLE PassMan");
+                    }
+                    both_buttons_active = false;
+                    last_interaction_time = xTaskGetTickCount();
+                }
+            }
+        } else {
+            if (both_buttons_active) {
+                both_buttons_active = false;
+                ESP_LOGI(TAG, "Both buttons released before disconnect timeout");
+                oled_write_text("BLE PassMan");
             }
 
-            const char* username = user_list[user_index].label;
-            printf("Selected account (%d): %s\n", user_index, username);
-            oled_write_text(username, true);            
-            
-            #if DEBUG_PASSWD
-            uint8_t* encoded = user_list[user_index].password_enc;
-            size_t len = user_list[user_index].password_len;
-            char plain[128];
-            if (userdb_decrypt_password(encoded, len, plain) == 0)
-                printf("Password (decrypted): %s\n", plain);
-            else 
-                printf("Decrypt error");
-            #endif            
+            // Single button logic (only if both buttons are not active)
+            if (!both_buttons_active) {
+                // Up button (PIN 6) pressed (HIGH to LOW transition)
+                if (last_btn_up == 1 && btn_up == 0) {
+                    last_interaction_time = xTaskGetTickCount();
+                    user_index = (user_index + 1) ;
+
+                    if (user_index >= user_count) {
+                        user_index = 0;
+                    } 
+                
+                    const char* username = user_list[user_index].label;                            
+                    printf("Selected account (%d): %s\n", user_index, username);
+                    oled_write_text(username);            
+                    
+                    #if DEBUG_PASSWD
+                    uint8_t* encoded = user_list[user_index].password_enc;
+                    size_t len = user_list[user_index].password_len;
+                    char plain[128];
+                    if (userdb_decrypt_password(encoded, len, plain) == 0)            
+                        printf("Password (decrypted): %s\n", plain);
+                    else 
+                        printf("Decrypt error");
+                    #endif
+                    
+                }
+                // Down button (PIN 7) pressed (HIGH to LOW transition)
+                if (last_btn_down == 1 && btn_down == 0) {
+                    last_interaction_time = xTaskGetTickCount();
+                    user_index = (user_index - 1);            
+                    if (user_index < 0) {
+                        user_index = user_count - 1;
+                    }
+
+                    const char* username = user_list[user_index].label;
+                    printf("Selected account (%d): %s\n", user_index, username);
+                    oled_write_text(username);            
+                    
+                    #if DEBUG_PASSWD
+                    uint8_t* encoded = user_list[user_index].password_enc;
+                    size_t len = user_list[user_index].password_len;
+                    char plain[128];
+                    if (userdb_decrypt_password(encoded, len, plain) == 0)
+                        printf("Password (decrypted): %s\n", plain);
+                    else 
+                        printf("Decrypt error");
+                    #endif            
+                }
+            }
         }
 
         last_btn_up = btn_up;
@@ -124,7 +169,7 @@ extern "C" void app_main(void) {
         // Continue without OLED if it fails
     } else {
         // Show initial message
-        oled_write_text("BLE PassMan", false);
+        oled_write_text_permanent("BLE PassMan");
     }    
 
     // Initialize and start the BLE management task
@@ -173,10 +218,6 @@ extern "C" void app_main(void) {
                 break;
             }
         }
-        
-        // TEST ONLY
-        usb_needed = false;
-        // TEST ONLY
 
         if (usb_needed) {
             ESP_LOGI(TAG, "USB connected and needed - initializing USB HID");            
@@ -200,7 +241,7 @@ extern "C" void app_main(void) {
     last_interaction_time = xTaskGetTickCount();
     while(true) {
         
-        // if (!usb_available) {
+        if (!usb_available) {
             if (xTaskGetTickCount() - last_interaction_time > pdMS_TO_TICKS(60000)) {                
                 oled_off();
                 #if SLEEP_ENABLE
@@ -209,7 +250,7 @@ extern "C" void app_main(void) {
                 enter_deep_sleep();
                 #endif
             }
-        // }
+        }
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }

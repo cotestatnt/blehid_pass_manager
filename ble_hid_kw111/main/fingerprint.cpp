@@ -24,14 +24,14 @@ bool enrollFinger()
     TickType_t now = xTaskGetTickCount();
 
     enrolling_in_progress = true;
-    oled_write_text("Set new FP", true);
+    oled_write_text("Set new FP");
     vTaskDelay(pdMS_TO_TICKS(2000));
     
     /* Take snapshots of the finger, and extract the fingerprint features from each image */
     for (int i = 0; i < NUM_SNAPSHOTS; i++)
     {
         ESP_LOGI(TAG, "Place a finger");
-        oled_write_text("Place finger", true);
+        oled_write_text("Place finger");
 
         do {
             status = fpm->getImage();    
@@ -39,7 +39,7 @@ bool enrollFinger()
             {
                 case FPMStatus::OK:
                     ESP_LOGI(TAG, "Image taken");
-                    oled_write_text("Image taken", true);
+                    oled_write_text("Image taken");
                     vTaskDelay(pdMS_TO_TICKS(200));
                     now = xTaskGetTickCount();
                     break;
@@ -56,7 +56,7 @@ bool enrollFinger()
             
             if (xTaskGetTickCount() - now > pdMS_TO_TICKS(10000)) {
                 ESP_LOGE(TAG, "Timeout waiting for finger");
-                oled_write_text("Timeout", true);
+                oled_write_text("Timeout");
                 vTaskDelay(pdMS_TO_TICKS(1000));
                 enrolling_in_progress = false;
                 return false;                
@@ -75,13 +75,13 @@ bool enrollFinger()
                 
             default:
                 ESP_LOGI(TAG, "image2Tz(%d): error 0x%X", i+1, static_cast<uint16_t>(status));        
-                oled_write_text("Image error", true);                
+                oled_write_text("Image error");                
                 vTaskDelay(pdMS_TO_TICKS(2000));        
                 return false;
         }
 
         ESP_LOGI(TAG, "Remove finger");
-        oled_write_text("Lift finger", true);  
+        oled_write_text("Lift finger");  
         vTaskDelay(500 / portTICK_PERIOD_MS);
         do {
             status = fpm->getImage();
@@ -113,19 +113,19 @@ bool enrollFinger()
     {
         case FPMStatus::OK:
             ESP_LOGI(TAG, "Template stored at ID %d!", num_fingerprints);       
-            oled_write_text("Template stored", true);    
+            oled_write_text("Template stored");    
             vTaskDelay(pdMS_TO_TICKS(1000));
             break;
             
         case FPMStatus::BADLOCATION:
             ESP_LOGE(TAG, "Could not store in that location %d!", num_fingerprints);
-            oled_write_text("Store error", true);
+            oled_write_text("Store error");
             vTaskDelay(pdMS_TO_TICKS(2000));
             return false;
             
         default:
             ESP_LOGE(TAG, "storeModel(): error 0x%X", static_cast<uint16_t>(status));
-            oled_write_text("Template error", true);
+            oled_write_text("Template error");
             vTaskDelay(pdMS_TO_TICKS(2000));
             return false;
     }
@@ -135,7 +135,7 @@ bool enrollFinger()
     ESP_LOGI(TAG, " >> Enroll process completed successfully!\n");
     char message[20];
     snprintf(message, sizeof(message), "Enroll %02d", num_fingerprints);
-    oled_write_text(message, true);
+    oled_write_text(message);
     enrolling_in_progress = false;
     
     return true;
@@ -145,9 +145,9 @@ bool clearFingerprintDB()
 {
     bool confirmed = false;
 
-    oled_write_text("Clear FPs DB", true);
+    oled_write_text("Clear FPs DB");
     vTaskDelay(pdMS_TO_TICKS(1000));
-    oled_write_text("Put finger", true);
+    oled_write_text("Put finger");
 
     uint32_t timeout = xTaskGetTickCount() + pdMS_TO_TICKS(8000);
     while (!confirmed && xTaskGetTickCount() < timeout) { 
@@ -157,7 +157,7 @@ bool clearFingerprintDB()
 
     if (!confirmed) {
         ESP_LOGE(TAG, "No finger detected or no match found. Aborting clear operation.");
-        oled_write_text("No match found", true);
+        oled_write_text("No match found");
         return false;
     } 
     else {
@@ -186,7 +186,7 @@ int searchDatabase() {
 
     /* Take a snapshot of the input finger */
     ESP_LOGI(TAG, "Place a finger");
-    oled_write_text("Searching...", true);
+    oled_write_text("Searching...");
     TickType_t now = xTaskGetTickCount();
 
     do {
@@ -236,13 +236,13 @@ int searchDatabase() {
         ESP_LOGI(TAG, "Found a match at ID #%u with confidence %u", fid, score);        
         char message[20];
         snprintf(message, sizeof(message), "Match ID %02d", fid);
-        oled_write_text(message, true);        
+        oled_write_text(message);        
         vTaskDelay(500 / portTICK_PERIOD_MS);
         break;
 
     case FPMStatus::NOTFOUND:
         ESP_LOGI(TAG, "Did not find a match.");
-        oled_write_text("No match", true);
+        oled_write_text("No match");
         vTaskDelay(1000 / portTICK_PERIOD_MS);
         break;
 
@@ -331,7 +331,7 @@ void fingerprint_task(void *pvParameters) {
 
         if (num_fingerprints == 0) {
             ESP_LOGW(TAG, "No templates found in the library. Please enroll a finger.");
-            oled_write_text("No root FP", true);            
+            oled_write_text("No root FP");            
             vTaskDelay(pdMS_TO_TICKS(1000));
             enrollFinger();
         }
@@ -427,16 +427,16 @@ void fingerprint_task(void *pvParameters) {
 
                         char message[20];
                         snprintf(message, sizeof(message), "Finger ID: %02d", finger_index);
-                        oled_write_text(message, true);
+                        oled_write_text(message);
                     }  
                     else {
                         ESP_LOGE(TAG, "Decrypt error");
-                        oled_write_text("Decrypt err", true);
+                        oled_write_text("Decrypt err");
                     }               
                 }
                 else {
                     ESP_LOGW(TAG, "No account selected");
-                    oled_write_text("No account", true);
+                    oled_write_text("No account");
                 }
             } 
             else {

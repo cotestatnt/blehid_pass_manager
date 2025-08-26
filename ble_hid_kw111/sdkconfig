@@ -592,6 +592,13 @@ CONFIG_PARTITION_TABLE_MD5=y
 # end of Partition Table
 
 #
+# OLED options
+#
+CONFIG_OLED_X_OFFSET=0
+CONFIG_OLED_FONT_HEIGHT=11
+# end of OLED options
+
+#
 # Compiler options
 #
 CONFIG_COMPILER_OPTIMIZATION_DEBUG=y

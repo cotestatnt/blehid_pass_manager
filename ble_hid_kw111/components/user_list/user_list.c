@@ -145,7 +145,7 @@ int userdb_add(user_entry_t* user) {
     user_count++;
     userdb_save();
     userdb_load();
-    oled_write_text("User added", true);
+    oled_write_text("User added");
     ESP_LOGI(TAG, "User added: %s", user->label);
     userdb_dump();
     return user_count;
@@ -160,7 +160,7 @@ void userdb_edit(int index, user_entry_t* user){
     user_list[index] = *user; // Copy the complete structure
     userdb_save();
     userdb_load();
-    oled_write_text("User update", true);
+    oled_write_text("User update");
     ESP_LOGI(TAG, "User updated: %s", user->label);    
 }
 
@@ -168,7 +168,7 @@ void userdb_edit(int index, user_entry_t* user){
 // Removes a user given the index
 int userdb_remove(int index) {    
 
-    oled_write_text("rem user", true);    
+    oled_write_text("rem user");    
     if (index < 0 || index >= user_count) return -1;
     for (size_t i = index; i < user_count - 1; ++i) {
         user_list[i] = user_list[i + 1];
@@ -176,7 +176,7 @@ int userdb_remove(int index) {
     user_count--;
     userdb_save();
     userdb_load(); 
-    oled_write_text("User removed", true);
+    oled_write_text("User removed");
     ESP_LOGI(TAG, "User removed at index: %d", index);    
     return 0;
 }
@@ -204,7 +204,7 @@ void userdb_sort_by_usage() {
 
 // Cancella tutto il DB degli utenti dalla flash
 void userdb_clear() {
-    oled_write_text("clear users", true);
+    oled_write_text("clear users");
     user_count = 0;
     user_index = -1;
     memset(user_list, 0, sizeof(user_list));
@@ -219,7 +219,7 @@ void userdb_clear() {
     nvs_commit(handle);
     nvs_close(handle);
     ESP_LOGI("userdb", "Database utenti cancellato");
-    oled_write_text("DB cleared!", true);
+    oled_write_text("DB cleared!");
 }
 
 
@@ -292,7 +292,7 @@ void send_authenticated(bool auth) {
 
     ESP_LOGI(TAG, "Authenticated message: %s", auth ? "true" : "false");
     ESP_LOGI(TAG, "gatt_if: %d, conn_id: %d, handle: %d\n", hidd_le_env.gatt_if, user_mgmt_conn_id, user_mgmt_handle[USER_MGMT_IDX_VAL]);
-    auth ? oled_write_text("No auth!", true) : oled_write_text("Auth!", true);
+    auth ? oled_write_text("No auth!") : oled_write_text("Auth!");
 }
 
 

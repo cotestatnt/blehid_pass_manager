@@ -122,6 +122,7 @@ static void hidd_event_callback(esp_hidd_cb_event_t event, esp_hidd_cb_param_t *
         }
         case ESP_HIDD_EVENT_BLE_DISCONNECT: {
             sec_conn = false;
+            hid_conn_id = 0; // Reset connection ID on disconnect
             ESP_LOGI(HID_DEMO_TAG, "ESP_HIDD_EVENT_BLE_DISCONNECT");
             esp_ble_gap_start_advertising(&hidd_adv_params);
             break;
@@ -169,7 +170,7 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
             ESP_LOGI(HID_DEMO_TAG, "Passkey notify, passkey %06" PRIu32, param->ble_security.key_notif.passkey);
             char passkey_str[7];
             snprintf(passkey_str, sizeof(passkey_str), "%06" PRIu32, passkey); 
-            oled_write_text(passkey_str, true);
+            oled_write_text(passkey_str);
             break;
         case ESP_GAP_BLE_AUTH_CMPL_EVT: {
             esp_bd_addr_t bd_addr;
@@ -181,7 +182,7 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
                 ESP_LOGI(HID_DEMO_TAG, "Pairing successfully, auth_mode ESP_LE_AUTH_REQ_MITM");
             }
             show_bonded_devices();
-            oled_write_text("BLE PassMan", true);            
+            oled_write_text("BLE PassMan");            
             break;
         }
         case ESP_GAP_BLE_REMOVE_BOND_DEV_COMPLETE_EVT: {
@@ -344,8 +345,6 @@ esp_err_t ble_device_init(void)
     uint8_t key_size = 16;      //the key size should be 7~16 bytes
     uint8_t init_key = ESP_BLE_ENC_KEY_MASK | ESP_BLE_ID_KEY_MASK;
     uint8_t rsp_key = ESP_BLE_ENC_KEY_MASK | ESP_BLE_ID_KEY_MASK;
-    //set static passkey
-    // uint32_t passkey = 123456;
     
     // Genera una passkey random (tra 000000 e 999999)
     passkey = esp_random() % 1000000;
@@ -369,10 +368,42 @@ esp_err_t ble_device_init(void)
     if ((ret = esp_ble_gatt_set_local_mtu(MAX_MTU_SIZE)) != ESP_OK) {
         ESP_LOGE("BLE", "esp_ble_gatt_set_local_mtu failed: %s", esp_err_to_name(ret));
     }
-
-    // xTaskCreate(&hid_demo_task, "hid_task", 2048, NULL, 5, NULL);
-
     return ret;
+}
+
+bool ble_is_connected(void)
+{
+    // Check if there's an active BLE connection
+    // We only need to verify hid_conn_id is not 0, as sec_conn might not always be required for basic HID functionality
+    return (hid_conn_id != 0);
+}
+
+uint16_t ble_get_conn_id(void)
+{
+    return hid_conn_id;
+}
+
+esp_err_t ble_force_disconnect(void)
+{
+    if (hid_conn_id != 0) {
+        ESP_LOGI(HID_DEMO_TAG, "Force disconnecting BLE connection");
+        esp_err_t ret = esp_ble_gatts_close(hidd_le_env.gatt_if, hid_conn_id);
+        if (ret != ESP_OK) {
+            ESP_LOGE(HID_DEMO_TAG, "Failed to close GATTS connection: %s", esp_err_to_name(ret));
+            return ret;
+        }
+        
+        // Reset connection variables
+        hid_conn_id = 0;
+        sec_conn = false;
+        ble_userlist_authenticated = false;
+        
+        // Restart advertising for configuration mode
+        ESP_LOGI(HID_DEMO_TAG, "Restarting advertising for configuration mode");
+        return esp_ble_gap_start_advertising(&hidd_adv_params);
+    }
+    
+    return ESP_OK;
 }
 
 

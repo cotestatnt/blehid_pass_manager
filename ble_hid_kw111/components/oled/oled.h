@@ -25,7 +25,7 @@ extern "C" {
 #define LCD_PIXEL_CLOCK_HZ    (400 * 1000)
 
 // The pixel number in horizontal and vertical
-#define LCD_H_RES              128
+#define LCD_H_RES              96
 #define LCD_V_RES              16
 
 // Bit number used to represent command and parameter
@@ -44,19 +44,19 @@ typedef struct {
     char text[64];
     oled_msg_type_t type;
     uint32_t display_time_ms;  // 0 = permanent, >0 = auto-clear after this time
-    bool reset_display;        // true = reset display timer
 } oled_message_t;
 
 // Basic OLED functions
 esp_err_t oled_init(void);
 void oled_off(void);
-void oled_write_text(const char* text, bool reset_display);
+void oled_write_text(const char* text);
+void oled_write_text_permanent(const char* text);
 
 // Enhanced debug functions
 void oled_debug_printf(const char* format, ...);
 void oled_debug_error(const char* error);
 void oled_debug_status(const char* status);
-void oled_show_temporary(const char* text, uint32_t duration_ms);
+// void oled_show_temporary(const char* text, uint32_t duration_ms);
 
 // Message queue management
 esp_err_t oled_send_message(const oled_message_t* msg);
