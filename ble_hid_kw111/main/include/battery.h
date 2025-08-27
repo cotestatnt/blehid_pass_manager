@@ -21,10 +21,7 @@ bool adc_calibration_init(adc_unit_t unit, adc_channel_t channel, adc_atten_t at
 // ADC initialization for power monitoring (based on ESP-IDF 5.5.0 example)
 esp_err_t init_power_monitoring_adc(void);
 
-// Lettura tensione VBUS per detection USB
-int read_vbus_voltage_mv(void);
-
-// USB detection tramite lettura VBUS
+// USB detection tramite USB Serial JTAG
 bool is_usb_connected_simple(void);
 
 // Lettura batteria

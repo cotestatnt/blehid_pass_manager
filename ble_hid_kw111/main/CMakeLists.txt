@@ -1,5 +1,5 @@
 idf_component_register(
-    SRCS "battery.cpp" "main.cpp" "fingerprint.cpp" 
+    SRCS "buttons.cpp" "battery.cpp" "main.cpp" "fingerprint.cpp" 
     INCLUDE_DIRS "." "include"
     REQUIRES esp_hid mbedtls ble_device oled fpm user_list hal
     PRIV_REQUIRES nvs_flash esp_adc

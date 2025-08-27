@@ -6,15 +6,11 @@
 #include "esp_adc/adc_cali_scheme.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "driver/usb_serial_jtag.h"
 
 extern "C" {
 #include "hid_device_prf.h"
 }
-
-
-#if CONFIG_IDF_TARGET_ESP32S3
-#include "driver/rtc_io.h"
-#endif
 
 #include "battery.h"
 #include "config.h"
@@ -25,12 +21,9 @@ static TaskHandle_t batteryNotifyTaskHandle = NULL;
 
 // ADC for power monitoring (based on ESP-IDF 5.5.0 example)
 static adc_oneshot_unit_handle_t adc1_handle = NULL;
-static adc_cali_handle_t adc1_cali_vbus_handle = NULL;
-static adc_cali_handle_t adc1_cali_battery_handle = NULL;  // Used for 3.3V rail
-static bool vbus_calibrated = false;
+static adc_cali_handle_t adc1_cali_battery_handle = NULL;  // Used for battery voltage
 static bool battery_calibrated = false; 
 
-#define VBUS_ADC_CHANNEL    ADC_CHANNEL_2           // GPIO 3 - VBUS con divisore integrato dev board
 #define ADC_ATTEN           ADC_ATTEN_DB_12
 #define ADC_BITWIDTH        ADC_BITWIDTH_DEFAULT
 
@@ -56,28 +49,6 @@ void start_battery_notify_task(void) {
     }
 }
 
-void enter_deep_sleep() {
-    gpio_set_level((gpio_num_t)FP_ACTIVATE, 0);
-    
-#if CONFIG_IDF_TARGET_ESP32C3
-    // ESP32-C3: use gpio wakeup
-    esp_deep_sleep_enable_gpio_wakeup((1ULL << FP_TOUCH), ACTIVE_LEVEL ? ESP_GPIO_WAKEUP_GPIO_HIGH : ESP_GPIO_WAKEUP_GPIO_LOW);
-
-#elif CONFIG_IDF_TARGET_ESP32S3
-    // ESP32-S3: use ext1 wakeup with RTC_IO
-    esp_sleep_enable_ext1_wakeup((1ULL << FP_TOUCH), ACTIVE_LEVEL ? ESP_EXT1_WAKEUP_ANY_HIGH: ESP_EXT1_WAKEUP_ANY_LOW);
-
-    // Configure pin as RTC_IO
-    rtc_gpio_init((gpio_num_t)FP_TOUCH);
-    rtc_gpio_set_direction((gpio_num_t)FP_TOUCH, RTC_GPIO_MODE_INPUT_ONLY);
-    rtc_gpio_pullup_en((gpio_num_t)FP_TOUCH);
-    rtc_gpio_pulldown_dis((gpio_num_t)FP_TOUCH);
-#else
-    ESP_LOGW("MAIN", "Deep sleep wakeup not configured for this target");
-#endif
-
-    esp_deep_sleep_start();
-}
 
 
 // ADC calibration function (from ESP-IDF 5.5.0 example)
@@ -144,17 +115,6 @@ esp_err_t init_power_monitoring_adc(void) {
         return ret;
     }
 
-    // VBUS channel configuration (GPIO 3) - with integrated divider on dev board
-    adc_oneshot_chan_cfg_t vbus_config = {
-        .atten = ADC_ATTEN,
-        .bitwidth = ADC_BITWIDTH,
-    };
-    ret = adc_oneshot_config_channel(adc1_handle, VBUS_ADC_CHANNEL, &vbus_config);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "VBUS ADC channel config failed: %s", esp_err_to_name(ret));
-        return ret;
-    }
-
     // Battery channel configuration - automatic from config.h
     adc_oneshot_chan_cfg_t battery_config = {
         .atten = ADC_ATTEN,
@@ -166,59 +126,19 @@ esp_err_t init_power_monitoring_adc(void) {
         return ret;
     }
 
-    // VBUS calibration
-    vbus_calibrated = adc_calibration_init(ADC_UNIT_1, VBUS_ADC_CHANNEL, ADC_ATTEN, &adc1_cali_vbus_handle);
-    
     // Battery calibration  
     battery_calibrated = adc_calibration_init(ADC_UNIT_1, BATTERY_ADC_CHANNEL, ADC_ATTEN, &adc1_cali_battery_handle);
 
     return ESP_OK;
 }
 
-// VBUS voltage reading for USB detection
-int read_vbus_voltage_mv(void) {
-    if (adc1_handle == NULL) {
-        return -1;
-    }
-    
-    int adc_raw = 0;
-    esp_err_t ret = adc_oneshot_read(adc1_handle, VBUS_ADC_CHANNEL, &adc_raw);
-    if (ret != ESP_OK) {
-        return -1;
-    }
-    
-    int voltage_mv = 0;
-    if (vbus_calibrated && adc1_cali_vbus_handle) {
-        ret = adc_cali_raw_to_voltage(adc1_cali_vbus_handle, adc_raw, &voltage_mv);
-        if (ret != ESP_OK) {
-            return -1;
-        }
-        
-        // Empirical compensation factor based on tests:
-        // We should read ~5000mV but we read 6292mV with 2x compensation
-        // Correct factor = 5000 / 6292 * 2 = 1.59
-        voltage_mv = (voltage_mv * 159) / 100;  // Factor 1.59 instead of 2.0
-    } else {
-        voltage_mv = (adc_raw * 3100) / 4095;
-        voltage_mv = (voltage_mv * 159) / 100;  // Stesso fattore empirico
-    }
-    
-    return voltage_mv;
-}
-
-// USB detection tramite lettura VBUS
+// USB detection tramite USB Serial JTAG
 bool is_usb_connected_simple(void) {
-    int vbus_mv = read_vbus_voltage_mv();
-    
-    if (vbus_mv < 0) {
-        ESP_LOGW(TAG, "Cannot read VBUS voltage - assuming USB disconnected");
-        return false;
-    }
-    
-    // VBUS USB dovrebbe essere ~5000mV quando connesso
-    // Consideriamo connesso se > 4000mV per tolleranza
-    bool usb_connected = (vbus_mv > 4000);
-    ESP_LOGD(TAG, "VBUS voltage: %dmV, USB %s", vbus_mv, usb_connected ? "CONNECTED" : "DISCONNECTED");
+    // Utilizziamo USB Serial JTAG per rilevare la connessione USB
+    // Questo metodo è universale e affidabile per tutte le board ESP32-S3
+
+    bool usb_connected = usb_serial_jtag_is_connected();
+    ESP_LOGI(TAG, "USB %s", usb_connected ? "CONNECTED" : "DISCONNECTED");
     return usb_connected;
 }
 

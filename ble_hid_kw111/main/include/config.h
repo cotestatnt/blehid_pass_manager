@@ -64,7 +64,7 @@
     #define BUTTON_DOWN          13
 
     #define FP_ACTIVATE          10
-    #define FP_TX                3
+    #define FP_TX                6
     #define FP_RX                4
     #define FP_TOUCH             5
 
@@ -75,6 +75,10 @@
     // ESP32-S3, GPIO 9 corrisponde ad ADC1_CH8 (ADC_CHANNEL_8)    
     #define VBAT_GPIO            9 
     #define BATTERY_ADC_CHANNEL ADC_CHANNEL_8
+    
+    // // VBUS detection on GPIO 3 (ADC1_CH2)
+    // #define VBUS_GPIO            3
+    // #define VBUS_ADC_CHANNEL     ADC_CHANNEL_2
     
 #else
     #error "Unsupported ESP board configuration"    
