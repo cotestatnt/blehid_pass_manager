@@ -7,6 +7,7 @@
 #include "hid_dev.h"
 #include "hid_device_ble.h"
 #include "hid_device_usb.h"
+#include "class/hid/hid.h"
 
 
 FPM* fpm;
@@ -364,21 +365,32 @@ void fingerprint_task(void *pvParameters) {
                 // Indice già selezionato con i pulsanti
                 user_entry_t user = user_list[user_index];
                 if (user_index != -1 && user.winlogin) {  // CTRL+ALT+DELETE
+                    ESP_LOGI(TAG, "Sending CTRL+ALT+DEL combination for user %s...", user.label);
                     switch (user.login_type)  {
                         case 0:  // BLE only
+                            ESP_LOGI(TAG, "Sending via BLE: modifiers=0x%02X, key=0x%02X", 
+                                     HID_MODIFIER_LEFT_CTRL | HID_MODIFIER_LEFT_ALT, 0x4C);
                             ble_send_key_combination(HID_MODIFIER_LEFT_CTRL | HID_MODIFIER_LEFT_ALT, 0x4C);
                             break;
                         case 1:  // USB only
+                            ESP_LOGI(TAG, "Sending via USB: modifiers=0x%02X, key=0x%02X", 
+                                     HID_MODIFIER_LEFT_CTRL | HID_MODIFIER_LEFT_ALT, 0x4C);
                             usb_send_key_combination(HID_MODIFIER_LEFT_CTRL | HID_MODIFIER_LEFT_ALT, 0x4C);
                             break;
                         case 2:  // Both
                             if (usb_connected) {
+                                ESP_LOGI(TAG, "Sending via USB (both mode): modifiers=0x%02X, key=0x%02X", 
+                                         HID_MODIFIER_LEFT_CTRL | HID_MODIFIER_LEFT_ALT, 0x4C);
                                 usb_send_key_combination(HID_MODIFIER_LEFT_CTRL | HID_MODIFIER_LEFT_ALT, 0x4C);
                             } else {
+                                ESP_LOGI(TAG, "Sending via BLE (both mode): modifiers=0x%02X, key=0x%02X", 
+                                         HID_MODIFIER_LEFT_CTRL | HID_MODIFIER_LEFT_ALT, 0x4C);
                                 ble_send_key_combination(HID_MODIFIER_LEFT_CTRL | HID_MODIFIER_LEFT_ALT, 0x4C);
                             }
                             break;
                     }
+                    ESP_LOGI(TAG, "CTRL+ALT+DEL combination sent successfully");
+                    vTaskDelay(pdMS_TO_TICKS(500));
                 }
 
                 // Cerca nel database utenti se esiste un fingerprint_id equivalente con l'opzione magicfinger
@@ -392,7 +404,6 @@ void fingerprint_task(void *pvParameters) {
                     }                
                 }
 
-
                 if (user_index != -1) {
                     // Aggiorna utente
                     user = user_list[user_index];
@@ -402,10 +413,7 @@ void fingerprint_task(void *pvParameters) {
                     size_t len = user.password_len;
 
                     char plain[128];
-                    if (userdb_decrypt_password(encoded, len, plain) == 0) {
-                        // printf("Password (decrypted): %s\n", plain);
-                        ble_send_string(plain);
-
+                    if (userdb_decrypt_password(encoded, len, plain) == 0) {                        
                         switch (user.login_type)  {
                             case 0:  // BLE only
                                 ble_send_string(plain);
@@ -416,9 +424,9 @@ void fingerprint_task(void *pvParameters) {
                             case 2:  // Both
                                 ble_send_string(plain);
                                 if (usb_connected) {
-                                    usb_send_key_combination(HID_MODIFIER_LEFT_CTRL | HID_MODIFIER_LEFT_ALT, 0x4C);
+                                    usb_send_string(plain);
                                 } else {
-                                    ble_send_key_combination(HID_MODIFIER_LEFT_CTRL | HID_MODIFIER_LEFT_ALT, 0x4C);
+                                    ble_send_string(plain);
                                 }
                                 break;
                         }
@@ -428,6 +436,7 @@ void fingerprint_task(void *pvParameters) {
                         char message[20];
                         snprintf(message, sizeof(message), "Finger ID: %02d", finger_index);
                         oled_write_text(message);
+                        user_index = -1;
                     }  
                     else {
                         ESP_LOGE(TAG, "Decrypt error");
