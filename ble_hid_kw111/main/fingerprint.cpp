@@ -3,6 +3,7 @@
 #include "fingerprint.h"
 #include "oled.h"
 #include "user_list.h"
+#include "battery.h"
 
 #include "hid_dev.h"
 #include "hid_device_ble.h"
@@ -15,6 +16,7 @@ int16_t num_fingerprints = 0;
 bool enrolling_in_progress = false;
 
 extern uint32_t last_interaction_time;
+
 
 static const char *TAG = "FPM TASK";
 #define NUM_SNAPSHOTS 5
@@ -134,9 +136,7 @@ bool enrollFinger()
     
     num_fingerprints += 1; 
     ESP_LOGI(TAG, " >> Enroll process completed successfully!\n");
-    char message[20];
-    snprintf(message, sizeof(message), "Enroll %02d", num_fingerprints);
-    oled_write_text(message);
+    oled_debug_printf("Enroll %02d", num_fingerprints);
     enrolling_in_progress = false;
     
     return true;
@@ -235,9 +235,7 @@ int searchDatabase() {
     switch (status){
     case FPMStatus::OK:
         ESP_LOGI(TAG, "Found a match at ID #%u with confidence %u", fid, score);        
-        char message[20];
-        snprintf(message, sizeof(message), "Match ID %02d", fid);
-        oled_write_text(message);        
+        oled_debug_printf("Match ID %02d", fid);
         vTaskDelay(500 / portTICK_PERIOD_MS);
         break;
 
@@ -252,11 +250,7 @@ int searchDatabase() {
         return fid; // Return invalid index
     }
 
-    /* Now wait for the finger to be removed */
-    // ESP_LOGI(TAG, "Remove finger");
-    // oled_write_text("Lift finger", true);  
-    // vTaskDelay(500 / portTICK_PERIOD_MS);
-
+    // Now wait for the finger to be removed 
     do {
         status = fpm->getImage();
         vTaskDelay(200 / portTICK_PERIOD_MS);
@@ -268,7 +262,7 @@ int searchDatabase() {
 
 void fingerprint_task(void *pvParameters) {
 
-    // Configura FP_TOUCH come input per il segnale "touch"
+    // Configure FP_TOUCH as input for the "touch" signal
     gpio_config_t io_conf = {};
     io_conf.intr_type = GPIO_INTR_DISABLE;
     io_conf.mode = GPIO_MODE_INPUT;
@@ -277,7 +271,7 @@ void fingerprint_task(void *pvParameters) {
     io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
     gpio_config(&io_conf);
 
-    // Configura FP_ACTIVATE come output per il segnale "activate"
+    // Configure FP_ACTIVATE as output for the "activate" signal
     gpio_config_t fp_conf = {};
     fp_conf.intr_type = GPIO_INTR_DISABLE;
     fp_conf.mode = GPIO_MODE_OUTPUT;
@@ -286,7 +280,7 @@ void fingerprint_task(void *pvParameters) {
     fp_conf.pull_up_en = GPIO_PULLUP_DISABLE;
     gpio_config(&fp_conf);
 
-    // Configura UART1: cambiare i GPIO secondo la propria scheda
+    // Configure UART1: change the GPIOs according to your board
     EspIdfUartStream uart{UART_NUM_1, /*TX*/ FP_TX, /*RX*/ FP_RX, /*baud*/ 57600};
     if (uart.begin() != ESP_OK) {
         ESP_LOGE(TAG, "UART init failed");
@@ -297,8 +291,7 @@ void fingerprint_task(void *pvParameters) {
     gpio_set_level((gpio_num_t)FP_ACTIVATE, 1);
     vTaskDelay(pdMS_TO_TICKS(100));
 
-    // Inizializza FPM usando il trasporto UART di ESP-IDF
-    
+    // Initialize FPM using ESP-IDF UART transport
     fpm = new FPM(&uart);
 
     if (!fpm->begin()) {
@@ -306,7 +299,7 @@ void fingerprint_task(void *pvParameters) {
         return;
     }
 
-    // Lettura parametri prodotto
+    // Read product parameters
     FPMSystemParams params{};
     if (fpm->readParams(&params) == FPMStatus::OK) {
         ESP_LOGI(TAG, "Found fingerprint sensor!");
@@ -349,20 +342,26 @@ void fingerprint_task(void *pvParameters) {
             uint16_t finger_index = searchDatabase();
 
             if (finger_index != 0xFFFF) {
-                // Autenticazione biometrica riuscita: abilita accesso BLE user list
+                // Biometric authentication successful: enable BLE user list access
                 ble_userlist_set_authenticated(true);
-                ESP_LOGI(TAG, "Autenticazione biometrica riuscita: accesso BLE abilitato");
+                ESP_LOGI(TAG, "Biometric authentication successful: BLE access enabled");
                 ESP_LOGI(TAG, "User index: %d", user_index);
                 
-                bool usb_connected = false;
-                for (size_t i = 0; i < user_count; ++i) {
-                    if (user_list[i].login_type >= 1) {
-                        usb_connected = true;
-                        break;
-                    }
+                // Check if we need USB HID also
+                bool usb_available = is_usb_connected_simple();                
+
+                // Search in the user database if there is an equivalent fingerprint_id with the magicfinger option
+                if (user_index == -1) {
+                    for (int i = 0; i < MAX_USERS; ++i) {
+                        if (user_list[i].fingerprint_id == finger_index && user_list[i].magicfinger) {
+                            user_index = i;
+                            ESP_LOGI(TAG, "User %s with fingerprint ID %d found at index %d\n", user_list[i].label, finger_index, i);
+                            break;
+                        }
+                    }                
                 }
                 
-                // Indice già selezionato con i pulsanti
+                // Index selected with buttons or magic finder, let's check if is a windows login (CTRL+ALT+DEL)
                 user_entry_t user = user_list[user_index];
                 if (user_index != -1 && user.winlogin) {  // CTRL+ALT+DELETE
                     ESP_LOGI(TAG, "Sending CTRL+ALT+DEL combination for user %s...", user.label);
@@ -378,7 +377,7 @@ void fingerprint_task(void *pvParameters) {
                             usb_send_key_combination(HID_MODIFIER_LEFT_CTRL | HID_MODIFIER_LEFT_ALT, 0x4C);
                             break;
                         case 2:  // Both
-                            if (usb_connected) {
+                            if (usb_available) {
                                 ESP_LOGI(TAG, "Sending via USB (both mode): modifiers=0x%02X, key=0x%02X", 
                                          HID_MODIFIER_LEFT_CTRL | HID_MODIFIER_LEFT_ALT, 0x4C);
                                 usb_send_key_combination(HID_MODIFIER_LEFT_CTRL | HID_MODIFIER_LEFT_ALT, 0x4C);
@@ -390,25 +389,11 @@ void fingerprint_task(void *pvParameters) {
                             break;
                     }
                     ESP_LOGI(TAG, "CTRL+ALT+DEL combination sent successfully");
-                    vTaskDelay(pdMS_TO_TICKS(500));
-                }
-
-                // Cerca nel database utenti se esiste un fingerprint_id equivalente con l'opzione magicfinger
-                if (user_index == -1) {
-                    for (int i = 0; i < MAX_USERS; ++i) {
-                        if (user_list[i].fingerprint_id == finger_index && user_list[i].magicfinger) {
-                            user_index = i;
-                            ESP_LOGI(TAG, "User %s with fingerprint ID %d found at index %d\n", user_list[i].label, finger_index, i);
-                            break;
-                        }
-                    }                
+                    vTaskDelay(pdMS_TO_TICKS(1000));
                 }
 
                 if (user_index != -1) {
-                    // Aggiorna utente
-                    user = user_list[user_index];
-
-                    // Invia la password corrispondente all'indice attuale
+                    // Send the password corresponding to the current index
                     uint8_t* encoded = user.password_enc;
                     size_t len = user.password_len;
 
@@ -423,7 +408,7 @@ void fingerprint_task(void *pvParameters) {
                                 break;
                             case 2:  // Both
                                 ble_send_string(plain);
-                                if (usb_connected) {
+                                if (usb_available) {
                                     usb_send_string(plain);
                                 } else {
                                     ble_send_string(plain);
@@ -431,11 +416,8 @@ void fingerprint_task(void *pvParameters) {
                                 break;
                         }
 
-                        userdb_increment_usage(user_index);
-
-                        char message[20];
-                        snprintf(message, sizeof(message), "Finger ID: %02d", finger_index);
-                        oled_write_text(message);
+                        userdb_increment_usage(user_index);                        
+                        oled_debug_printf("Finger ID: %02d", finger_index);
                         user_index = -1;
                     }  
                     else {
@@ -453,7 +435,7 @@ void fingerprint_task(void *pvParameters) {
             }
         }
 
-        // Attendi un po' prima di ripetere la ricerca
+        // Wait a bit before repeating the search
         vTaskDelay(pdMS_TO_TICKS(100));
     }
 
