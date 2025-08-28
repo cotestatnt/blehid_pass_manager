@@ -386,7 +386,7 @@ esp_err_t oled_init(void) {
     esp_lcd_panel_mirror(panel_handle, true, true);
 
     // Apply horizontal gap (column offset) if configured
-    // esp_lcd_panel_set_gap(panel_handle, OLED_X_OFFSET, 0);
+    esp_lcd_panel_set_gap(panel_handle, 0, 4);
     
     // Initialize debug message system
     ESP_LOGI(TAG, "Initialize OLED debug message system");

@@ -40,29 +40,23 @@ void button_task(void *pvParameters)
         int btn_down = gpio_get_level((gpio_num_t)BUTTON_DOWN);
 
         // Check if both buttons are pressed simultaneously
-        if ( btn_down == 0  /*&& btn_up == 0*/ ) {
+        if ( btn_down == 0 && btn_up == 0 ) {
             if (!both_buttons_active) {
                 both_buttons_active = true;
                 both_buttons_pressed_time = xTaskGetTickCount();
-                ESP_LOGI(TAG, "Both buttons pressed - hold for 3 seconds to disconnect");
-                oled_write_text("Hold to disconnect");
+                ESP_LOGI(TAG, "Both buttons pressed - hold for 3 seconds to disconnect");                
             } else {
                 // Check if buttons have been held for the required time
                 uint32_t current_time = xTaskGetTickCount();
                 if ((current_time - both_buttons_pressed_time) >= pdMS_TO_TICKS(DISCONNECT_HOLD_TIME_MS)) {
                     bool is_connected = ble_is_connected();
-                    ESP_LOGI(TAG, "Disconnect timeout reached. BLE connected: %s", is_connected ? "YES" : "NO");
-                    
+                    ESP_LOGI(TAG, "Disconnect timeout reached. BLE connected: %s", is_connected ? "YES" : "NO");                    
                     if (is_connected) {
                         ESP_LOGI(TAG, "Disconnecting BLE and restarting advertising for configuration mode");
                         oled_write_text("Disconnect BT");
                         ble_force_disconnect();
-                        vTaskDelay(pdMS_TO_TICKS(1000));
-                        oled_write_text("Config Mode");
                     } else {
-                        ESP_LOGI(TAG, "No BLE connection to disconnect");
-                        oled_write_text("Not connected");
-                        vTaskDelay(pdMS_TO_TICKS(1000));
+                        ESP_LOGI(TAG, "No BLE connection to disconnect");                        
                         oled_write_text("BLE PassMan");
                     }
                     both_buttons_active = false;
