@@ -18,9 +18,10 @@ using namespace Qt::StringLiterals;
 
 int main(int argc, char *argv[])
 {
-    // qputenv("QT_BLUETOOTH_BACKEND", "winrt");
-    qputenv("QT_QUICK_CONTROLS_MATERIAL_THEME", "Dark");   // o "Light"
-    QQuickStyle::setStyle("Material");
+
+    QQuickStyle::setStyle("Universal");
+    qputenv("QT_QUICK_CONTROLS_UNIVERSAL_THEME", "Dark"); // opzionale: tema scuro
+    qputenv("QT_QUICK_CONTROLS_UNIVERSAL_ACCENT", "Blue"); // opzionale: accent color
 
     QGuiApplication app(argc, argv);
 

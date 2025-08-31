@@ -293,7 +293,6 @@ void fingerprint_task(void *pvParameters) {
 
     // Initialize FPM using ESP-IDF UART transport
     fpm = new FPM(&uart);
-
     if (!fpm->begin()) {
         ESP_LOGE(TAG, "FPM begin() failed (check cables, baud, power supply)");
         return;
@@ -407,7 +406,6 @@ void fingerprint_task(void *pvParameters) {
                                 usb_send_string(plain);
                                 break;
                             case 2:  // Both
-                                ble_send_string(plain);
                                 if (usb_available) {
                                     usb_send_string(plain);
                                 } else {

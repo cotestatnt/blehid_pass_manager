@@ -127,7 +127,7 @@ void button_task(void *pvParameters)
         // Check if blacklist has expired (chiamata periodica ogni 100ms)
         ble_check_blacklist_expiry();
         
-        vTaskDelay(pdMS_TO_TICKS(100));
+        vTaskDelay(pdMS_TO_TICKS(200));
     }
 }
 

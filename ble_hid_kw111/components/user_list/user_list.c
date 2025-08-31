@@ -292,7 +292,7 @@ void send_authenticated(bool auth) {
 
     ESP_LOGI(TAG, "Authenticated message: %s", auth ? "true" : "false");
     ESP_LOGI(TAG, "gatt_if: %d, conn_id: %d, handle: %d\n", hidd_le_env.gatt_if, user_mgmt_conn_id, user_mgmt_handle[USER_MGMT_IDX_VAL]);
-    auth ? oled_write_text("No auth!") : oled_write_text("Auth!");
+    auth ? oled_write_text("Auth!") : oled_write_text("No auth!");
 }
 
 
@@ -322,7 +322,7 @@ void send_db_cleared() {
     payload.cmd = 0xFF;  // Command to indicate that the db has been cleared
     payload.index = 0;   // Doesn't make sense in this context, but needed to maintain structure
 
-    strcpy(payload.data, "Userd DB cleared");
+    strcpy(payload.data, "User DB cleared");
 
     esp_ble_gatts_send_indicate(
         hidd_le_env.gatt_if,
@@ -333,5 +333,5 @@ void send_db_cleared() {
         false
     );
 
-    ESP_LOGI(TAG, "Userd DB cleared");
+    ESP_LOGI(TAG, "User DB cleared");
 }
