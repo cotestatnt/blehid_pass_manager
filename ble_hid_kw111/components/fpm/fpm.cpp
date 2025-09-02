@@ -293,7 +293,7 @@ FPMStatus FPM::readProductInfo(FPMProductInfo * info)
     if (confirmCode != FPMStatus::OK) return confirmCode;
     if (readLen != FPM_PRODUCT_INFO_LEN) return FPMStatus::READ_ERROR;
     
-    memset(info, 0, sizeof(info));
+    memset(info, 0, sizeof(*info));
     uint8_t *ptr = &buffer[1];
     
     memcpy(&info->moduleModel, ptr, FPM_PRODUCT_INFO_MODULE_MODEL_LEN);

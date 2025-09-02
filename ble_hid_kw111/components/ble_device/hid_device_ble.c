@@ -123,10 +123,14 @@ static void hidd_event_callback(esp_hidd_cb_event_t event, esp_hidd_cb_param_t *
             }
             break;
         }
-        case ESP_BAT_EVENT_REG: 
-            break;        
-        case ESP_HIDD_EVENT_DEINIT_FINISH:
-	        break;
+        case ESP_BAT_EVENT_REG: {
+            ESP_LOGI(HID_DEMO_TAG, "ESP_BAT_EVENT_REG");
+            break;
+        }
+        case ESP_HIDD_EVENT_DEINIT_FINISH: {
+            ESP_LOGI(HID_DEMO_TAG, "ESP_HIDD_EVENT_DEINIT_FINISH");
+            break;
+        }
 		case ESP_HIDD_EVENT_BLE_CONNECT: {
             ESP_LOGI(HID_DEMO_TAG, "ESP_HIDD_EVENT_BLE_CONNECT");
             

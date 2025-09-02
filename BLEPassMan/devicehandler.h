@@ -47,6 +47,7 @@ class DeviceHandler : public BluetoothBaseClass
     Q_PROPERTY(bool alive READ alive NOTIFY aliveChanged)
     Q_PROPERTY(AddressType addressType READ addressType WRITE setAddressType)
     Q_PROPERTY(QVariantList userList READ userList NOTIFY userListUpdated)
+    Q_PROPERTY(int batteryLevel READ batteryLevel NOTIFY batteryLevelChanged)
 
     QVariantList userList() const;
 
@@ -63,12 +64,14 @@ public:
     AddressType addressType() const;
 
     bool alive() const;
+    int batteryLevel() const { return m_batteryLevel; }
     DeviceInfo *currentDevice() const { return m_currentDevice; }
 
 signals:
     void aliveChanged();
     Q_SIGNAL void userListUpdated(QVariantList list);
     Q_SIGNAL void serviceReady();
+    Q_SIGNAL void batteryLevelChanged();
 
 
 public slots:
@@ -98,18 +101,31 @@ private:
 
     UserEntry parseUserEntry(const QByteArray &data);
 
+    void batteryServiceStateChanged(QLowEnergyService::ServiceState s);
+    void updateBatteryLevel(const QLowEnergyCharacteristic &c, const QByteArray &value);
+
 private:
     bool m_foundService = false;
+    bool m_foundBatteryService = false;
+    int m_batteryLevel = -1;
 
     QSoundEffect m_soundEffect;
     QLowEnergyController *m_control = nullptr;
     QLowEnergyService *m_service = nullptr;
     QLowEnergyDescriptor m_notificationDesc;
+
+    QLowEnergyService *m_batteryService = nullptr;
+    QLowEnergyDescriptor m_batteryNotificationDesc;
+
     DeviceInfo *m_currentDevice = nullptr;
     QLowEnergyController::RemoteAddressType m_addressType = QLowEnergyController::PublicAddress;
 
     QBluetoothUuid m_customService;
     QBluetoothUuid m_customCharacteristic;
+
+    QBluetoothUuid m_batteryService_uuid = QBluetoothUuid::ServiceClassUuid::BatteryService;
+    QBluetoothUuid m_batteryCharacteristic = QBluetoothUuid::CharacteristicType::BatteryLevel;
+
 
     QMap<int, UserEntry> m_userList;    
     int m_currentUserIndex = 0;

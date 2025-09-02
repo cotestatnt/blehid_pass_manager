@@ -127,7 +127,8 @@ int user_list_index = 0;
 
 // Battery Service BLE handles
 uint16_t battery_handle[BAS_IDX_NB];
-uint16_t battery_conn_id = 0;
+int battery_conn_id = -1;
+static uint16_t battery_ccc_bits = 0; // bit0=Notify, bit1=Indicate
 
 ////////////////////////////////////////////////////////////////////
 
@@ -208,7 +209,7 @@ static const uint8_t char_prop_read_write_write_nr = ESP_GATT_CHAR_PROP_BIT_READ
 /// battary Service
 static const uint16_t battery_svc = ESP_GATT_UUID_BATTERY_SERVICE_SVC;
 static const uint16_t bat_lev_uuid = ESP_GATT_UUID_BATTERY_LEVEL;
-static const uint8_t bat_lev_ccc[2] = {0x00, 0x00};
+static uint8_t bat_lev_ccc[2] = {0x00, 0x00};
 static const uint16_t char_format_uuid = ESP_GATT_UUID_CHAR_PRESENT_FORMAT;
 static uint8_t battery_level = 50;
 
@@ -461,6 +462,9 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_
         cb_param.connect.conn_id = param->connect.conn_id;
         hidd_clcb_alloc(param->connect.conn_id, param->connect.remote_bda);
         esp_ble_set_encryption(param->connect.remote_bda, ESP_BLE_SEC_ENCRYPT_NO_MITM);
+    // Track connection for Battery Service notifications
+    battery_conn_id = (int)param->connect.conn_id;
+    battery_ccc_bits = 0;
         if (hidd_le_env.hidd_cb != NULL)
         {
             (hidd_le_env.hidd_cb)(ESP_HIDD_EVENT_BLE_CONNECT, &cb_param);
@@ -473,6 +477,9 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_
         {
             (hidd_le_env.hidd_cb)(ESP_HIDD_EVENT_BLE_DISCONNECT, NULL);
         }
+    // Reset Battery Service connection state
+    battery_conn_id = -1;
+    battery_ccc_bits = 0;
         hidd_clcb_dealloc(param->disconnect.conn_id);
         break;
     }
@@ -481,6 +488,26 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_
     case ESP_GATTS_WRITE_EVT:
     {
         esp_hidd_cb_param_t cb_param = {0};
+        // Handle Battery Level CCCD writes
+        if (battery_handle[BAS_IDX_BATT_LVL_NTF_CFG] != 0 &&
+            param->write.handle == battery_handle[BAS_IDX_BATT_LVL_NTF_CFG])
+        {
+            uint16_t ccc = 0;
+            if (param->write.len >= 2) {
+                ccc = param->write.value[0] | ((uint16_t)param->write.value[1] << 8);
+            }
+            battery_ccc_bits = ccc;
+            ESP_LOGI(TAG, "BAS CCCD write: conn_id=%u ccc=0x%04X -> notif %s, indic %s",
+                     param->write.conn_id, ccc,
+                     (ccc & 0x0001) ? "ON" : "OFF",
+                     (ccc & 0x0002) ? "ON" : "OFF");
+            if (battery_ccc_bits) {
+                // Capture conn_id from the CCCD write path to ensure we have a valid connection id
+                battery_conn_id = (int)param->write.conn_id;
+                // Push an immediate update
+                battery_notify_level(battery_level);
+            }
+        }
         if (param->write.handle == hidd_le_env.hidd_inst.att_tbl[HIDD_LE_IDX_REPORT_LED_OUT_VAL])
         {
             cb_param.led_write.conn_id = param->write.conn_id;
@@ -818,27 +845,38 @@ void hidd_get_attr_value(uint16_t handle, uint16_t *length, uint8_t **value)
 }
 
 
-// Imposta il livello della batteria nel servizio BLE
-void battery_set_level(uint8_t battery_percentage) {
+// Set the battery level in the BLE service
+esp_err_t battery_set_level(uint8_t battery_percentage) {
     battery_level = battery_percentage;
     // Aggiorna il valore della caratteristica usando l'handle del Battery Service
     hidd_set_attr_value(battery_handle[BAS_IDX_BATT_LVL_VAL], sizeof(uint8_t), &battery_level);
+    return ESP_OK;
 }
 
-// Notifica il livello della batteria tramite BLE
-void battery_notify_level(uint8_t battery_percentage) {
-    battery_set_level(battery_percentage);
+// Notify battery level via BLE
+esp_err_t battery_notify_level(uint8_t battery_percentage) {
+    esp_err_t res = battery_set_level(battery_percentage);
     
     // Send notification only if there's an active connection
-    if (user_mgmt_conn_id != 0) {
-        esp_ble_gatts_send_indicate(
+    if (battery_conn_id >= 0) {
+        bool need_confirm = (battery_ccc_bits & 0x0002) != 0; // use Indication if enabled
+        ESP_LOGD(TAG, "BAS notify send: gatt_if=%d conn_id=%u handle=0x%04X level=%u mode=%s",
+                 (int)hidd_le_env.gatt_if, (unsigned)battery_conn_id,
+                 (unsigned)battery_handle[BAS_IDX_BATT_LVL_VAL], (unsigned)battery_level,
+                 need_confirm ? "INDICATE" : "NOTIFY");
+                 
+        // Notify the new battery level
+        res = esp_ble_gatts_send_indicate(
             hidd_le_env.gatt_if,
-            user_mgmt_conn_id,
+            (uint16_t)battery_conn_id,
             battery_handle[BAS_IDX_BATT_LVL_VAL],
             sizeof(uint8_t),
             &battery_level,
-            false
+            need_confirm
         );
+    } else {
+        ESP_LOGD(TAG, "BAS notify skipped: conn_id=%d ccc=0x%04X", battery_conn_id, (unsigned)battery_ccc_bits);
     }
+    return res;
 }
 

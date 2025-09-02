@@ -9,7 +9,13 @@
 #include <QRandomGenerator>
 
 DeviceHandler::DeviceHandler(QObject *parent) :
-    BluetoothBaseClass(parent)
+    BluetoothBaseClass(parent),
+    m_foundBatteryService(false),
+    m_batteryLevel(-1),
+    m_control(nullptr),
+    m_service(nullptr),
+    m_batteryService(nullptr),
+    m_currentDevice(nullptr)
 {
     m_customService = QBluetoothUuid(static_cast<quint32>(0xFFF0));
     m_customCharacteristic = QBluetoothUuid(static_cast<quint32>(0xFFF1));
@@ -88,6 +94,13 @@ void DeviceHandler::serviceDiscovered(const QBluetoothUuid &gatt)
         m_foundService = true;        
     }
 
+    // Rileva Battery Service
+    if (gatt == m_batteryService_uuid) {
+        setInfo("Battery service found...");
+        m_foundBatteryService = true;
+        qDebug() << "Battery service discovered";
+    }
+
 }
 
 void DeviceHandler::serviceScanDone()
@@ -112,6 +125,22 @@ void DeviceHandler::serviceScanDone()
     } else {
         setError("Service not found.");
         setIcon(IconError);
+    }
+
+    // Gestisci Battery Service
+    if (m_foundBatteryService) {
+        m_batteryService = m_control->createServiceObject(m_batteryService_uuid, this);
+        if (m_batteryService) {
+            connect(m_batteryService, &QLowEnergyService::stateChanged, this, &DeviceHandler::serviceStateChanged);
+            connect(m_batteryService, &QLowEnergyService::characteristicChanged, this, &DeviceHandler::updateBatteryLevel);
+            m_batteryService->discoverDetails();
+            qDebug() << "Battery service object created and discovery started";
+        }
+    }
+
+    if (!m_foundService && !m_foundBatteryService) {
+        setError("No relevant services found.");
+        return;
     }
 }
 
@@ -187,6 +216,9 @@ void DeviceHandler::confirmedDescriptorWrite(const QLowEnergyDescriptor &d, cons
 void DeviceHandler::disconnectService()
 {
     m_foundService = false;
+    m_foundBatteryService = false;
+    m_batteryLevel = -1;
+    emit batteryLevelChanged();
 
     //disable notifications
     if (m_notificationDesc.isValid() && m_service
@@ -198,6 +230,21 @@ void DeviceHandler::disconnectService()
 
         delete m_service;
         m_service = nullptr;
+    }
+
+    if (m_batteryNotificationDesc.isValid() && m_batteryService
+        && m_batteryNotificationDesc.value() == QByteArray::fromHex("0100")) {
+        m_batteryService->writeDescriptor(m_batteryNotificationDesc, QByteArray::fromHex("0000"));
+    } else {
+        if (m_control)
+            m_control->disconnectFromDevice();
+
+        delete m_service;
+        m_service = nullptr;
+
+        // NUOVO
+        delete m_batteryService;
+        m_batteryService = nullptr;
     }
 }
 
@@ -430,10 +477,65 @@ UserEntry DeviceHandler::parseUserEntry(const QByteArray &data) {
 }
 
 
+// Gestione stato Battery Service
+void DeviceHandler::batteryServiceStateChanged(QLowEnergyService::ServiceState s)
+{
+    switch (s) {
+    case QLowEnergyService::RemoteServiceDiscovering:
+        qDebug() << "Discovering battery service details...";
+        break;
+    case QLowEnergyService::RemoteServiceDiscovered:
+    {
+        qDebug() << "Battery service discovered.";
+
+        const QLowEnergyCharacteristic batteryChar = m_batteryService->characteristic(m_batteryCharacteristic);
+        if (!batteryChar.isValid()) {
+            qDebug() << "Battery level characteristic not found.";
+            break;
+        }
+
+        // Leggi il valore iniziale della batteria
+        if (batteryChar.properties() & QLowEnergyCharacteristic::Read) {
+            m_batteryService->readCharacteristic(batteryChar);
+        }
+
+        // Abilita le notifiche se supportate
+        if (batteryChar.properties() & QLowEnergyCharacteristic::Notify) {
+            m_batteryNotificationDesc = batteryChar.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration);
+            if (m_batteryNotificationDesc.isValid()) {
+                m_batteryService->writeDescriptor(m_batteryNotificationDesc, QByteArray::fromHex("0100"));
+                qDebug() << "Battery level notifications enabled";
+            }
+        }
+
+        break;
+    }
+    default:
+        break;
+    }
+}
+
+// Aggiorna livello batteria
+void DeviceHandler::updateBatteryLevel(const QLowEnergyCharacteristic &c, const QByteArray &value)
+{
+    if (c.uuid() == m_batteryCharacteristic) {
+        if (value.length() > 0) {
+            int newBatteryLevel = static_cast<uint8_t>(value.at(0));
+            if (m_batteryLevel != newBatteryLevel) {
+                m_batteryLevel = newBatteryLevel;
+                emit batteryLevelChanged();
+                qDebug() << "Battery level updated:" << m_batteryLevel << "%";
+            }
+        }
+    }
+}
+
 
 // PARSE CHARACTERISTICS NOTIFIED FROM DEVICE
 void DeviceHandler::updateCharacteristicValue(const QLowEnergyCharacteristic &c, const QByteArray &value)
 {
+    qDebug() << c.uuid();
+
     if (c.uuid() != m_customCharacteristic || value.size() < 3)
         return;
 

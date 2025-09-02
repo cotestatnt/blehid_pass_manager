@@ -7,8 +7,12 @@
 
 #include "hid_dev.h"
 #include "hid_device_ble.h"
+
+#if CONFIG_IDF_TARGET_ESP32S3
 #include "hid_device_usb.h"
 #include "class/hid/hid.h"
+#endif
+
 
 
 FPM* fpm;
@@ -346,8 +350,10 @@ void fingerprint_task(void *pvParameters) {
                 ESP_LOGI(TAG, "Biometric authentication successful: BLE access enabled");
                 ESP_LOGI(TAG, "User index: %d", user_index);
                 
+                #if CONFIG_IDF_TARGET_ESP32S3
                 // Check if we need USB HID also
                 bool usb_available = is_usb_connected_simple();                
+                #endif
 
                 // Search in the user database if there is an equivalent fingerprint_id with the magicfinger option
                 if (user_index == -1) {
@@ -370,6 +376,8 @@ void fingerprint_task(void *pvParameters) {
                                      HID_MODIFIER_LEFT_CTRL | HID_MODIFIER_LEFT_ALT, 0x4C);
                             ble_send_key_combination(HID_MODIFIER_LEFT_CTRL | HID_MODIFIER_LEFT_ALT, 0x4C);
                             break;
+                        
+                        #if CONFIG_IDF_TARGET_ESP32S3
                         case 1:  // USB only
                             ESP_LOGI(TAG, "Sending via USB: modifiers=0x%02X, key=0x%02X", 
                                      HID_MODIFIER_LEFT_CTRL | HID_MODIFIER_LEFT_ALT, 0x4C);
@@ -386,6 +394,7 @@ void fingerprint_task(void *pvParameters) {
                                 ble_send_key_combination(HID_MODIFIER_LEFT_CTRL | HID_MODIFIER_LEFT_ALT, 0x4C);
                             }
                             break;
+                        #endif
                     }
                     ESP_LOGI(TAG, "CTRL+ALT+DEL combination sent successfully");
                     vTaskDelay(pdMS_TO_TICKS(1000));
@@ -402,6 +411,8 @@ void fingerprint_task(void *pvParameters) {
                             case 0:  // BLE only
                                 ble_send_string(plain);
                                 break;
+                            
+                            #if CONFIG_IDF_TARGET_ESP32S3
                             case 1:  // USB only
                                 usb_send_string(plain);
                                 break;
@@ -412,6 +423,7 @@ void fingerprint_task(void *pvParameters) {
                                     ble_send_string(plain);
                                 }
                                 break;
+                            #endif
                         }
 
                         userdb_increment_usage(user_index);                        

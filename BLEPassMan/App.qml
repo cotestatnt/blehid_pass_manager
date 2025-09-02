@@ -3,7 +3,7 @@
 
 import QtQuick
 import QtQuick.Layouts
-import BLEPassMan
+
 
 Item {
     id: app

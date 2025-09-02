@@ -23,7 +23,10 @@
 #include "oled.h"
 #include "hid_device_prf.h"
 #include "hid_device_ble.h"
+
+#if CONFIG_IDF_TARGET_ESP32S3
 #include "hid_device_usb.h"
+#endif
 
 
 static const char *TAG = "MAIN";
@@ -91,11 +94,12 @@ extern "C" void app_main(void) {
     userdb_load();    
     userdb_dump();
 
-    // // Check if USB connection is available
-    bool usb_needed = false;
+    // Check if USB connection is available
     bool usb_available = is_usb_connected_simple();
     ESP_LOGI(TAG, "USB connection status: %s", usb_available ? "Connected" : "Not connected");
     
+    #if CONFIG_IDF_TARGET_ESP32S3
+    bool usb_needed = false;
     if (usb_available) {
         // Check if any user needs USB HID functionality
         for (size_t i = 0; i < user_count; ++i) {
@@ -120,12 +124,14 @@ extern "C" void app_main(void) {
         ESP_LOGI(TAG, "USB not connected - skipping USB HID initialization");
         oled_debug_status("USB NC");
     }
+    #endif
 
     last_interaction_time = xTaskGetTickCount();
     while(true) {
-        
+        // Periodically re-check USB status to avoid sleeping when connected
+        usb_available = is_usb_connected_simple();
         if (!usb_available) {
-            if (xTaskGetTickCount() - last_interaction_time > pdMS_TO_TICKS(60000)) {                
+            if (xTaskGetTickCount() - last_interaction_time > pdMS_TO_TICKS(60000)) {
                 oled_off();
                 #if SLEEP_ENABLE
                 ESP_LOGI(TAG, "Entering deep sleep...\n");
@@ -133,6 +139,9 @@ extern "C" void app_main(void) {
                 enter_deep_sleep();
                 #endif
             }
+        } else {
+            // If USB is connected, keep the device awake
+            last_interaction_time = xTaskGetTickCount();
         }
         vTaskDelay(pdMS_TO_TICKS(1000));
     }

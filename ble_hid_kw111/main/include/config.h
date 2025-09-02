@@ -10,14 +10,14 @@
 #define ESP32S3_SUPERMINI 2
 #define ESP32S3_TEST      3
 
-#define ESP_BOARD ESP32S3_SUPERMINI
+#define ESP_BOARD ESP32C3_TOI
 
 #if ESP_BOARD == ESP32C3_TOI
-    #define VBAT_GPIO            1
+    
     #define BUTTON_UP            6
     #define BUTTON_DOWN          7
     #define BUZZER_GPIO          10
-    #define FP_UART_PORT         UART_NUM_1
+    
     #define FP_TOUCH             4
     #define FP_TX                9
     #define FP_RX                8
@@ -25,6 +25,11 @@
     #define PIN_NUM_SDA          18
     #define PIN_NUM_SCL          19
     #define PIN_NUM_RST          -1
+
+    #define VBAT_GPIO            2  
+    #define FP_UART_PORT         UART_NUM_1
+    #define BATTERY_ADC_CHANNEL  ADC_CHANNEL_2
+    #define ADC_UNIT             ADC_UNIT_1
 
 #elif ESP_BOARD == ESP32C3_SUPERMINI
     #define VBAT_GPIO            2  
@@ -40,6 +45,7 @@
     #define PIN_NUM_SCL          9
     #define PIN_NUM_RST          -1    
     #define BATTERY_ADC_CHANNEL ADC_CHANNEL_3
+    #define ADC_UNIT            ADC_UNIT_1
 
 #elif ESP_BOARD == ESP32S3_SUPERMINI
     #define FP_UART_PORT         UART_NUM_1
@@ -47,7 +53,7 @@
     #define BUZZER_GPIO          10
 
     // Attenzione, la board non prevede il pin 8, fare ponticello sul Supermini
-    #define VBAT_GPIO            8  
+    #define VBAT_GPIO            11  
 
     #define BUTTON_UP            12
     #define BUTTON_DOWN          4
@@ -62,7 +68,9 @@
     #define PIN_NUM_RST          -1
     
     // ESP32-S3, GPIO 8 corrisponde ad ADC1_CH7
-    #define BATTERY_ADC_CHANNEL ADC_CHANNEL_7
+    // ESP32-S3, GPIO 11 corrisponde ad ADC2_CH0
+    #define BATTERY_ADC_CHANNEL ADC_CHANNEL_0
+    #define ADC_UNIT            ADC_UNIT_2
 
 #elif ESP_BOARD == ESP32S3_TEST
     #define FP_UART_PORT         UART_NUM_1
