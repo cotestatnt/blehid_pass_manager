@@ -10,7 +10,7 @@ with open("hmac_key.bin", "wb") as f:
     f.write(key)
 
 # # Scrivi la chiave nell'eFuse HMAC_KEY0
-# espefuse.py --port COM7 burn_key BLOCK_KEY0 hmac_key.bin HMAC_UP
+# espefuse.py --port COM9 burn_key BLOCK_KEY0 hmac_key.bin HMAC_UP
 
 # # Verifica che sia stata scritta correttamente
-# espefuse.py --port COM7 summary
+# espefuse.py --port COM9 summary
