@@ -114,9 +114,10 @@ void button_task(void *pvParameters)
                     break;
                 case BUZZ_NOAUTH:
                     // special pattern for no auth
+                    vTaskDelay(pdMS_TO_TICKS(50));
                     buzzer_beep_ms(50);
-                    vTaskDelay(pdMS_TO_TICKS(100));
-                    buzzer_beep_ms(100);
+                    vTaskDelay(pdMS_TO_TICKS(50));
+                    buzzer_beep_ms(50);
                     vTaskDelay(pdMS_TO_TICKS(100));
                     buzzer_beep_ms(50);
                     break;
