@@ -3,6 +3,7 @@
 #include "driver/gpio.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "freertos/queue.h"
 
 #include "hid_device_prf.h"
 #include "hid_device_ble.h"
@@ -19,12 +20,70 @@
 static const char *TAG = "BUTTONS";
 extern uint32_t last_interaction_time;        
 
+// Simple buzzer feedback integration
+enum BuzzerEvent { BUZZ_STARTUP = 0, BUZZ_SUCCESS, BUZZ_FAIL, BUZZ_NOAUTH };
+static QueueHandle_t s_buzzerQueue = nullptr;
+
+static inline void buzzer_set(int on)
+{
+    gpio_set_level((gpio_num_t)BUZZER_GPIO, on ? 1 : 0);
+}
+
+static void buzzer_beep_ms(uint32_t ms)
+{
+    buzzer_set(1);
+    vTaskDelay(pdMS_TO_TICKS(ms));
+    buzzer_set(0);
+}
+
+// Non-blocking post from other tasks
+extern "C" void buzzer_feedback_success()
+{
+    if (s_buzzerQueue) {
+        BuzzerEvent ev = BUZZ_SUCCESS;
+        xQueueSend(s_buzzerQueue, &ev, 0);
+    }
+}
+
+extern "C" void buzzer_feedback_fail()
+{
+    if (s_buzzerQueue) {
+        BuzzerEvent ev = BUZZ_FAIL;
+        xQueueSend(s_buzzerQueue, &ev, 0);
+    }
+}
+
+extern "C" void buzzer_feedback_noauth()
+{
+    if (s_buzzerQueue) {
+        BuzzerEvent ev = BUZZ_NOAUTH;
+        xQueueSend(s_buzzerQueue, &ev, 0);
+    }
+}
+
 void button_task(void *pvParameters)
 {
     int last_btn_up = 1, last_btn_down = 1;
     uint32_t both_buttons_pressed_time = 0;
     bool both_buttons_active = false;
     const uint32_t DISCONNECT_HOLD_TIME_MS = 3000; // 3 secondi
+
+    // Buzzer GPIO init
+    gpio_config_t buzzer_conf = {};
+    buzzer_conf.intr_type = GPIO_INTR_DISABLE;
+    buzzer_conf.mode = GPIO_MODE_OUTPUT;
+    buzzer_conf.pin_bit_mask = (1ULL << (gpio_num_t)BUZZER_GPIO);
+    buzzer_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
+    buzzer_conf.pull_up_en = GPIO_PULLUP_DISABLE;
+    gpio_config(&buzzer_conf);
+    buzzer_set(0);
+
+    // Buzzer event queue and startup beep
+    s_buzzerQueue = xQueueCreate(4, sizeof(BuzzerEvent));
+    if (s_buzzerQueue) {
+        BuzzerEvent ev = BUZZ_STARTUP;
+        xQueueSend(s_buzzerQueue, &ev, 0);
+    }
 
     // Configure button pins as input with pull-up
     gpio_config_t io_conf = {};
@@ -36,6 +95,33 @@ void button_task(void *pvParameters)
     gpio_config(&io_conf);
 
     while (1) {
+        // Handle buzzer events without blocking UI loop
+        BuzzerEvent ev;
+        while (s_buzzerQueue && xQueueReceive(s_buzzerQueue, &ev, 0) == pdTRUE) {
+            switch (ev) {
+                case BUZZ_STARTUP:
+                    buzzer_beep_ms(100);
+                    break;
+                case BUZZ_SUCCESS:
+                    // one longer beep
+                    buzzer_beep_ms(350);
+                    break;
+                case BUZZ_FAIL:
+                    // two short beeps
+                    buzzer_beep_ms(40);
+                    vTaskDelay(pdMS_TO_TICKS(60));
+                    buzzer_beep_ms(40);
+                    break;
+                case BUZZ_NOAUTH:
+                    // special pattern for no auth
+                    buzzer_beep_ms(50);
+                    vTaskDelay(pdMS_TO_TICKS(100));
+                    buzzer_beep_ms(100);
+                    vTaskDelay(pdMS_TO_TICKS(100));
+                    buzzer_beep_ms(50);
+                    break;
+            }
+        }
         int btn_up = gpio_get_level((gpio_num_t)BUTTON_UP);
         int btn_down = gpio_get_level((gpio_num_t)BUTTON_DOWN);
 
@@ -133,7 +219,7 @@ void button_task(void *pvParameters)
 
 
 void enter_deep_sleep() {
-    gpio_set_level((gpio_num_t)FP_ACTIVATE, 0);
+    gpio_set_level((gpio_num_t)FP_ACTIVATE, 1);
     
 #if CONFIG_IDF_TARGET_ESP32C3
     // ESP32-C3: use gpio wakeup

@@ -29,6 +29,7 @@ static bool battery_calibrated = false;
 #define ADC_ATTEN           ADC_ATTEN_DB_12
 #define ADC_BITWIDTH        ADC_BITWIDTH_DEFAULT
 
+#if CONFIG_IDF_TARGET_ESP32C3
 // Fast helper to read battery voltage in mV (non-blocking, few samples)
 static int read_battery_mv(void) {
     if (adc_handle == NULL) {
@@ -49,10 +50,12 @@ static int read_battery_mv(void) {
     if (battery_calibrated && adc_cali_battery_handle) {
         if (adc_cali_raw_to_voltage(adc_cali_battery_handle, avg, &mv) != ESP_OK) return -1;
     } else {
+        // Approximate conversion when calibration not available
         mv = (avg * 3100) / 4095;
     }
     return mv * 2; // divider 100k/100k => real Vbat
 }
+#endif
 
 // Task that notifies battery level every 30 seconds
 void battery_notify_task(void *pvParameters) {

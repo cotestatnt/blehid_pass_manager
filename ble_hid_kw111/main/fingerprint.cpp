@@ -7,6 +7,7 @@
 
 #include "hid_dev.h"
 #include "hid_device_ble.h"
+#include "buttons.h"
 
 #if CONFIG_IDF_TARGET_ESP32S3
 #include "hid_device_usb.h"
@@ -241,12 +242,14 @@ int searchDatabase() {
         ESP_LOGI(TAG, "Found a match at ID #%u with confidence %u", fid, score);        
         oled_debug_printf("Match ID %02d", fid);
         vTaskDelay(500 / portTICK_PERIOD_MS);
+        buzzer_feedback_success();
         break;
 
     case FPMStatus::NOTFOUND:
         ESP_LOGI(TAG, "Did not find a match.");
         oled_write_text("No match");
         vTaskDelay(1000 / portTICK_PERIOD_MS);
+        buzzer_feedback_fail();
         break;
 
     default:
@@ -292,7 +295,7 @@ void fingerprint_task(void *pvParameters) {
     }
 
     // Activate the fingerprint module
-    gpio_set_level((gpio_num_t)FP_ACTIVATE, 1);
+    gpio_set_level((gpio_num_t)FP_ACTIVATE, 0);
     vTaskDelay(pdMS_TO_TICKS(100));
 
     // Initialize FPM using ESP-IDF UART transport
@@ -438,6 +441,7 @@ void fingerprint_task(void *pvParameters) {
                 else {
                     ESP_LOGW(TAG, "No account selected");
                     oled_write_text("No account");
+                    buzzer_feedback_noauth();
                 }
             } 
             else {
