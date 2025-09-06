@@ -24,13 +24,25 @@ extern "C" {
 #define I2C_HW_ADDR           0x3C
 #define LCD_PIXEL_CLOCK_HZ    (400 * 1000)
 
-// The pixel number in horizontal and vertical
-#define LCD_H_RES              96
-#define LCD_V_RES              16
+// The pixel number in horizontal and vertical are now defined in config.h
+// based on the selected OLED_TYPE
 
 // Bit number used to represent command and parameter
 #define LCD_CMD_BITS           8
 #define LCD_PARAM_BITS         8
+
+// Icon definitions (14x16 for BLE, 18x14 for USB, 20x10 for battery HORIZONTAL)
+typedef enum {
+    ICON_BLE_CONNECTED,
+    ICON_BLE_DISCONNECTED,
+    ICON_USB_CONNECTED,
+    ICON_USB_DISCONNECTED,
+    ICON_BATTERY_FULL,
+    ICON_BATTERY_HIGH,
+    ICON_BATTERY_MEDIUM,
+    ICON_BATTERY_LOW,
+    ICON_BATTERY_EMPTY
+} oled_icon_t;
 
 // Debug message types
 typedef enum {
@@ -56,6 +68,11 @@ void oled_write_text_permanent(const char* text);
 void oled_debug_printf(const char* format, ...);
 void oled_debug_error(const char* error);
 void oled_debug_status(const char* status);
+
+// Icon and status functions
+void oled_draw_icon(int x, int y, oled_icon_t icon);
+void oled_show_status_bar(bool ble_connected, bool usb_connected, int battery_percent);
+void oled_update_status(bool ble_connected, bool usb_connected, int battery_percent, const char* main_text);
 // void oled_show_temporary(const char* text, uint32_t duration_ms);
 
 // Message queue management

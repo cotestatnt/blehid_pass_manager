@@ -19,7 +19,7 @@ static volatile bool oled_initialized = false;
 static oled_message_t current_message = {0};
 static TickType_t message_start_time = 0;
 
-// Simple 1bpp framebuffer (128x16 => 256 bytes)
+// Simple 1bpp framebuffer - size depends on display configuration
 static uint8_t fb[LCD_H_RES * LCD_V_RES / 8];
 
 // 8x14 ASCII font - Struttura con 14 righe di uint8_t per carattere
@@ -121,7 +121,53 @@ static const uint8_t font8x14[95][14] = {
     {0x70,0x78,0x18,0x18,0x18,0x18,0x0E,0x0E,0x18,0x18,0x18,0x18,0x78,0x70},  // } (125)
     {0x3B,0x7F,0x6E,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}   // ~ (126)
 };
+
+// BLE icons 14x20 HORIZONTAL (3 bytes per row x 14 rows = 42 bytes)
+static const uint8_t ble_icons_14x20[][42] = {
+    // ICON_BLE_CONNECTED - Bluetooth symbol with signal waves 14x20
+    {0x00, 0x30, 0x00, 0x00, 0x30, 0x00, 0x00, 0x33, 0x00, 0x00, 0x36, 0x80, 0x3C, 0x3C, 0x40, 0x06, 0x36, 0x20, 0x03, 0x33, 0x00, 0x01, 0xB1, 0x80,
+     0x01, 0xB1, 0x80, 0x03, 0x33, 0x00, 0x06, 0x36, 0x20, 0x3C, 0x3C, 0x40, 0x00, 0x36, 0x80, 0x00, 0x33, 0x00},
     
+    // ICON_BLE_DISCONNECTED - Bluetooth with X overlay and signal waves 14x20
+    {0x80, 0x30, 0x10, 0x40, 0x30, 0x20, 0x20, 0x33, 0x40, 0x10, 0x36, 0x80, 0x3C, 0x3C, 0x40, 0x0E, 0x36, 0xE0, 0x07, 0x33, 0xC0, 0x03, 0xB1, 0x80,
+     0x03, 0xB1, 0x80, 0x07, 0x33, 0xC0, 0x0E, 0x36, 0xE0, 0x3C, 0x3C, 0x40, 0x10, 0x36, 0x80, 0x20, 0x33, 0x40}
+};
+
+// USB icons HORIZONTAL 20x14 (3 bytes per row x 14 rows = 42 bytes)
+static const uint8_t usb_icons_20x14[][42] = {
+    // USB_CONNECTED - Clear USB connector shape 20x14 HORIZONTAL
+    {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07, 0xFF, 0x00, 0x07, 0x01, 0x80, 0x07, 0x01, 0x80, 0x07, 0xFF, 0x80,
+     0x01, 0x80, 0x00, 0x01, 0x98, 0x00, 0x01, 0xF8, 0x00, 0x01, 0xF8, 0x00, 0x00, 0xF0, 0x00, 0x00, 0xF0, 0x00,
+     0x01, 0xF8, 0x00, 0x03, 0xFC, 0x00},
+    
+    // USB_DISCONNECTED - USB with X overlay 20x14 HORIZONTAL  
+    {0x80, 0x00, 0x10, 0x40, 0x00, 0x20, 0x67, 0xFE, 0x60, 0x27, 0x02, 0xE0, 0x17, 0x01, 0xC0, 0x0F, 0xFF, 0x80,
+     0x1B, 0x80, 0xD0, 0x11, 0x98, 0x80, 0x01, 0xF8, 0x00, 0x01, 0xF8, 0x00, 0x80, 0xF0, 0x10, 0x40, 0xF0, 0x20,
+     0x21, 0xF8, 0x40, 0x13, 0xFC, 0x80}
+};
+
+// Battery icons 20x10 HORIZONTAL (3 bytes per row x 10 rows = 30 bytes)
+static const uint8_t battery_icons_20x10[][30] = {
+    // ICON_BATTERY_FULL - Horizontal full battery 20x10
+    {0xFF, 0xFF, 0xF0, 0xFF, 0xFF, 0xF8, 0xFF, 0xFF, 0xF8, 0xFF, 0xFF, 0xF8, 0xFF, 0xFF, 0xF8,
+     0xFF, 0xFF, 0xF8, 0xFF, 0xFF, 0xF8, 0xFF, 0xFF, 0xF8, 0xFF, 0xFF, 0xF8, 0xFF, 0xFF, 0xF0},
+    
+    // ICON_BATTERY_HIGH - Horizontal high battery 20x10 (75%)
+    {0xFF, 0xFF, 0xF0, 0x80, 0x00, 0x38, 0xFF, 0xFF, 0x38, 0xFF, 0xFF, 0x38, 0xFF, 0xFF, 0x38,
+     0xFF, 0xFF, 0x38, 0xFF, 0xFF, 0x38, 0xFF, 0xFF, 0x38, 0x80, 0x00, 0x38, 0xFF, 0xFF, 0xF0},
+    
+    // ICON_BATTERY_MEDIUM - Horizontal medium battery 20x10 (50%)
+    {0xFF, 0xFF, 0xF0, 0x80, 0x00, 0x38, 0x80, 0x00, 0x38, 0xFF, 0x00, 0x38, 0xFF, 0x00, 0x38,
+     0xFF, 0x00, 0x38, 0xFF, 0x00, 0x38, 0x80, 0x00, 0x38, 0x80, 0x00, 0x38, 0xFF, 0xFF, 0xF0},
+    
+    // ICON_BATTERY_LOW - Horizontal low battery 20x10 (25%)
+    {0xFF, 0xFF, 0xF0, 0x80, 0x00, 0x38, 0x80, 0x00, 0x38, 0x80, 0x00, 0x38, 0xF0, 0x00, 0x38,
+     0xF0, 0x00, 0x38, 0x80, 0x00, 0x38, 0x80, 0x00, 0x38, 0x80, 0x00, 0x38, 0xFF, 0xFF, 0xF0},
+    
+    // ICON_BATTERY_EMPTY - Horizontal empty battery 20x10
+    {0xFF, 0xFF, 0xF0, 0x80, 0x00, 0x38, 0x80, 0x00, 0x38, 0x80, 0x00, 0x38, 0x80, 0x00, 0x38,
+     0x80, 0x00, 0x38, 0x80, 0x00, 0x38, 0x80, 0x00, 0x38, 0x80, 0x00, 0x38, 0xFF, 0xFF, 0xF0}
+};
 
 static inline void fb_clear(void) {
     memset(fb, 0x00, sizeof(fb));
@@ -150,14 +196,98 @@ static void fb_draw_char_8x14(int x, int y, char c) {
     }
 }
 
+// Draw a 14x16 icon (BLE icons)
+static void fb_draw_ble_14x20(int x, int y, oled_icon_t icon) {
+    if (x < 0 || x + 20 > LCD_H_RES || y < 0 || y + 14 > LCD_V_RES) return;
+    if (icon > ICON_BLE_DISCONNECTED) return; // Only BLE icons are 14x20
+    
+    const uint8_t *icon_data = ble_icons_14x20[icon];
+    for (int row = 0; row < 14; row++) {
+        // Each row uses 3 bytes (24 bits, first 20 are used)
+        uint32_t rowbits = (icon_data[row * 3] << 16) | (icon_data[row * 3 + 1] << 8) | icon_data[row * 3 + 2];
+        for (int col = 0; col < 20; col++) {
+            bool on = (rowbits >> (23-col)) & 0x1; // Bit 23 is leftmost pixel
+            if (on) fb_set_pixel(x + col, y + row, true);
+        }
+    }
+}
+
+// Draw an 18x14 USB icon
+static void fb_draw_usb_20x14(int x, int y, bool connected) {
+    if (x < 0 || x + 20 > LCD_H_RES || y < 0 || y + 14 > LCD_V_RES) return;
+    
+    int usb_index = connected ? 0 : 1;
+    const uint8_t *icon_data = usb_icons_20x14[usb_index];
+    
+    for (int row = 0; row < 14; row++) {
+        // Each row uses 3 bytes (24 bits, first 20 are used)
+        uint32_t rowbits = (icon_data[row * 3] << 16) | (icon_data[row * 3 + 1] << 8) | icon_data[row * 3 + 2];
+        for (int col = 0; col < 20; col++) {
+            bool on = (rowbits >> (23-col)) & 0x1; // Bit 23 is leftmost pixel
+            if (on) fb_set_pixel(x + col, y + row, true);
+        }
+    }
+}
+
+// Draw a 20x10 horizontal battery icon
+static void fb_draw_battery_20x10(int x, int y, oled_icon_t icon) {
+    if (x < 0 || x + 20 > LCD_H_RES || y < 0 || y + 10 > LCD_V_RES) return;
+    
+    // Map battery icons to battery array indices
+    int battery_index = -1;
+    switch(icon) {
+        case ICON_BATTERY_FULL: battery_index = 0; break;
+        case ICON_BATTERY_HIGH: battery_index = 1; break;
+        case ICON_BATTERY_MEDIUM: battery_index = 2; break;
+        case ICON_BATTERY_LOW: battery_index = 3; break;
+        case ICON_BATTERY_EMPTY: battery_index = 4; break;
+        default: return;
+    }
+    
+    const uint8_t *icon_data = battery_icons_20x10[battery_index];
+    for (int row = 0; row < 10; row++) {
+        // Each row uses 3 bytes (24 bits, but only first 20 are used)
+        uint32_t rowbits = (icon_data[row * 3] << 16) | (icon_data[row * 3 + 1] << 8) | icon_data[row * 3 + 2];
+        for (int col = 0; col < 20; col++) {
+            bool on = (rowbits >> (23-col)) & 0x1; // Bit 23 is leftmost pixel
+            if (on) fb_set_pixel(x + col, y + row, true);
+        }
+    }
+}
+
 static void fb_draw_text_8x14(const char *text) {
     fb_clear();
-    int y = 0; // Start from top - no offset for now to see if it appears
-    int x = 0;
     
-    for (const char *p = text; *p && x + 8 <= LCD_H_RES; ++p) {
-        fb_draw_char_8x14(x, y, *p);
-        x += 8; // Fixed 8-pixel width, no spacing
+    int x = 0;
+    int y = 0;
+    int line = 0;
+    
+    // For 128x32 display, start text from bottom to leave space for status icons
+    #if OLED_TYPE == OLED_128x32
+        int max_lines = 2; // 32px / 14px ≈ 2 lines max
+        y = LCD_V_RES - OLED_FONT_HEIGHT; // Start from bottom (32-14=18)
+    #else
+        int max_lines = LCD_V_RES / OLED_FONT_HEIGHT; // For 96x16: 16/14=1 line
+    #endif
+    
+    for (const char *p = text; *p && line < max_lines; ++p) {
+        if (*p == '\n' || x + OLED_FONT_WIDTH > LCD_H_RES) {
+            // Move to next line
+            line++;
+            if (line >= max_lines) break;
+            x = 0;
+            #if OLED_TYPE == OLED_128x32
+                y = LCD_V_RES - OLED_FONT_HEIGHT + (line * OLED_FONT_HEIGHT); // Still bottom-aligned for multiline
+            #else
+                y = line * OLED_FONT_HEIGHT;
+            #endif
+            if (*p == '\n') continue; // Skip the newline character
+        }
+        
+        if (y + OLED_FONT_HEIGHT <= LCD_V_RES) {
+            fb_draw_char_8x14(x, y, *p);
+            x += OLED_FONT_WIDTH;
+        }
     }
 }
 
@@ -233,6 +363,124 @@ void oled_write_text_permanent(const char* text) {
     if (oled_initialized) {
         oled_send_message(&msg);
     }
+}
+
+// Icon and status functions
+void oled_draw_icon(int x, int y, oled_icon_t icon) {
+    if (!oled_initialized) return;
+    
+    // Use appropriate drawing function based on icon type
+    if (icon <= ICON_BLE_DISCONNECTED) {
+        fb_draw_ble_14x20(x, y, icon);  // BLE icons are 14x20 HORIZONTAL
+    } else if (icon <= ICON_USB_DISCONNECTED) {
+        fb_draw_usb_20x14(x, y, icon == ICON_USB_CONNECTED);  // USB icons are 20x14 HORIZONTAL
+    } else {
+        fb_draw_battery_20x10(x, y, icon);  // Battery icons are 20x10 HORIZONTAL
+    }
+    oled_flush();
+}
+
+void oled_show_status_bar(bool ble_connected, bool usb_connected, int battery_percent) {
+    if (!oled_initialized) return;
+    if (OLED_TYPE != OLED_128x32) return; // Status bar only for 128x32 display
+    
+    fb_clear();
+    
+    // Top row for status icons (y=0) - now using 14px height icons
+    int x_pos = 0;
+    
+    // BLE status icon (14x20 HORIZONTAL)
+    fb_draw_ble_14x20(x_pos, 0, ble_connected ? ICON_BLE_CONNECTED : ICON_BLE_DISCONNECTED);
+    x_pos += 22; // 20px icon + 2px spacing
+    
+    // USB status icon (20x14 HORIZONTAL) - always show
+    fb_draw_usb_20x14(x_pos, 0, usb_connected);
+    x_pos += 22; // 20px icon + 2px spacing
+    
+    // Battery icon (20x10 HORIZONTAL) and percentage (right-aligned)
+    oled_icon_t battery_icon;
+    if (battery_percent >= 80) battery_icon = ICON_BATTERY_FULL;
+    else if (battery_percent >= 60) battery_icon = ICON_BATTERY_HIGH;
+    else if (battery_percent >= 40) battery_icon = ICON_BATTERY_MEDIUM;
+    else if (battery_percent >= 20) battery_icon = ICON_BATTERY_LOW;
+    else battery_icon = ICON_BATTERY_EMPTY;
+    
+    // Calculate position for right-aligned battery info
+    char battery_text[8];
+    snprintf(battery_text, sizeof(battery_text), "%d%%", battery_percent);
+    int text_width = strlen(battery_text) * OLED_FONT_WIDTH;
+    int battery_x = LCD_H_RES - text_width - 22; // 20px horizontal icon + 2px spacing
+    
+    fb_draw_battery_20x10(battery_x, 2, battery_icon);  // Centered vertically (y=2 for 10px height)
+    
+    // Draw battery percentage text (positioned next to 20x10 horizontal icon)
+    for (int i = 0; battery_text[i] && i < strlen(battery_text); i++) {
+        fb_draw_char_8x14(battery_x + 22 + (i * OLED_FONT_WIDTH), 0, battery_text[i]);
+    }
+    
+    oled_flush();
+}
+
+void oled_update_status(bool ble_connected, bool usb_connected, int battery_percent, const char* main_text) {
+    if (!oled_initialized) return;
+    if (OLED_TYPE != OLED_128x32) {
+        // For 96x16 display, just show the main text
+        oled_write_text_permanent(main_text);
+        return;
+    }
+    
+    fb_clear();
+    
+    // Top row for status icons (y=0) - using 14px height icons
+    int x_pos = 0;
+    
+    // BLE status icon (14x20 HORIZONTAL)
+    fb_draw_ble_14x20(x_pos, 0, ble_connected ? ICON_BLE_CONNECTED : ICON_BLE_DISCONNECTED);
+    x_pos += 22; // 20px icon + 2px spacing
+    
+    // USB status icon (20x14 HORIZONTAL) - always show
+    fb_draw_usb_20x14(x_pos, 0, usb_connected);
+    x_pos += 22; // 20px icon + 2px spacing
+    
+    // Battery icon (20x10 HORIZONTAL) and percentage (right-aligned)
+    oled_icon_t battery_icon;
+    if (battery_percent >= 80) battery_icon = ICON_BATTERY_FULL;
+    else if (battery_percent >= 60) battery_icon = ICON_BATTERY_HIGH;
+    else if (battery_percent >= 40) battery_icon = ICON_BATTERY_MEDIUM;
+    else if (battery_percent >= 20) battery_icon = ICON_BATTERY_LOW;
+    else battery_icon = ICON_BATTERY_EMPTY;
+    
+    char battery_text[8];
+    snprintf(battery_text, sizeof(battery_text), "%d%%", battery_percent);
+    int text_width = strlen(battery_text) * OLED_FONT_WIDTH;
+    int battery_x = LCD_H_RES - text_width - 22; // 20px horizontal icon + 2px spacing
+    
+    fb_draw_battery_20x10(battery_x, 2, battery_icon);  // Centered vertically (y=2 for 10px height)
+    
+    // Draw battery percentage text (top row, next to 20x10 horizontal icon)
+    for (int i = 0; battery_text[i] && i < strlen(battery_text); i++) {
+        fb_draw_char_8x14(battery_x + 22 + (i * OLED_FONT_WIDTH), 0, battery_text[i]);
+    }
+    
+    // Main text centered at bottom (with gap from icons)
+    if (main_text && strlen(main_text) > 0) {
+        int text_len = strlen(main_text);
+        int max_chars = LCD_H_RES / OLED_FONT_WIDTH;
+        if (text_len > max_chars) text_len = max_chars;
+        
+        // Calculate horizontal center position
+        int text_width = text_len * OLED_FONT_WIDTH;
+        int start_x = (LCD_H_RES - text_width) / 2;
+        
+        // Position text at bottom with gap from icons (y = LCD_V_RES - OLED_FONT_HEIGHT)
+        int text_y = LCD_V_RES - OLED_FONT_HEIGHT;
+        
+        for (int i = 0; i < text_len; i++) {
+            fb_draw_char_8x14(start_x + (i * OLED_FONT_WIDTH), text_y, main_text[i]);
+        }
+    }
+    
+    oled_flush();
 }
 
 // Enhanced debug functions
@@ -386,7 +634,7 @@ esp_err_t oled_init(void) {
     esp_lcd_panel_mirror(panel_handle, true, true);
 
     // Apply horizontal gap (column offset) if configured
-    esp_lcd_panel_set_gap(panel_handle, 0, 4);
+    esp_lcd_panel_set_gap(panel_handle, OLED_COLUMN_OFFSET, 4);
     
     // Initialize debug message system
     ESP_LOGI(TAG, "Initialize OLED debug message system");
@@ -421,7 +669,6 @@ esp_err_t oled_init(void) {
         
     return ESP_OK;
 }
-
 
 void oled_off(void) {
     // Clear the display content

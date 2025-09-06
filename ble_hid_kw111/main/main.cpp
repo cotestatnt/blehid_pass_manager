@@ -57,8 +57,11 @@ extern "C" void app_main(void) {
         oled_debug_error("OLED FAIL");
         // Continue without OLED if it fails
     } else {
-        // Show initial message
-        oled_write_text_permanent("BLE PassMan");
+        // Show initial status with icons
+        bool ble_connected = false; // BLE not ready yet
+        bool usb_connected = is_usb_connected_simple();
+        int battery_percent = get_battery_percentage();
+        oled_update_status(ble_connected, usb_connected, battery_percent, "BLE PassMan");
     }    
 
     // Initialize and start the BLE management task
@@ -66,6 +69,13 @@ extern "C" void app_main(void) {
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "BLE initialization failed: %s", esp_err_to_name(ret));
         oled_debug_error("BLE FAIL");
+    } else {
+        // Update display to show BLE initialized
+        bool ble_connected = ble_is_connected();
+        bool usb_connected = is_usb_connected_simple(); 
+        int battery_percent = get_battery_percentage();
+        oled_update_status(ble_connected, usb_connected, battery_percent, "BLE Ready");
+        vTaskDelay(pdMS_TO_TICKS(1000)); // Show "BLE Ready" for 1 second
     }
 
     // Initialize power monitoring ADC
@@ -130,6 +140,12 @@ extern "C" void app_main(void) {
     while(true) {
         // Periodically re-check USB status to avoid sleeping when connected
         usb_available = is_usb_connected_simple();
+        
+        // Update display with current status
+        bool ble_connected = ble_is_connected();
+        int battery_percent = get_battery_percentage();
+        oled_update_status(ble_connected, usb_available, battery_percent, "BLE PassMan");
+        
         if (!usb_available) {
             if (xTaskGetTickCount() - last_interaction_time > pdMS_TO_TICKS(60000)) {
                 oled_off();

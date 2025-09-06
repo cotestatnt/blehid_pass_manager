@@ -110,5 +110,33 @@
     #define ACTIVE_LEVEL 0 // R503 touch is active low
 #endif
 
+// OLED Display configuration
+#define OLED_96x16   1
+#define OLED_128x32  2
+
+// Configure the OLED display type here
+#define OLED_TYPE OLED_128x32
+
+// Display parameters based on type
+#if OLED_TYPE == OLED_96x16
+    #define LCD_H_RES              96
+    #define LCD_V_RES              16
+    #define OLED_FONT_HEIGHT       14
+    #define OLED_FONT_WIDTH        8
+    #define OLED_MAX_CHARS_PER_LINE (LCD_H_RES / OLED_FONT_WIDTH)
+    #define OLED_MAX_LINES         1
+    #define OLED_COLUMN_OFFSET     0
+#elif OLED_TYPE == OLED_128x32
+    #define LCD_H_RES              128
+    #define LCD_V_RES              32
+    #define OLED_FONT_HEIGHT       14
+    #define OLED_FONT_WIDTH        8
+    #define OLED_MAX_CHARS_PER_LINE (LCD_H_RES / OLED_FONT_WIDTH)
+    #define OLED_MAX_LINES         2
+    #define OLED_COLUMN_OFFSET     0
+#else
+    #error "Unsupported OLED display type"
+#endif
+
 
 #endif // CONFIG_H
