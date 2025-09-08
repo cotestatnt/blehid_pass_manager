@@ -3,7 +3,7 @@
 #define BUTTONS_H
 
 #include "config.h"
-#include "oled.h"
+#include "display_oled.h"
 #include "user_list.h"
 
 #ifdef __cplusplus
@@ -18,6 +18,7 @@ void button_task(void *pvParameters);
 void buzzer_feedback_success();
 void buzzer_feedback_fail();
 void buzzer_feedback_noauth();
+void buzzer_feedback_lift();
 
 #ifdef __cplusplus
 }

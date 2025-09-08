@@ -14,9 +14,8 @@ extern "C" {
 
 #include "driver/usb_serial_jtag.h"
 
+#include "display_oled.h"
 #include "battery.h"
-#include "config.h"
-
 
 static const char *TAG = "BAT";
 static TaskHandle_t batteryNotifyTaskHandle = NULL;
@@ -62,18 +61,15 @@ void battery_notify_task(void *pvParameters) {
     extern uint16_t battery_handle[]; // external declaration    
     while (1) {
         int battery_percentage = get_battery_percentage();
+
         if (battery_percentage >= 0) {
+            bool usb_connected = is_usb_connected_simple();
+            // Charging when USB connected and not yet full
+            display_oled_set_charging(usb_connected && battery_percentage < 98);
+            display_oled_set_battery_percent(battery_percentage);
 
             // Notify only if handle is valid and BLE connection is active
             if (battery_handle[BAS_IDX_BATT_LVL_VAL] != 0) {
-
-                ///////////////////////   TEST   ///////////////////////////
-                // Aggiunge un po' di rumore per evitare notifiche identiche
-                ////////////////////////////////////////////////////////////
-                battery_percentage = battery_percentage - esp_random() % 10;
-                ////////////////////////////////////////////////////////////
-                ///////////////////////   TEST   ///////////////////////////
-
                 esp_err_t err = battery_notify_level((uint8_t)battery_percentage);
                 if (err != ESP_OK) {
                     ESP_LOGW(TAG, "BAS notify failed: %s", esp_err_to_name(err));
@@ -289,12 +285,16 @@ int get_battery_percentage(void) {
             return -1;
         }
     } else {
-        voltage_mv = (adc_avg * 3050) / 4095;
+        // Fallback approx. conversion to mV at 12dB atten
+        voltage_mv = (adc_avg * 3100) / 4095;
     }
-    
-    // La tensione misurata è già quella del partitore (Vbat/2)
-    // Per ottenere la tensione reale della batteria, moltiplichiamo per 2
-    int battery_voltage_mv = voltage_mv * 2;
+
+    // Applica calibrazione per allineare la lettura ADC al multimetro
+    // voltage_mv è la tensione sul pin (dopo partitore). Calibrazione prima del raddoppio.
+    int32_t calibrated_mv = (int32_t)voltage_mv * VBAT_ADC_SCALE_NUM / VBAT_ADC_SCALE_DEN + VBAT_ADC_OFFSET_MV;
+
+    // La tensione misurata è quella del partitore (Vbat/2). Per la batteria reale moltiplica per 2
+    int battery_voltage_mv = (int)calibrated_mv * 2;
     
     // Conversione a percentuale basata su range batteria Li-Ion (3.0V-4.2V)
     // 3000mV = 0%, 4200mV = 100%
@@ -302,6 +302,6 @@ int get_battery_percentage(void) {
     if (percentage < 0) percentage = 0;
     if (percentage > 100) percentage = 100;
     
-    ESP_LOGI(TAG, "Battery (GPIO%d): ADC=%dmV, Real=%dmV, %d%%", VBAT_GPIO, voltage_mv, battery_voltage_mv, percentage);
+    ESP_LOGI(TAG, "Battery (GPIO%d): ADC=%dmV, Real=%dmV, %d%%", VBAT_GPIO, (int)calibrated_mv, battery_voltage_mv, percentage);
     return percentage;
 }

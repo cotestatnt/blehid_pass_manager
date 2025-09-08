@@ -72,6 +72,14 @@
     #define BATTERY_ADC_CHANNEL ADC_CHANNEL_0
     #define ADC_UNIT            ADC_UNIT_2
 
+    // Calibrazione lettura ADC (mV) per VBAT divider 100k/100k
+    // Scala/offset applicati alla tensione misurata sul pin (prima di raddoppiare)
+    // Valori derivati dall'osservazione: multimetro=2070mV, ADC riportato ~1928mV => scala ~1.074
+    #define VBAT_ADC_SCALE_NUM   1074
+    #define VBAT_ADC_SCALE_DEN   1000
+    // Offset sul pin in mV: 30 mV porta 2070 mV -> 2100 mV (=> 4200 mV batteria = 100%)
+    #define VBAT_ADC_OFFSET_MV   30
+
 #elif ESP_BOARD == ESP32S3_TEST
     #define FP_UART_PORT         UART_NUM_1
   
@@ -91,9 +99,25 @@
     // ESP32-S3, GPIO 9 corrisponde ad ADC1_CH8 (ADC_CHANNEL_8)    
     #define VBAT_GPIO            9 
     #define BATTERY_ADC_CHANNEL ADC_CHANNEL_8
+    // Default calibrazione neutra (override se necessario)
+    #define VBAT_ADC_SCALE_NUM   1000
+    #define VBAT_ADC_SCALE_DEN   1000
+    #define VBAT_ADC_OFFSET_MV   0
     
 #else
     #error "Unsupported ESP board configuration"    
+#endif
+
+
+// Se non definiti nel blocco della board, usa valori neutri
+#ifndef VBAT_ADC_SCALE_NUM
+#define VBAT_ADC_SCALE_NUM 1000
+#endif
+#ifndef VBAT_ADC_SCALE_DEN
+#define VBAT_ADC_SCALE_DEN 1000
+#endif
+#ifndef VBAT_ADC_OFFSET_MV
+#define VBAT_ADC_OFFSET_MV 0
 #endif
 
 
@@ -110,33 +134,6 @@
     #define ACTIVE_LEVEL 0 // R503 touch is active low
 #endif
 
-// OLED Display configuration
-#define OLED_96x16   1
-#define OLED_128x32  2
-
-// Configure the OLED display type here
-#define OLED_TYPE OLED_128x32
-
-// Display parameters based on type
-#if OLED_TYPE == OLED_96x16
-    #define LCD_H_RES              96
-    #define LCD_V_RES              16
-    #define OLED_FONT_HEIGHT       14
-    #define OLED_FONT_WIDTH        8
-    #define OLED_MAX_CHARS_PER_LINE (LCD_H_RES / OLED_FONT_WIDTH)
-    #define OLED_MAX_LINES         1
-    #define OLED_COLUMN_OFFSET     0
-#elif OLED_TYPE == OLED_128x32
-    #define LCD_H_RES              128
-    #define LCD_V_RES              32
-    #define OLED_FONT_HEIGHT       14
-    #define OLED_FONT_WIDTH        8
-    #define OLED_MAX_CHARS_PER_LINE (LCD_H_RES / OLED_FONT_WIDTH)
-    #define OLED_MAX_LINES         2
-    #define OLED_COLUMN_OFFSET     0
-#else
-    #error "Unsupported OLED display type"
-#endif
 
 
 #endif // CONFIG_H

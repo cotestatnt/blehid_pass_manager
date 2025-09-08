@@ -21,7 +21,7 @@ static const char *TAG = "BUTTONS";
 extern uint32_t last_interaction_time;        
 
 // Simple buzzer feedback integration
-enum BuzzerEvent { BUZZ_STARTUP = 0, BUZZ_SUCCESS, BUZZ_FAIL, BUZZ_NOAUTH };
+enum BuzzerEvent { BUZZ_STARTUP = 0, BUZZ_SUCCESS, BUZZ_FAIL, BUZZ_NOAUTH, BUZZ_ENROLL };
 static QueueHandle_t s_buzzerQueue = nullptr;
 
 static inline void buzzer_set(int on)
@@ -57,6 +57,14 @@ extern "C" void buzzer_feedback_noauth()
 {
     if (s_buzzerQueue) {
         BuzzerEvent ev = BUZZ_NOAUTH;
+        xQueueSend(s_buzzerQueue, &ev, 0);
+    }
+}
+
+extern "C" void buzzer_feedback_lift()
+{
+    if (s_buzzerQueue) {
+        BuzzerEvent ev = BUZZ_ENROLL;
         xQueueSend(s_buzzerQueue, &ev, 0);
     }
 }
@@ -102,6 +110,9 @@ void button_task(void *pvParameters)
                 case BUZZ_STARTUP:
                     buzzer_beep_ms(100);
                     break;
+                case BUZZ_ENROLL:
+                    buzzer_beep_ms(50);
+                    break;
                 case BUZZ_SUCCESS:
                     // one longer beep
                     buzzer_beep_ms(350);
@@ -140,11 +151,11 @@ void button_task(void *pvParameters)
                     ESP_LOGI(TAG, "Disconnect timeout reached. BLE connected: %s", is_connected ? "YES" : "NO");                    
                     if (is_connected) {
                         ESP_LOGI(TAG, "Disconnecting BLE and restarting advertising for configuration mode");
-                        oled_write_text("Disconnect BT");
+                        display_oled_post_info("Disconnect BT");
                         ble_force_disconnect();
                     } else {
-                        ESP_LOGI(TAG, "No BLE connection to disconnect");                        
-                        oled_write_text("BLE PassMan");
+                        ESP_LOGI(TAG, "No BLE connection to disconnect");
+                        display_oled_post_info("BLE PassMan");
                     }
                     both_buttons_active = false;
                     last_interaction_time = xTaskGetTickCount();
@@ -154,7 +165,7 @@ void button_task(void *pvParameters)
             if (both_buttons_active) {
                 both_buttons_active = false;
                 ESP_LOGI(TAG, "Both buttons released before disconnect timeout");
-                oled_write_text("BLE PassMan");
+                display_oled_post_info("BLE PassMan");
             }
 
             // Single button logic (only if both buttons are not active)
@@ -170,7 +181,7 @@ void button_task(void *pvParameters)
                 
                     const char* username = user_list[user_index].label;                            
                     printf("Selected account (%d): %s\n", user_index, username);
-                    oled_write_text(username);            
+                    display_oled_post_info(username);            
                     
                     #if DEBUG_PASSWD
                     uint8_t* encoded = user_list[user_index].password_enc;
@@ -193,7 +204,7 @@ void button_task(void *pvParameters)
 
                     const char* username = user_list[user_index].label;
                     printf("Selected account (%d): %s\n", user_index, username);
-                    oled_write_text(username);            
+                    display_oled_post_info(username);            
                     
                     #if DEBUG_PASSWD
                     uint8_t* encoded = user_list[user_index].password_enc;

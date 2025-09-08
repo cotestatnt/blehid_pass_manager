@@ -1,7 +1,7 @@
 #include "esp_log.h"
 
 #include "fingerprint.h"
-#include "oled.h"
+#include "display_oled.h"
 #include "user_list.h"
 #include "battery.h"
 
@@ -14,14 +14,10 @@
 #include "class/hid/hid.h"
 #endif
 
-
-
 FPM* fpm;
 int16_t num_fingerprints = 0;
 bool enrolling_in_progress = false;
-
 extern uint32_t last_interaction_time;
-
 
 static const char *TAG = "FPM TASK";
 #define NUM_SNAPSHOTS 5
@@ -32,14 +28,14 @@ bool enrollFinger()
     TickType_t now = xTaskGetTickCount();
 
     enrolling_in_progress = true;
-    oled_write_text("Set new FP");
+    display_oled_post_info("Set new FP");
     vTaskDelay(pdMS_TO_TICKS(2000));
     
     /* Take snapshots of the finger, and extract the fingerprint features from each image */
     for (int i = 0; i < NUM_SNAPSHOTS; i++)
     {
         ESP_LOGI(TAG, "Place a finger");
-        oled_write_text("Place finger");
+        display_oled_post_info("Place finger");
 
         do {
             status = fpm->getImage();    
@@ -47,7 +43,7 @@ bool enrollFinger()
             {
                 case FPMStatus::OK:
                     ESP_LOGI(TAG, "Image taken");
-                    oled_write_text("Image taken");
+                    display_oled_post_info("Image taken");
                     vTaskDelay(pdMS_TO_TICKS(200));
                     now = xTaskGetTickCount();
                     break;
@@ -64,7 +60,7 @@ bool enrollFinger()
             
             if (xTaskGetTickCount() - now > pdMS_TO_TICKS(10000)) {
                 ESP_LOGE(TAG, "Timeout waiting for finger");
-                oled_write_text("Timeout");
+                display_oled_post_error("Timeout");
                 vTaskDelay(pdMS_TO_TICKS(1000));
                 enrolling_in_progress = false;
                 return false;                
@@ -83,13 +79,15 @@ bool enrollFinger()
                 
             default:
                 ESP_LOGI(TAG, "image2Tz(%d): error 0x%X", i+1, static_cast<uint16_t>(status));        
-                oled_write_text("Image error");                
+                display_oled_post_error("Image error");  
+                buzzer_feedback_fail();
                 vTaskDelay(pdMS_TO_TICKS(2000));        
                 return false;
         }
 
         ESP_LOGI(TAG, "Remove finger");
-        oled_write_text("Lift finger");  
+        buzzer_feedback_lift();
+        display_oled_post_info("Lift finger");  
         vTaskDelay(500 / portTICK_PERIOD_MS);
         do {
             status = fpm->getImage();
@@ -121,19 +119,22 @@ bool enrollFinger()
     {
         case FPMStatus::OK:
             ESP_LOGI(TAG, "Template stored at ID %d!", num_fingerprints);       
-            oled_write_text("Template stored");    
+            display_oled_post_info("Template stored");   
+            buzzer_feedback_success();
             vTaskDelay(pdMS_TO_TICKS(1000));
             break;
             
         case FPMStatus::BADLOCATION:
             ESP_LOGE(TAG, "Could not store in that location %d!", num_fingerprints);
-            oled_write_text("Store error");
+            display_oled_post_error("Store error");
+            buzzer_feedback_fail();
             vTaskDelay(pdMS_TO_TICKS(2000));
             return false;
             
         default:
             ESP_LOGE(TAG, "storeModel(): error 0x%X", static_cast<uint16_t>(status));
-            oled_write_text("Template error");
+            display_oled_post_error("Template error");
+            buzzer_feedback_fail();
             vTaskDelay(pdMS_TO_TICKS(2000));
             return false;
     }
@@ -141,9 +142,8 @@ bool enrollFinger()
     
     num_fingerprints += 1; 
     ESP_LOGI(TAG, " >> Enroll process completed successfully!\n");
-    oled_debug_printf("Enroll %02d", num_fingerprints);
+    display_oled_post_info("Enroll %02d", num_fingerprints);
     enrolling_in_progress = false;
-    
     return true;
 }
 
@@ -151,9 +151,10 @@ bool clearFingerprintDB()
 {
     bool confirmed = false;
 
-    oled_write_text("Clear FPs DB");
+    display_oled_post_info("Clear FPs DB");
     vTaskDelay(pdMS_TO_TICKS(1000));
-    oled_write_text("Put finger");
+    display_oled_post_info("Put finger");
+    buzzer_feedback_lift();
 
     uint32_t timeout = xTaskGetTickCount() + pdMS_TO_TICKS(8000);
     while (!confirmed && xTaskGetTickCount() < timeout) { 
@@ -163,7 +164,7 @@ bool clearFingerprintDB()
 
     if (!confirmed) {
         ESP_LOGE(TAG, "No finger detected or no match found. Aborting clear operation.");
-        oled_write_text("No match found");
+        display_oled_post_error("No match found");
         return false;
     } 
     else {
@@ -171,10 +172,12 @@ bool clearFingerprintDB()
         switch (status) {
             case FPMStatus::OK:
                 ESP_LOGI(TAG, "Database empty.");
+                buzzer_feedback_success();
                 return true;                
                 
             case FPMStatus::DBCLEARFAIL:
                 ESP_LOGE(TAG, "Could not clear sensor database.");
+                buzzer_feedback_fail();
                 return false;
                 
             default:
@@ -192,7 +195,7 @@ int searchDatabase() {
 
     /* Take a snapshot of the input finger */
     ESP_LOGI(TAG, "Place a finger");
-    oled_write_text("Searching...");
+    display_oled_post_info("Searching...");
     TickType_t now = xTaskGetTickCount();
 
     do {
@@ -240,14 +243,14 @@ int searchDatabase() {
     switch (status){
     case FPMStatus::OK:
         ESP_LOGI(TAG, "Found a match at ID #%u with confidence %u", fid, score);        
-        oled_debug_printf("Match ID %02d", fid);
+        display_oled_post_info("Match ID %02d", fid);
         vTaskDelay(500 / portTICK_PERIOD_MS);
         buzzer_feedback_success();
         break;
 
     case FPMStatus::NOTFOUND:
         ESP_LOGI(TAG, "Did not find a match.");
-        oled_write_text("No match");
+        display_oled_post_info("No match");
         vTaskDelay(1000 / portTICK_PERIOD_MS);
         buzzer_feedback_fail();
         break;
@@ -331,7 +334,7 @@ void fingerprint_task(void *pvParameters) {
 
         if (num_fingerprints == 0) {
             ESP_LOGW(TAG, "No templates found in the library. Please enroll a finger.");
-            oled_write_text("No root FP");            
+            display_oled_post_info("No root FP");            
             vTaskDelay(pdMS_TO_TICKS(1000));
             enrollFinger();
         }
@@ -430,17 +433,17 @@ void fingerprint_task(void *pvParameters) {
                         }
 
                         userdb_increment_usage(user_index);                        
-                        oled_debug_printf("Finger ID: %02d", finger_index);
+                        display_oled_post_info("Finger ID: %02d", finger_index);
                         user_index = -1;
                     }  
                     else {
                         ESP_LOGE(TAG, "Decrypt error");
-                        oled_write_text("Decrypt err");
+                        display_oled_post_error("Decrypt err");
                     }               
                 }
                 else {
                     ESP_LOGW(TAG, "No account selected");
-                    oled_write_text("No account");
+                    display_oled_post_error("No account");
                     buzzer_feedback_noauth();
                 }
             } 

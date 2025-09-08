@@ -20,7 +20,7 @@
 #include "buttons.h"
 #include "fingerprint.h"
 #include "user_list.h"
-#include "oled.h"
+#include "display_oled.h"
 #include "hid_device_prf.h"
 #include "hid_device_ble.h"
 
@@ -51,38 +51,26 @@ extern "C" void app_main(void) {
     } 
 
     // Start OLED display handling first
-    ret = oled_init();
+    ret = display_oled_init();
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "Failed to initialize OLED: %s", esp_err_to_name(ret));
-        oled_debug_error("OLED FAIL");
         // Continue without OLED if it fails
-    } else {
-        // Show initial status with icons
-        bool ble_connected = false; // BLE not ready yet
-        bool usb_connected = is_usb_connected_simple();
-        int battery_percent = get_battery_percentage();
-        oled_update_status(ble_connected, usb_connected, battery_percent, "BLE PassMan");
-    }    
+    }
 
     // Initialize and start the BLE management task
     ret = ble_device_init();
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "BLE initialization failed: %s", esp_err_to_name(ret));
-        oled_debug_error("BLE FAIL");
-    } else {
-        // Update display to show BLE initialized
-        bool ble_connected = ble_is_connected();
-        bool usb_connected = is_usb_connected_simple(); 
-        int battery_percent = get_battery_percentage();
-        oled_update_status(ble_connected, usb_connected, battery_percent, "BLE Ready");
-        vTaskDelay(pdMS_TO_TICKS(1000)); // Show "BLE Ready" for 1 second
-    }
+        display_oled_post_error("BLE FAIL");
+    } 
+    // Reflect initial BLE connection state on OLED (hidden until connected)
+    display_oled_set_ble_connected(ble_is_connected());
 
     // Initialize power monitoring ADC
     ret = init_power_monitoring_adc();
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "ADC initialization failed: %s", esp_err_to_name(ret));
-        oled_debug_error("ADC FAIL");
+        display_oled_post_error("ADC FAIL");
         // Continue without power monitoring if it fails
     } else {
         ESP_LOGI(TAG, "Power monitoring ADC initialized");
@@ -124,15 +112,20 @@ extern "C" void app_main(void) {
             esp_err_t ret = usb_device_init();
             if (ret != ESP_OK) {
                 ESP_LOGE(TAG, "USB device init failed: %s", esp_err_to_name(ret));
-                oled_debug_error("USB FAIL");                
-            } 
+                display_oled_post_error("USB FAIL");                
+                display_oled_set_usb_initialized(false);
+            } else {
+                display_oled_set_usb_initialized(true);
+            }
         } else {
             ESP_LOGI(TAG, "USB connected but no users need USB HID");
-            oled_debug_status("USB Skip");
+            display_oled_post_info("USB Skip");
+            display_oled_set_usb_initialized(false);
         }
     } else {
         ESP_LOGI(TAG, "USB not connected - skipping USB HID initialization");
-        oled_debug_status("USB NC");
+        display_oled_post_info("USB NC");
+        display_oled_set_usb_initialized(false);
     }
     #endif
 
@@ -141,15 +134,10 @@ extern "C" void app_main(void) {
         // Periodically re-check USB status to avoid sleeping when connected
         usb_available = is_usb_connected_simple();
         
-        // Update display with current status
-        bool ble_connected = ble_is_connected();
-        int battery_percent = get_battery_percentage();
-        oled_update_status(ble_connected, usb_available, battery_percent, "BLE PassMan");
-        
-        if (!usb_available) {
+    if (!usb_available) {
             if (xTaskGetTickCount() - last_interaction_time > pdMS_TO_TICKS(60000)) {
-                oled_off();
                 #if SLEEP_ENABLE
+                display_oled_deinit();
                 ESP_LOGI(TAG, "Entering deep sleep...\n");
                 vTaskDelay(pdMS_TO_TICKS(10));
                 enter_deep_sleep();
@@ -159,6 +147,12 @@ extern "C" void app_main(void) {
             // If USB is connected, keep the device awake
             last_interaction_time = xTaskGetTickCount();
         }
+
+        // Periodically refresh icon states
+        display_oled_set_ble_connected(ble_is_connected());
+        #if CONFIG_IDF_TARGET_ESP32S3
+        display_oled_set_usb_initialized(usb_available && usb_needed);
+        #endif
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }

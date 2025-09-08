@@ -32,7 +32,7 @@
 #include "hid_device_ble.h"
 #include "hid_device_prf.h"
 
-#include "oled.h"
+#include "display_oled.h"
 #include "user_list.h"
 
 
@@ -210,7 +210,7 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
             ESP_LOGI(HID_DEMO_TAG, "Passkey notify, passkey %06" PRIu32, param->ble_security.key_notif.passkey);
             char passkey_str[7];
             snprintf(passkey_str, sizeof(passkey_str), "%06" PRIu32, passkey); 
-            oled_write_text_permanent(passkey_str);
+            display_oled_set_text(passkey_str);
             break;
         case ESP_GAP_BLE_AUTH_CMPL_EVT: {
             esp_bd_addr_t bd_addr;
@@ -230,7 +230,7 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
                 }
             }
             show_bonded_devices();
-            oled_write_text("BLE PassMan");            
+            display_oled_set_text("BLE PassMan");            
             break;
         }
         case ESP_GAP_BLE_REMOVE_BOND_DEV_COMPLETE_EVT: {

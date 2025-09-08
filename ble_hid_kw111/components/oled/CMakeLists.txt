@@ -1,7 +1,0 @@
-idf_component_register(
-    SRCS "oled.c" 
-    INCLUDE_DIRS "."
-    REQUIRES driver esp_timer esp_lcd user_list main
-)
-
-# target_compile_options(${COMPONENT_LIB} PRIVATE -Wno-deprecated-enum-enum-conversion)
