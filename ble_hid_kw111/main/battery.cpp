@@ -1,4 +1,5 @@
 #include "esp_log.h"
+#include <stdio.h>
 #include "esp_sleep.h"
 #include "driver/gpio.h"
 #include "esp_adc/adc_oneshot.h"
@@ -33,7 +34,7 @@ static bool battery_calibrated = false;
 void battery_notify_task(void *pvParameters) {
     extern uint16_t battery_handle[]; // external declaration    
     while (1) {
-        int battery_percentage = get_battery_percentage(true);            
+    int battery_percentage = get_battery_percentage(false);            
         if (battery_percentage < 0) battery_percentage = 0;
         if (battery_percentage > 100) battery_percentage = 100;
 
@@ -53,7 +54,12 @@ void battery_notify_task(void *pvParameters) {
                 }
             }
         }
-        vTaskDelay(pdMS_TO_TICKS(30000)); // 30 seconds
+        // Debug: invia anche il valore in mV tramite la caratteristica custom
+        int mv = get_battery_voltage_mv(true);
+        if (mv > 0) {
+            notify_battery_mv(mv);
+        }
+        vTaskDelay(pdMS_TO_TICKS(10000)); // 30 seconds
     }
 }
 
@@ -169,17 +175,16 @@ bool is_usb_connected_simple() {
 
 
 
-// Lettura batteria tramite partitore 100K/100K - GPIO automatico da config.h
-int get_battery_percentage(bool log) {
+// Ritorna la tensione batteria in mV usando la stessa pipeline di get_battery_percentage
+int get_battery_voltage_mv(bool log) {
     if (adc_handle == NULL) {
         return -1;
     }
-    
-    // Stabilizzazione: effettua multiple letture e calcola la media
+
     const int num_samples = 10;
     int adc_sum = 0;
     int valid_samples = 0;
-    
+
     for (int i = 0; i < num_samples; i++) {
         int adc_raw = 0;
         esp_err_t ret = adc_oneshot_read(adc_handle, BATTERY_ADC_CHANNEL, &adc_raw);
@@ -187,34 +192,62 @@ int get_battery_percentage(bool log) {
             adc_sum += adc_raw;
             valid_samples++;
         }
-        // Piccola pausa tra le letture per stabilizzare
         vTaskDelay(pdMS_TO_TICKS(10));
     }
-    
+
     if (valid_samples == 0) {
         return -1;
     }
-    
+
     int adc_avg = adc_sum / valid_samples;
     int voltage_mv = 0;
-    if (battery_calibrated && adc_cali_battery_handle) {        
-        esp_err_t ret = adc_cali_raw_to_voltage(adc_cali_battery_handle, adc_avg, &voltage_mv);
-        if (ret != ESP_OK) {
+    if (battery_calibrated && adc_cali_battery_handle) {
+        if (adc_cali_raw_to_voltage(adc_cali_battery_handle, adc_avg, &voltage_mv) != ESP_OK) {
             return -1;
-        }        
-    } 
-
-    // Applica calibrazione per allineare la lettura ADC al multimetro
-    // voltage_mv è la tensione sul pin (dopo partitore). Calibrazione prima del raddoppio.
+        }
+    }
     int32_t calibrated_mv = (int32_t)voltage_mv + VBAT_ADC_OFFSET_MV;
+    int battery_voltage_mv = (int)calibrated_mv * 2;
+    if (log) {
+        ESP_LOGI(TAG, "Battery (GPIO%d): ADC=%dmV, Real=%dmV", VBAT_GPIO, (int)calibrated_mv, battery_voltage_mv);
+    }
+    return battery_voltage_mv;
+}
 
-    // La tensione misurata è quella del partitore (Vbat/2). Per la batteria reale moltiplica per 2
-    int battery_voltage_mv = (int)calibrated_mv * 2;    
+// Notifica il valore mV via BLE attraverso la caratteristica custom USER_MGMT
+void notify_battery_mv(int mv) {
+    extern uint16_t user_mgmt_handle[];
+    extern uint16_t user_mgmt_conn_id;
+    if (user_mgmt_handle[USER_MGMT_IDX_VAL] == 0) return;
+
+    user_mgmt_payload_t payload = {0};
+    payload.cmd = BATTERY_MV;
+    payload.index = 0;
+    // Inserisce i mV come stringa decimale per debug, oppure binario 2 byte? Usare stringa per compatibilità UI.
+    snprintf(payload.data, sizeof(payload.data), "%d", mv);
+
+    esp_err_t err = esp_ble_gatts_send_indicate(
+        hidd_le_env.gatt_if,
+        user_mgmt_conn_id,
+        user_mgmt_handle[USER_MGMT_IDX_VAL],
+        sizeof(payload),
+        (uint8_t *)&payload,
+        false
+    );
+    if (err != ESP_OK) {
+        ESP_LOGW(TAG, "notify_battery_mv failed: %s", esp_err_to_name(err));
+    }
+}
+
+
+// Lettura batteria tramite partitore 100K/100K - GPIO automatico da config.h
+int get_battery_percentage(bool log) {
+    int battery_voltage_mv = get_battery_voltage_mv(false);  
     
     // Conversione a percentuale basata su range batteria Li-Ion (3.0V-4.2V) 3000mV = 0%, 4200mV = 100%    
     int percentage = (battery_voltage_mv - 3000) * 100 / (4200 - 3000);
     if (log) {
-        ESP_LOGI(TAG, "Battery (GPIO%d): ADC=%dmV, Real=%dmV, %d%%", VBAT_GPIO, (int)calibrated_mv, battery_voltage_mv, percentage);
+        ESP_LOGI(TAG, "Battery level %d%%", percentage);
     }
     return percentage;
 }

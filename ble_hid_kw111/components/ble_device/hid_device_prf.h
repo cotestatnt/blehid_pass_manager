@@ -107,7 +107,6 @@ extern int battery_conn_id;
 // #define HID_REPORT_TYPE_OUTPUT      2
 // #define HID_REPORT_TYPE_FEATURE     3
 
-
 // Custom commands for BLE communication
 #define NOT_AUTHORIZED  0x99
 #define RESET_USER_LIST 0xA0
@@ -117,6 +116,7 @@ extern int battery_conn_id;
 #define REMOVE_USER     0xA4
 #define CLEAR_USER_DB   0xA5
 #define BLE_MESSAGE     0xAA
+#define BATTERY_MV      0xAB
 #define ENROLL_FINGER   0xB0
 #define CLEAR_LIBRARY   0xB2 
 #define LIST_EMPTY      0xFF
@@ -259,11 +259,8 @@ enum {
 
 /// HIDD Features structure
 typedef struct {
-    /// Service Features
     uint8_t svc_features;
-    /// Number of Report Char. instances to add in the database
     uint8_t report_nb;
-    /// Report Char. Configuration
     uint8_t report_char_cfg[HIDD_LE_NB_REPORT_INST_MAX];
 } hidd_feature_t;
 
@@ -271,12 +268,11 @@ typedef struct {
 typedef struct {
     bool                        in_use;
     bool                        congest;
-    uint16_t                  conn_id;
+    uint16_t                    conn_id;
     bool                        connected;
-    esp_bd_addr_t         remote_bda;
-    uint32_t                  trans_id;
-    uint8_t                    cur_srvc_id;
-
+    esp_bd_addr_t               remote_bda;
+    uint32_t                    trans_id;
+    uint8_t                     cur_srvc_id;
 } hidd_clcb_t;
 
 // HID report mapping table
@@ -290,17 +286,11 @@ typedef struct {
 
 
 typedef struct {
-    /// hidd profile id
     uint8_t app_id;
-    /// Notified handle
     uint16_t ntf_handle;
-    ///Attribute handle Table
     uint16_t att_tbl[HIDD_LE_IDX_NB];
-    /// Supported Features
     hidd_feature_t   hidd_feature[HIDD_LE_NB_HIDS_INST_MAX];
-    /// Current Protocol Mode
     uint8_t proto_mode[HIDD_LE_NB_HIDS_INST_MAX];
-    /// Number of HIDS added in the database
     uint8_t hids_nb;
     uint8_t pending_evt;
     uint16_t pending_hal;
@@ -309,20 +299,15 @@ typedef struct {
 /// Report Reference structure
 typedef struct
 {
-    ///Report ID
     uint8_t report_id;
-    ///Report Type
     uint8_t report_type;
 }hids_report_ref_t;
 
 /// HID Information structure
 typedef struct
 {
-    /// bcdHID
     uint16_t bcdHID;
-    /// bCountryCode
     uint8_t bCountryCode;
-    /// Flags
     uint8_t flags;
 }hids_hid_info_t;
 

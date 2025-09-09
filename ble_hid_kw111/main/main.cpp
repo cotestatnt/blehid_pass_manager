@@ -36,7 +36,6 @@ static TaskHandle_t buttonsTaskHandle = nullptr;
 // Stores the last user interaction time to start deep sleep countdown
 uint32_t last_interaction_time = 0;                 
 
-
 extern "C" void app_main(void) {
     esp_err_t ret;
 
@@ -133,6 +132,8 @@ extern "C" void app_main(void) {
     while(true) {
         // Periodically re-check USB status to avoid sleeping when connected
         usb_available = is_usb_connected_simple();
+
+        // usb_available = false; // Disable sleep for testing
         
     if (!usb_available) {
             if (xTaskGetTickCount() - last_interaction_time > pdMS_TO_TICKS(180000)) {

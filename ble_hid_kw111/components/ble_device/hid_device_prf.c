@@ -30,15 +30,10 @@ static const char *TAG = "BLE_CUSTOM";
 /// characteristic presentation information
 struct prf_char_pres_fmt
 {
-    /// Unit (The Unit is a UUID)
     uint16_t unit;
-    /// Description
     uint16_t description;
-    /// Format
     uint8_t format;
-    /// Exponent
     uint8_t exponent;
-    /// Name space
     uint8_t name_space;
 };
 
@@ -206,7 +201,7 @@ static const uint8_t char_prop_read_notify = ESP_GATT_CHAR_PROP_BIT_READ | ESP_G
 static const uint8_t char_prop_read_write_notify = ESP_GATT_CHAR_PROP_BIT_READ | ESP_GATT_CHAR_PROP_BIT_WRITE | ESP_GATT_CHAR_PROP_BIT_NOTIFY;
 static const uint8_t char_prop_read_write_write_nr = ESP_GATT_CHAR_PROP_BIT_READ | ESP_GATT_CHAR_PROP_BIT_WRITE | ESP_GATT_CHAR_PROP_BIT_WRITE_NR;
 
-/// battary Service
+/// Battery Service
 static const uint16_t battery_svc = ESP_GATT_UUID_BATTERY_SERVICE_SVC;
 static const uint16_t bat_lev_uuid = ESP_GATT_UUID_BATTERY_LEVEL;
 static uint8_t bat_lev_ccc[2] = {0x00, 0x00};
@@ -221,7 +216,6 @@ static const struct prf_char_pres_fmt bat_lev_pres_fmt = {
     .name_space = 0x01,     // Bluetooth SIG namespace
     .description = 0x0000   // no description
 };
-
 
 /// Full HRS Database Description - Used to add attributes into the database
 static const esp_gatts_attr_db_t user_mgmt_att_db[USER_MGMT_IDX_NB] = {
@@ -249,38 +243,39 @@ static const esp_gatts_attr_db_t user_mgmt_att_db[USER_MGMT_IDX_NB] = {
         ESP_GATT_PERM_READ | ESP_GATT_PERM_WRITE, sizeof(uint16_t), sizeof(uint16_t), (uint8_t[]){0x00, 0x00}}
     },
 };
+
 /// Full BAS Database Description - Used to add attributes into the database
 static const esp_gatts_attr_db_t bas_att_db[BAS_IDX_NB] =
     {
-        // Battary Service Declaration
+        // Battery Service Declaration
         [BAS_IDX_SVC] = {
             {ESP_GATT_AUTO_RSP}, 
             {ESP_UUID_LEN_16, (uint8_t *)&primary_service_uuid, 
              ESP_GATT_PERM_READ, sizeof(uint16_t), sizeof(battery_svc), (uint8_t *)&battery_svc}
         },
 
-        // Battary level Characteristic Declaration
+        // Battery level Characteristic Declaration
         [BAS_IDX_BATT_LVL_CHAR] = {
             {ESP_GATT_AUTO_RSP}, 
             {ESP_UUID_LEN_16, (uint8_t *)&character_declaration_uuid, 
              ESP_GATT_PERM_READ, CHAR_DECLARATION_SIZE, CHAR_DECLARATION_SIZE, (uint8_t *)&char_prop_read_notify}
         },
 
-        // Battary level Characteristic Value
+        // Battery level Characteristic Value
         [BAS_IDX_BATT_LVL_VAL] = {
             {ESP_GATT_AUTO_RSP}, 
             {ESP_UUID_LEN_16, (uint8_t *)&bat_lev_uuid, 
              ESP_GATT_PERM_READ, sizeof(uint8_t), sizeof(uint8_t), &battery_level}
         },
 
-        // Battary level Characteristic - Client Characteristic Configuration Descriptor
+        // Battery level Characteristic - Client Characteristic Configuration Descriptor
         [BAS_IDX_BATT_LVL_NTF_CFG] = {
             {ESP_GATT_AUTO_RSP}, 
             {ESP_UUID_LEN_16, (uint8_t *)&character_client_config_uuid, 
              ESP_GATT_PERM_READ | ESP_GATT_PERM_WRITE, sizeof(uint16_t), sizeof(bat_lev_ccc), (uint8_t *)bat_lev_ccc}
         },
 
-        // Battary level report Characteristic Declaration
+        // Battery level report Characteristic Declaration
         [BAS_IDX_BATT_LVL_PRES_FMT] = {
             {ESP_GATT_AUTO_RSP}, 
             {ESP_UUID_LEN_16, (uint8_t *)&char_format_uuid, 

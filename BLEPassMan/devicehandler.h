@@ -23,7 +23,7 @@
 #define REMOVE_USER     0xA4
 #define CLEAR_USER_DB   0xA5
 #define BLE_MESSAGE     0xAA
-
+#define BATTERY_MV      0xAB
 #define ENROLL_FINGER   0xB0
 #define CLEAR_LIBRARY   0xB2
 

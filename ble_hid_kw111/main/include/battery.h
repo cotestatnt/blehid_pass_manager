@@ -27,9 +27,14 @@ bool is_usb_connected_simple();
 
 // Lettura batteria
 int get_battery_percentage(bool log);
+// Lettura batteria in millivolt
+int get_battery_voltage_mv(bool log);
 
 // Avvia il task di notifica BLE del livello batteria
 void start_battery_notify_task(void);
+
+// Notifica BLE del valore in mV (sul canale custom di gestione utenti)
+void notify_battery_mv(int mv);
 
 #ifdef __cplusplus
 }

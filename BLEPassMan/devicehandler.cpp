@@ -612,6 +612,10 @@ void DeviceHandler::updateCharacteristicValue(const QLowEnergyCharacteristic &c,
                 m_soundEffect.play();
             }
             break;
+        case BATTERY_MV:
+            qDebug().noquote().nospace() << "Battery " << text << "mV";
+            break;
+
         default:
             qDebug() << "[BLE] Comando sconosciuto:" << cmd;
             break;

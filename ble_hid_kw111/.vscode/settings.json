@@ -62,8 +62,8 @@
     "esp_err.h": "c",
     "display_oled.h": "c"
   },
-  "idf.espIdfPathWin": "c:\\Espressif\\v5.5\\esp-idf",
-  "idf.toolsPathWin": "c:\\Espressif\\tools",
-  "idf.pythonInstallPath": "c:\\Espressif\\tools\\tools\\idf-python\\3.11.2\\python.exe",
+  "idf.espIdfPathWin": "d:\\Espressif\\v5.5\\esp-idf",
+  "idf.toolsPathWin": "c:\\Users\\Tolentino\\.espressif\\tools",
+  "idf.pythonInstallPath": "c:\\Users\\Tolentino\\.espressif\\tools\\tools\\idf-python\\3.11.2\\python.exe",
   "C_Cpp.dimInactiveRegions": true
 }
