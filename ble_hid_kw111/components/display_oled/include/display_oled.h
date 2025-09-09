@@ -7,13 +7,6 @@
 extern "C" {
 #endif
 
-// OLED Display configuration
-#define OLED_96x16   1
-#define OLED_128x32  2
-
-// Configure the OLED display type here
-#define OLED_TYPE OLED_128x32
-
 // Initialize the OLED display, LVGL, and UI. Safe to call once.
 esp_err_t display_oled_init(void);
 

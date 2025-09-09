@@ -28,39 +28,14 @@ static bool battery_calibrated = false;
 #define ADC_ATTEN           ADC_ATTEN_DB_12
 #define ADC_BITWIDTH        ADC_BITWIDTH_DEFAULT
 
-#if CONFIG_IDF_TARGET_ESP32C3
-// Fast helper to read battery voltage in mV (non-blocking, few samples)
-static int read_battery_mv(void) {
-    if (adc_handle == NULL) {
-        return -1;
-    }
-    const int num_samples = 3; // keep it quick
-    int sum = 0, n = 0;
-    for (int i = 0; i < num_samples; ++i) {
-        int raw = 0;
-        if (adc_oneshot_read(adc_handle, BATTERY_ADC_CHANNEL, &raw) == ESP_OK) {
-            sum += raw;
-            n++;
-        }
-    }
-    if (!n) return -1;
-    int avg = sum / n;
-    int mv = 0;
-    if (battery_calibrated && adc_cali_battery_handle) {
-        if (adc_cali_raw_to_voltage(adc_cali_battery_handle, avg, &mv) != ESP_OK) return -1;
-    } else {
-        // Approximate conversion when calibration not available
-        mv = (avg * 3100) / 4095;
-    }
-    return mv * 2; // divider 100k/100k => real Vbat
-}
-#endif
 
 // Task that notifies battery level every 30 seconds
 void battery_notify_task(void *pvParameters) {
     extern uint16_t battery_handle[]; // external declaration    
     while (1) {
-        int battery_percentage = get_battery_percentage();
+        int battery_percentage = get_battery_percentage(true);            
+        if (battery_percentage < 0) battery_percentage = 0;
+        if (battery_percentage > 100) battery_percentage = 100;
 
         if (battery_percentage >= 0) {
             bool usb_connected = is_usb_connected_simple();
@@ -88,7 +63,6 @@ void start_battery_notify_task(void) {
         xTaskCreate(battery_notify_task, "battery_notify_task", 3000, NULL, 1, &batteryNotifyTaskHandle);
     }
 }
-
 
 
 // ADC calibration function (from ESP-IDF 5.5.0 example)
@@ -173,7 +147,7 @@ esp_err_t init_power_monitoring_adc(void) {
 }
 
 // USB detection: on ESP32-S3 keep JTAG check; on others use non-blocking battery heuristic
-bool is_usb_connected_simple(void) {
+bool is_usb_connected_simple() {
 #if CONFIG_IDF_TARGET_ESP32S3
     // Simple 1s cache to avoid spamming logs
     static uint32_t s_last_ts = 0;
@@ -188,71 +162,15 @@ bool is_usb_connected_simple(void) {
     s_last_ts = now;
     ESP_LOGI(TAG, "USB %s", usb_connected ? "CONNECTED" : "DISCONNECTED");
     return usb_connected;
-#else
-    // Heuristic for C3/others without VBUS sense
-    const int VBAT_PRESENCE_MV = 4100;    // >= 4.10V likely means USB/charger present
-    const int RISE_THRESHOLD_MV = 20;     // rising by >=20 mV in ~30s indicates charging
-    const uint32_t SLOPE_WINDOW_MS = 30000; // compare every ~30s (non-blocking)
-
-    // 1s cache to reduce ADC reads and log noise
-    static uint32_t s_last_ts = 0;
-    static bool s_last_res = true;
-    uint32_t now = xTaskGetTickCount();
-    if (s_last_ts != 0 && (now - s_last_ts) < pdMS_TO_TICKS(10000)) {
-        return s_last_res;
-    }
-
-    static int prev_mv = -1;
-    static uint32_t prev_ts = 0;
-
-    int mv = read_battery_mv();
-    if (mv < 0) {
-        // If ADC not ready, fall back to JTAG state (may be false-negative on C3)
-        bool jtag = usb_serial_jtag_is_connected();
-        s_last_res = jtag;
-        s_last_ts = now;
-        ESP_LOGI(TAG, "USB heuristic fallback: %s (ADC fail)", jtag ? "CONNECTED" : "DISCONNECTED");
-        return jtag;
-    }
-    if (mv >= VBAT_PRESENCE_MV) {
-        s_last_res = true;
-        s_last_ts = now;
-        ESP_LOGI(TAG, "USB heuristic: CONNECTED (Vbat=%d mV >= %d mV)", mv, VBAT_PRESENCE_MV);
-        // update history lazily
-        if (prev_mv < 0 || (now - prev_ts) >= pdMS_TO_TICKS(SLOPE_WINDOW_MS)) {
-            prev_mv = mv; prev_ts = now;
-        }
-        return s_last_res;
-    }
-
-    // Non-blocking slope check: only evaluate when window elapsed
-    bool rising = false;
-    if (prev_mv >= 0 && (now - prev_ts) >= pdMS_TO_TICKS(SLOPE_WINDOW_MS)) {
-        rising = (mv - prev_mv) >= RISE_THRESHOLD_MV;
-        prev_mv = mv; prev_ts = now;
-    } else if (prev_mv < 0) {
-        // initialize history on first call
-        prev_mv = mv; prev_ts = now;
-    }
-
-    if (rising) {
-        s_last_res = true;
-        s_last_ts = now;
-        ESP_LOGI(TAG, "USB heuristic: CONNECTED (Vbat rising >=%d mV)", RISE_THRESHOLD_MV);
-        return s_last_res;
-    }
-
-    s_last_res = false;
-    s_last_ts = now;
-    ESP_LOGI(TAG, "USB heuristic: DISCONNECTED (Vbat=%d mV)", mv);
-    return s_last_res;
+#else    
+    return get_battery_percentage(false) > 100; // Heuristic: >100% means external power (USB) connected
 #endif
 }
 
 
 
 // Lettura batteria tramite partitore 100K/100K - GPIO automatico da config.h
-int get_battery_percentage(void) {
+int get_battery_percentage(bool log) {
     if (adc_handle == NULL) {
         return -1;
     }
@@ -283,25 +201,20 @@ int get_battery_percentage(void) {
         esp_err_t ret = adc_cali_raw_to_voltage(adc_cali_battery_handle, adc_avg, &voltage_mv);
         if (ret != ESP_OK) {
             return -1;
-        }
-    } else {
-        // Fallback approx. conversion to mV at 12dB atten
-        voltage_mv = (adc_avg * 3100) / 4095;
-    }
+        }        
+    } 
 
     // Applica calibrazione per allineare la lettura ADC al multimetro
     // voltage_mv è la tensione sul pin (dopo partitore). Calibrazione prima del raddoppio.
-    int32_t calibrated_mv = (int32_t)voltage_mv * VBAT_ADC_SCALE_NUM / VBAT_ADC_SCALE_DEN + VBAT_ADC_OFFSET_MV;
+    int32_t calibrated_mv = (int32_t)voltage_mv + VBAT_ADC_OFFSET_MV;
 
     // La tensione misurata è quella del partitore (Vbat/2). Per la batteria reale moltiplica per 2
-    int battery_voltage_mv = (int)calibrated_mv * 2;
+    int battery_voltage_mv = (int)calibrated_mv * 2;    
     
-    // Conversione a percentuale basata su range batteria Li-Ion (3.0V-4.2V)
-    // 3000mV = 0%, 4200mV = 100%
-    int percentage = ((battery_voltage_mv - 3000) * 100) / (4200 - 3000);
-    if (percentage < 0) percentage = 0;
-    if (percentage > 100) percentage = 100;
-    
-    ESP_LOGI(TAG, "Battery (GPIO%d): ADC=%dmV, Real=%dmV, %d%%", VBAT_GPIO, (int)calibrated_mv, battery_voltage_mv, percentage);
+    // Conversione a percentuale basata su range batteria Li-Ion (3.0V-4.2V) 3000mV = 0%, 4200mV = 100%    
+    int percentage = (battery_voltage_mv - 3000) * 100 / (4200 - 3000);
+    if (log) {
+        ESP_LOGI(TAG, "Battery (GPIO%d): ADC=%dmV, Real=%dmV, %d%%", VBAT_GPIO, (int)calibrated_mv, battery_voltage_mv, percentage);
+    }
     return percentage;
 }

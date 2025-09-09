@@ -53,3 +53,4 @@ inols-clangd.log
 /ble_hid_r503/managed_components
 /ble_hid_kw111/managed_components
 /ble_hid_kw111/managed_components
+ble_hid_kw111/scripts/hmac_key.bin

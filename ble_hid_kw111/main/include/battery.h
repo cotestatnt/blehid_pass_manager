@@ -23,10 +23,10 @@ bool adc_calibration_init(adc_unit_t unit, adc_channel_t channel, adc_atten_t at
 esp_err_t init_power_monitoring_adc(void);
 
 // USB detection tramite USB Serial JTAG
-bool is_usb_connected_simple(void);
+bool is_usb_connected_simple();
 
 // Lettura batteria
-int get_battery_percentage(void);
+int get_battery_percentage(bool log);
 
 // Avvia il task di notifica BLE del livello batteria
 void start_battery_notify_task(void);

@@ -21,24 +21,10 @@
 #include "esp_lcd_panel_vendor.h"
 
 #include "display_oled.h"
+#include "config.h"
 
 static const char *TAG = "display_oled";
 static const char *DEFAULT_TEXT = "BLE PassMan";
-
-#define I2C_BUS_PORT  0
-#define LCD_PIXEL_CLOCK_HZ    (400 * 1000)
-#define PIN_NUM_SDA           2
-#define PIN_NUM_SCL           3
-#define PIN_NUM_RST           -1
-#define I2C_HW_ADDR           0x3C
-
-#if OLED_TYPE == OLED_96x16
-#define LCD_H_RES 96
-#define LCD_V_RES 16
-#else
-#define LCD_H_RES 128
-#define LCD_V_RES 32
-#endif
 
 #define LCD_CMD_BITS           8
 #define LCD_PARAM_BITS         8

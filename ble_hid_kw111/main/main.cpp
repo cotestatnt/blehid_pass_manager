@@ -135,7 +135,7 @@ extern "C" void app_main(void) {
         usb_available = is_usb_connected_simple();
         
     if (!usb_available) {
-            if (xTaskGetTickCount() - last_interaction_time > pdMS_TO_TICKS(60000)) {
+            if (xTaskGetTickCount() - last_interaction_time > pdMS_TO_TICKS(180000)) {
                 #if SLEEP_ENABLE
                 display_oled_deinit();
                 ESP_LOGI(TAG, "Entering deep sleep...\n");

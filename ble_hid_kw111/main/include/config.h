@@ -10,7 +10,7 @@
 #define ESP32S3_SUPERMINI 2
 #define ESP32S3_TEST      3
 
-#define ESP_BOARD ESP32S3_SUPERMINI
+#define ESP_BOARD ESP32C3_SUPERMINI
 
 #if ESP_BOARD == ESP32C3_TOI
     
@@ -46,6 +46,7 @@
     #define PIN_NUM_RST          -1    
     #define BATTERY_ADC_CHANNEL ADC_CHANNEL_3
     #define ADC_UNIT            ADC_UNIT_1
+    #define VBAT_ADC_OFFSET_MV   -500      // Offset sul pin in mV
 
 #elif ESP_BOARD == ESP32S3_SUPERMINI
     #define FP_UART_PORT         UART_NUM_1
@@ -70,15 +71,8 @@
     // ESP32-S3, GPIO 8 corrisponde ad ADC1_CH7
     // ESP32-S3, GPIO 11 corrisponde ad ADC2_CH0
     #define BATTERY_ADC_CHANNEL ADC_CHANNEL_0
-    #define ADC_UNIT            ADC_UNIT_2
-
-    // Calibrazione lettura ADC (mV) per VBAT divider 100k/100k
-    // Scala/offset applicati alla tensione misurata sul pin (prima di raddoppiare)
-    // Valori derivati dall'osservazione: multimetro=2070mV, ADC riportato ~1928mV => scala ~1.074
-    #define VBAT_ADC_SCALE_NUM   1074
-    #define VBAT_ADC_SCALE_DEN   1000
-    // Offset sul pin in mV: 30 mV porta 2070 mV -> 2100 mV (=> 4200 mV batteria = 100%)
-    #define VBAT_ADC_OFFSET_MV   30
+    #define ADC_UNIT            ADC_UNIT_2    
+    #define VBAT_ADC_OFFSET_MV   100    // Offset sul pin in mV
 
 #elif ESP_BOARD == ESP32S3_TEST
     #define FP_UART_PORT         UART_NUM_1
@@ -134,6 +128,25 @@
     #define ACTIVE_LEVEL 0 // R503 touch is active low
 #endif
 
+
+#define I2C_BUS_PORT  0
+#define LCD_PIXEL_CLOCK_HZ    (400 * 1000)
+#define I2C_HW_ADDR           0x3C
+
+// OLED Display configuration
+#define OLED_96x16   1
+#define OLED_128x32  2
+
+// Configure the OLED display type here
+#define OLED_TYPE OLED_128x32
+
+#if OLED_TYPE == OLED_96x16
+#define LCD_H_RES 96
+#define LCD_V_RES 16
+#else
+#define LCD_H_RES 128
+#define LCD_V_RES 32
+#endif
 
 
 #endif // CONFIG_H

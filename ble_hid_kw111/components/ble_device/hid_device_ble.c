@@ -12,6 +12,7 @@
 #include "freertos/task.h"
 #include "freertos/event_groups.h"
 #include "esp_system.h"
+#include "esp_mac.h"
 #include "esp_random.h"
 #include "esp_wifi.h"
 #include "esp_event.h"
@@ -91,6 +92,28 @@ static esp_ble_adv_params_t hidd_adv_params = {
     .adv_filter_policy = ADV_FILTER_ALLOW_SCAN_ANY_CON_ANY,
 };
 
+// Helper: set GAP device name to base name plus a unique suffix from MAC (e.g., BLE PwdMan-1A2B3C)
+static void set_device_name_with_unique_id(void)
+{
+    uint8_t mac[6] = {0};
+    esp_err_t err = esp_read_mac(mac, ESP_MAC_BT); // Prefer BT MAC for BLE naming
+    if (err != ESP_OK) {
+        // Fallback to base MAC if BT MAC not available
+        err = esp_read_mac(mac, ESP_MAC_WIFI_STA);
+    }
+
+    char dev_name[32];
+    // Use last 3 bytes for a short, adv-friendly suffix
+    snprintf(dev_name, sizeof(dev_name), "%s-%02X%02X%02X", HIDD_DEVICE_NAME, mac[3], mac[4], mac[5]);
+    esp_err_t name_err = esp_ble_gap_set_device_name(dev_name);
+    if (name_err == ESP_OK) {
+        ESP_LOGI(HID_DEMO_TAG, "Device name set: %s", dev_name);
+    } else {
+        ESP_LOGW(HID_DEMO_TAG, "Failed to set device name (%s), falling back to base name", esp_err_to_name(name_err));
+        esp_ble_gap_set_device_name(HIDD_DEVICE_NAME);
+    }
+}
+
 static void show_bonded_devices(void)
 {
     int dev_num = esp_ble_get_bond_device_num();
@@ -118,7 +141,8 @@ static void hidd_event_callback(esp_hidd_cb_event_t event, esp_hidd_cb_param_t *
     switch(event) {                
         case ESP_HIDD_EVENT_REG_FINISH: {
             if (param->init_finish.state == ESP_HIDD_INIT_OK) {
-                esp_ble_gap_set_device_name(HIDD_DEVICE_NAME);
+                // Set a unique device name to help identify the device (e.g., BLE PwdMan-1A2B3C)
+                set_device_name_with_unique_id();
                 esp_ble_gap_config_adv_data(&hidd_adv_data);
             }
             break;
