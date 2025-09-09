@@ -20,7 +20,7 @@ bool enrolling_in_progress = false;
 extern uint32_t last_interaction_time;
 
 static const char *TAG = "FPM TASK";
-#define NUM_SNAPSHOTS 5
+#define NUM_SNAPSHOTS 10
 
 bool enrollFinger() 
 {
