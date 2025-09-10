@@ -10,6 +10,7 @@ GridLayout {
     property alias username: username
     property alias password: password
     property alias winlogin: winlogin
+    property alias sendEnter sendEnter
     property alias autoFinger: autoFinger
     property alias fingerprintIndex: fingerprintIndex
     property alias loginType: loginType
@@ -64,6 +65,15 @@ GridLayout {
     }
     CheckBox {
         id: winlogin
+        checked: false
+    }
+
+    Label {
+        text: qsTr("Send ENTER key")
+        Layout.alignment: Qt.AlignLeft | Qt.AlignBaseline
+    }
+    CheckBox {
+        id: sendEnter
         checked: false
     }
 

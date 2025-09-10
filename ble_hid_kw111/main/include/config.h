@@ -10,7 +10,14 @@
 #define ESP32S3_SUPERMINI 2
 #define ESP32S3_TEST      3
 
-#define ESP_BOARD ESP32C3_SUPERMINI
+#define ESP_BOARD ESP32S3_SUPERMINI
+
+// OLED Display configuration
+#define OLED_96x16   1
+#define OLED_128x32  2
+
+// Configure the OLED display type here
+#define OLED_TYPE OLED_96x16
 
 #if ESP_BOARD == ESP32C3_TOI
     
@@ -134,12 +141,7 @@
 #define LCD_PIXEL_CLOCK_HZ    (400 * 1000)
 #define I2C_HW_ADDR           0x3C
 
-// OLED Display configuration
-#define OLED_96x16   1
-#define OLED_128x32  2
 
-// Configure the OLED display type here
-#define OLED_TYPE OLED_128x32
 
 #if OLED_TYPE == OLED_96x16
 #define LCD_H_RES 96

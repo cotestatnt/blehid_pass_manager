@@ -25,6 +25,7 @@ typedef struct {
     uint8_t fingerprint_id;            // indice del fingerprint associato (0-9)
     bool magicfinger;                  // true se è un login con fingerprint (0-9) automatico
     bool winlogin;                     // true se è un login Windows
+    bool sendEnter;                    // true se deve inviare ENTER alla fine
     uint8_t login_type;                // tipo di login (0: BLE, 1: USB, 2: Both)
 } user_entry_t;
 
@@ -50,10 +51,6 @@ void userdb_edit(int index, user_entry_t* user);
 void userdb_increment_usage(int index);
 void userdb_sort_by_usage();
 
-// void userdb_set_username(int index, const char* username, size_t len);
-// void userdb_set_password(int index, const char* password, size_t len);
-// void userdb_set_winlogin(int index, bool winlogin);
-
 // Test data initialization
 // void userdb_init_test_data();
 void user_print(user_entry_t* user);
@@ -62,9 +59,6 @@ void userdb_clear();
 
 // Funzioni per l'invio della lista utenti al client BLE
 int send_user_entry(int8_t index);
-// void send_winlogin(uint8_t index);
-// void send_user(uint8_t index);
-// void send_password(uint8_t index);  
 
 void send_db_cleared();
 void send_authenticated(bool auth);

@@ -20,6 +20,7 @@ Dialog {
         form.username.clear();
         form.password.clear();
         form.winlogin.checked = false;
+        form.sendEnter.checked = false;
         form.autoFinger.checked = false;
         form.fingerprintIndex.currentIndex = 0;
         form.loginType.currentIndex = 0;
@@ -32,6 +33,7 @@ Dialog {
         form.username.text = contact.username;
         form.password.text = contact.password;
         form.winlogin.checked = contact.winlogin;
+        form.sendEnter.checked = contact.sendEnter;
         form.autoFinger.checked = contact.autoFinger;
         form.fingerprintIndex.currentIndex = contact.fingerprintIndex + 1
         form.loginType.currentIndex = contact.loginType
@@ -55,6 +57,7 @@ Dialog {
                 username: form.username.text,
                 password: form.password.text,
                 winlogin: form.winlogin.checked,
+                sendEnter: form.sendEnter.checked,
                 autoFinger: form.autoFinger.checked,
                 fingerprintIndex: form.fingerprintIndex.currentValue,
                 loginType: form.loginType.currentIndex

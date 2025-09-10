@@ -257,6 +257,7 @@ QVariantList DeviceHandler::userList() const
         entry["username"] = it.value().username;
         entry["password"] = it.value().password;
         entry["winlogin"] = it.value().winlogin;
+        entry["sendEnter"] = it.value().sendEnter;
         entry["autoFinger"] = it.value().autoFinger;
         entry["fingerprintIndex"] = it.value().fingerprintIndex;
         entry["loginType"] = it.value().loginType;
@@ -276,6 +277,7 @@ void DeviceHandler::addUser(const QVariantMap &user)
     entry.username = user["username"].toString();
     entry.password = user["password"].toString();
     entry.winlogin = user["winlogin"].toBool();
+    entry.sendEnter = user["sendEnter"].toBool();
     entry.autoFinger = user["autoFinger"].toBool();
     entry.fingerprintIndex = user["fingerprintIndex"].toInt();
     entry.loginType = user["loginType"].toInt();
@@ -283,6 +285,7 @@ void DeviceHandler::addUser(const QVariantMap &user)
     qDebug() << "User:" << entry.username;
     // qDebug() << "Pass:" << entry.password;
     qDebug() << "Winlogin:" << entry.winlogin;
+    qDebug() << "SendEnter:" << entry.sendEnter;
     qDebug() << "Fingerprint:" << entry.fingerprintIndex;
     qDebug() << "Fingerprint automatic:" << entry.autoFinger;
     qDebug() << "Login type:" << entry.loginType;
@@ -305,6 +308,7 @@ void DeviceHandler::addUser(const QVariantMap &user)
     data.append(usernameBytes);  // 32 byte fissi
     data.append(passwordBytes);  // 32 byte fissi
     data.append(entry.winlogin);
+    data.append(entry.sendEnter);
     data.append(entry.autoFinger);
     data.append(entry.fingerprintIndex);
     data.append(entry.loginType);
@@ -323,6 +327,7 @@ void DeviceHandler::editUser(int index, const QVariantMap &user)
     entry.username = user["username"].toString();
     entry.password = user["password"].toString();
     entry.winlogin = user["winlogin"].toBool();
+    entry.sendEnter = user["sendEnter"].toBool();
     entry.autoFinger = user["autoFinger"].toBool();
     entry.fingerprintIndex = user["fingerprintIndex"].toInt();
     entry.loginType = user["loginType"].toInt();
@@ -330,6 +335,7 @@ void DeviceHandler::editUser(int index, const QVariantMap &user)
     qDebug() << "User:" << entry.username;
     // qDebug() << "Pass:" << entry.password;
     qDebug() << "Winlogin:" << entry.winlogin;
+    qDebug() << "SendEnter:" << entry.sendEnter;
     qDebug() << "Fingerprint:" << entry.fingerprintIndex;
     qDebug() << "Fingerprint automatic:" << entry.autoFinger;
     qDebug() << "Login type:" << entry.loginType;
@@ -352,6 +358,7 @@ void DeviceHandler::editUser(int index, const QVariantMap &user)
     data.append(usernameBytes);  // 32 byte fissi
     data.append(passwordBytes);  // 32 byte fissi
     data.append(entry.winlogin);
+    data.append(entry.sendEnter);
     data.append(entry.autoFinger);
     data.append(entry.fingerprintIndex);
     data.append(entry.loginType);
@@ -470,9 +477,11 @@ UserEntry DeviceHandler::parseUserEntry(const QByteArray &data) {
     }
 
     entry.winlogin = (data[offset++] == 1);
+    entry.sendEnter = (data[offset++] == 1);
     entry.autoFinger = (data[offset++] == 1);
     entry.fingerprintIndex = static_cast<uint8_t>(data[offset++]);
     entry.loginType = static_cast<uint8_t>(data[offset++]);
+
     return entry;
 }
 
@@ -577,6 +586,7 @@ void DeviceHandler::updateCharacteristicValue(const QLowEnergyCharacteristic &c,
             m_userList[index].username =  user.username;
             m_userList[index].password = user.password;
             m_userList[index].winlogin = user.winlogin;
+            m_userList[index].sendEnter = user.sendEnter;
             m_userList[index].autoFinger = user.autoFinger;
             m_userList[index].fingerprintIndex = user.fingerprintIndex;
             m_userList[index].loginType = user.loginType;
@@ -584,6 +594,7 @@ void DeviceHandler::updateCharacteristicValue(const QLowEnergyCharacteristic &c,
             qDebug() << "User:" << user.username;
             // qDebug() << "Pass:" << user.password;
             qDebug() << "Winlogin:" << user.winlogin;
+            qDebug() << "SendEnter:" << user.sendEnter;
             qDebug() << "Fingerprint:" << user.fingerprintIndex;
             qDebug() << "Fingerprint automatic:" << user.autoFinger;
             qDebug() << "Login type:" << user.loginType;

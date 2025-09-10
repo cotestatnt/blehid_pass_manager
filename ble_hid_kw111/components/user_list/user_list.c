@@ -83,6 +83,7 @@ void user_print(user_entry_t* user) {
         printf("     Fingerprint ID: %02d\n", user->fingerprint_id);
         printf("     MagicFinder: %s\n", user->magicfinger ? "enabled" : "disabled");
         printf("     Winlogin: %s\n", user->winlogin ? "enabled" : "disabled");
+        printf("     Send ENTER: %s\n", user->sendEnter ? "enabled" : "disabled");
         printf("     Login type: %d\n", user->login_type);
     }
 }
@@ -255,7 +256,8 @@ int send_user_entry(int8_t index) {
         payload_size += MAX_PASSWORD_LEN;
 
         payload_data[payload_size++] = entry.winlogin ? 1 : 0; 
-        payload_data[payload_size++] = entry.magicfinger ? 1 : 0; 
+        payload_data[payload_size++] = entry.sendEnter ? 1 : 0; 
+        payload_data[payload_size++] = entry.magicfinger ? 1 : 0;         
         payload_data[payload_size++] = entry.fingerprint_id;
         payload_data[payload_size++] = entry.login_type;
 

@@ -35,7 +35,8 @@ struct UserEntry {
     quint8 fingerprintIndex;
     quint8 loginType;
     bool autoFinger;
-    bool winlogin;    
+    bool winlogin;
+    bool sendEnter;
 };
 
 

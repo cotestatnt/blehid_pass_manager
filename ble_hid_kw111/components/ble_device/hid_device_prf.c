@@ -565,6 +565,7 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_
                     // Encrypt the password before storing it
                     user.password_len = userdb_encrypt_password(plainPsw, user.password_enc);                
                     user.winlogin = (bool)param->write.value[offset++];
+                    user.sendEnter = (bool)param->write.value[offset++];
                     user.magicfinger = (bool)param->write.value[offset++];
                     user.fingerprint_id = (uint8_t)param->write.value[offset++];
                     user.login_type = (uint8_t)param->write.value[offset++];
