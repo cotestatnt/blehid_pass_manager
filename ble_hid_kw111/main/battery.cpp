@@ -29,6 +29,16 @@ static bool battery_calibrated = false;
 #define ADC_ATTEN           ADC_ATTEN_DB_12
 #define ADC_BITWIDTH        ADC_BITWIDTH_DEFAULT
 
+// Exponential Moving Average (EMA) smoothing factor for battery voltage
+// Higher alpha -> faster reaction, lower alpha -> smoother
+#ifndef BATTERY_EMA_ALPHA
+#define BATTERY_EMA_ALPHA 0.3f
+#endif
+
+// Persistent EMA state for battery voltage (in mV)
+static bool s_batt_ema_initialized = false;
+static float s_batt_ema_mv = 0.0f;
+
 
 // Task that notifies battery level every 30 seconds
 void battery_notify_task(void *pvParameters) {
@@ -54,7 +64,7 @@ void battery_notify_task(void *pvParameters) {
                 }
             }
         }
-        // Debug: invia anche il valore in mV tramite la caratteristica custom
+    // Debug: also send the value in mV via the custom characteristic
         int mv = get_battery_voltage_mv(true);
         if (mv > 0) {
             notify_battery_mv(mv);
@@ -125,7 +135,7 @@ bool adc_calibration_init(adc_unit_t unit, adc_channel_t channel, adc_atten_t at
 esp_err_t init_power_monitoring_adc(void) {
     esp_err_t ret = ESP_OK;
     
-    // Configurazione ADC1 oneshot
+    // ADC1 one-shot configuration
     adc_oneshot_unit_init_cfg_t init_config = {
         .unit_id = ADC_UNIT,
     };
@@ -148,7 +158,6 @@ esp_err_t init_power_monitoring_adc(void) {
 
     // Battery calibration  
     battery_calibrated = adc_calibration_init(ADC_UNIT, BATTERY_ADC_CHANNEL, ADC_ATTEN, &adc_cali_battery_handle);
-
     return ESP_OK;
 }
 
@@ -175,46 +184,47 @@ bool is_usb_connected_simple() {
 
 
 
-// Ritorna la tensione batteria in mV usando la stessa pipeline di get_battery_percentage
+// Returns the battery voltage in mV using the same pipeline as get_battery_percentage
 int get_battery_voltage_mv(bool log) {
     if (adc_handle == NULL) {
         return -1;
     }
 
-    const int num_samples = 10;
-    int adc_sum = 0;
-    int valid_samples = 0;
-
-    for (int i = 0; i < num_samples; i++) {
-        int adc_raw = 0;
-        esp_err_t ret = adc_oneshot_read(adc_handle, BATTERY_ADC_CHANNEL, &adc_raw);
-        if (ret == ESP_OK) {
-            adc_sum += adc_raw;
-            valid_samples++;
-        }
-        vTaskDelay(pdMS_TO_TICKS(10));
-    }
-
-    if (valid_samples == 0) {
+    // Single-shot read (we smooth over time with EMA instead of averaging many samples now)
+    int adc_raw = 0;
+    if (adc_oneshot_read(adc_handle, BATTERY_ADC_CHANNEL, &adc_raw) != ESP_OK) {
         return -1;
     }
 
-    int adc_avg = adc_sum / valid_samples;
-    int voltage_mv = 0;
+    int voltage_mv = 0; // ADC pin voltage in mV after calibration
     if (battery_calibrated && adc_cali_battery_handle) {
-        if (adc_cali_raw_to_voltage(adc_cali_battery_handle, adc_avg, &voltage_mv) != ESP_OK) {
+        if (adc_cali_raw_to_voltage(adc_cali_battery_handle, adc_raw, &voltage_mv) != ESP_OK) {
             return -1;
         }
     }
-    int32_t calibrated_mv = (int32_t)voltage_mv + VBAT_ADC_OFFSET_MV;
-    int battery_voltage_mv = (int)calibrated_mv * 2;
+
+    // Apply pin offset, then scale for the divider (100k/100k -> x2 to get battery voltage)
+    int32_t calibrated_mv = voltage_mv + (VBAT_ADC_OFFSET_MV / 2); // Offset on the pin in mV
+    int measured_batt_mv = (int)calibrated_mv * 2;
+
+    // EMA smoothing across calls
+    const float alpha = BATTERY_EMA_ALPHA;
+    if (!s_batt_ema_initialized) {
+        s_batt_ema_mv = (float)measured_batt_mv;
+        s_batt_ema_initialized = true;
+    } else {
+        s_batt_ema_mv = alpha * (float)measured_batt_mv + (1.0f - alpha) * s_batt_ema_mv;
+    }
+
+    int battery_voltage_mv = (int)(s_batt_ema_mv + 0.5f);
     if (log) {
-        ESP_LOGI(TAG, "Battery (GPIO%d): ADC=%dmV, Real=%dmV", VBAT_GPIO, (int)calibrated_mv, battery_voltage_mv);
+        ESP_LOGI(TAG, "Battery (GPIO%d): Inst=%dmV, EMA=%dmV (alpha=%.2f)",
+                 VBAT_GPIO, measured_batt_mv, battery_voltage_mv, (double)alpha);
     }
     return battery_voltage_mv;
 }
 
-// Notifica il valore mV via BLE attraverso la caratteristica custom USER_MGMT
+// Notify the mV value via BLE through the custom USER_MGMT characteristic
 void notify_battery_mv(int mv) {
     extern uint16_t user_mgmt_handle[];
     extern uint16_t user_mgmt_conn_id;
@@ -223,7 +233,7 @@ void notify_battery_mv(int mv) {
     user_mgmt_payload_t payload = {0};
     payload.cmd = BATTERY_MV;
     payload.index = 0;
-    // Inserisce i mV come stringa decimale per debug, oppure binario 2 byte? Usare stringa per compatibilità UI.
+    // Insert the mV as a decimal string for debug, or 2-byte binary? Use string for UI compatibility.
     snprintf(payload.data, sizeof(payload.data), "%d", mv);
 
     esp_err_t err = esp_ble_gatts_send_indicate(
@@ -240,11 +250,11 @@ void notify_battery_mv(int mv) {
 }
 
 
-// Lettura batteria tramite partitore 100K/100K - GPIO automatico da config.h
+// Battery reading via 100K/100K divider - GPIO automatically from config.h
 int get_battery_percentage(bool log) {
     int battery_voltage_mv = get_battery_voltage_mv(false);  
     
-    // Conversione a percentuale basata su range batteria Li-Ion (3.0V-4.2V) 3000mV = 0%, 4200mV = 100%    
+    // Conversion to percentage based on Li-Ion battery range (3.0V-4.2V): 3000 mV = 0%, 4200 mV = 100%
     int percentage = (battery_voltage_mv - 3000) * 100 / (4200 - 3000);
     if (log) {
         ESP_LOGI(TAG, "Battery level %d%%", percentage);

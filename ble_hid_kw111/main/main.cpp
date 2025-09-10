@@ -133,7 +133,9 @@ extern "C" void app_main(void) {
         // Periodically re-check USB status to avoid sleeping when connected
         usb_available = is_usb_connected_simple();
 
-        // usb_available = false; // Disable sleep for testing
+        //////////////////// TEST /////////////////////
+        // usb_available = false; // force sleep for testing
+        //////////////////// TEST /////////////////////
         
     if (!usb_available) {
             if (xTaskGetTickCount() - last_interaction_time > pdMS_TO_TICKS(180000)) {

@@ -37,7 +37,7 @@
     #define BUTTON_DOWN          10
     #define BUZZER_GPIO          1
     #define FP_UART_PORT         UART_NUM_1
-    #define FP_TOUCH             6
+    #define FP_TOUCH             0
     #define FP_TX                21
     #define FP_RX                20
     #define FP_ACTIVATE          7
@@ -45,10 +45,12 @@
     #define PIN_NUM_SCL          9
     #define PIN_NUM_RST          -1    
 
-    #define VBAT_GPIO            2  
-    #define BATTERY_ADC_CHANNEL ADC_CHANNEL_2
-    #define ADC_UNIT            ADC_UNIT_1
-    #define VBAT_ADC_OFFSET_MV   0      // Offset sul pin in mV
+    #define VBAT_GPIO            4  
+    #define BATTERY_ADC_CHANNEL  ADC_CHANNEL_4
+    #define ADC_UNIT             ADC_UNIT_1
+
+     // Offset sul pin in mV (dovuto alla caduta di tensione sul diodo schottky)
+    #define VBAT_ADC_OFFSET_MV   284     
 
 #elif ESP_BOARD == ESP32S3_SUPERMINI
     #define FP_UART_PORT         UART_NUM_1

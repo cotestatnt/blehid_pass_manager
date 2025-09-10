@@ -234,8 +234,31 @@ void enter_deep_sleep() {
     gpio_set_level((gpio_num_t)FP_ACTIVATE, 1);
     
 #if CONFIG_IDF_TARGET_ESP32C3
-    // ESP32-C3: use gpio wakeup
-    esp_deep_sleep_enable_gpio_wakeup((1ULL << FP_TOUCH), ACTIVE_LEVEL ? ESP_GPIO_WAKEUP_GPIO_HIGH : ESP_GPIO_WAKEUP_GPIO_LOW);
+    #define WAKEUP_GPIO FP_TOUCH
+    
+    // ESP32-C3: Prepare FP_TOUCH as input and enable GPIO wakeup
+    // Note: only a subset of GPIOs support deep-sleep wake on ESP32-C3. Make sure FP_TOUCH uses a wake-capable pin.
+    gpio_config_t sleep_io_conf = {};
+    sleep_io_conf.intr_type = GPIO_INTR_DISABLE;
+    sleep_io_conf.mode = GPIO_MODE_INPUT;
+    sleep_io_conf.pin_bit_mask = (1ULL << (gpio_num_t)WAKEUP_GPIO);
+    // Keep the line in a known state during sleep opposite to the active level
+    // If ACTIVE_LEVEL is HIGH, keep pulldown enabled; if LOW, keep pullup enabled.
+    sleep_io_conf.pull_down_en = (ACTIVE_LEVEL ? GPIO_PULLDOWN_ENABLE : GPIO_PULLDOWN_DISABLE);
+    sleep_io_conf.pull_up_en   = (ACTIVE_LEVEL ? GPIO_PULLUP_DISABLE  : GPIO_PULLUP_ENABLE);
+    gpio_config(&sleep_io_conf);
+
+    // For sleep, ensure the same pull mode is applied
+    // These APIs are available on IDF 5.x; ignore return as they are best-effort across targets
+    gpio_sleep_set_direction((gpio_num_t)WAKEUP_GPIO, GPIO_MODE_INPUT);
+    gpio_sleep_set_pull_mode((gpio_num_t)WAKEUP_GPIO, ACTIVE_LEVEL ? GPIO_PULLDOWN_ONLY : GPIO_PULLUP_ONLY);
+
+    esp_err_t err = esp_deep_sleep_enable_gpio_wakeup((1ULL << WAKEUP_GPIO), ACTIVE_LEVEL ? ESP_GPIO_WAKEUP_GPIO_HIGH : ESP_GPIO_WAKEUP_GPIO_LOW);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to enable GPIO wakeup on GPIO %d: %s", WAKEUP_GPIO, esp_err_to_name(err));
+    } else {
+        ESP_LOGI(TAG, "Deep sleep GPIO wake enabled on GPIO %d (level=%s)", WAKEUP_GPIO, ACTIVE_LEVEL ? "HIGH" : "LOW");
+    }
 
 #elif CONFIG_IDF_TARGET_ESP32S3
     // ESP32-S3: use ext1 wakeup with RTC_IO
