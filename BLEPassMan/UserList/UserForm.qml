@@ -174,7 +174,7 @@ GridLayout {
         id: placeholderDialog
         title: qsTr("Placeholder disponibili")
         modal: true
-        // Dimensioni fisse (evita dipendenze verso contenuto)
+
         property int dialogContentWidth: 460
         width: dialogContentWidth
         height: 500
