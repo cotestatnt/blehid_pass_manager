@@ -5,7 +5,7 @@
 #define DEVICEHANDLER_H
 
 #include "bluetoothbaseclass.h"
-#include "placeholderparser.h"
+#include "placeholderencoder.h"
 
 #include <QLowEnergyController>
 #include <QLowEnergyService>
@@ -15,7 +15,6 @@
 #include <QMap>
 #include <QTimer>
 #include <QQmlEngine>
-
 
 #define NOT_AUTHORIZED  0x99
 #define GET_USERS_LIST  0xA1
@@ -30,16 +29,20 @@
 
 #define LIST_EMPTY      0xFF
 
+// Lunghezze fisse lato firmware
+static constexpr int MAX_LABEL_LEN     = 32;
+static constexpr int MAX_PASSWORD_LEN  = 32;
+
 struct UserEntry {
     QString username;
-    QString password;
-    quint8 fingerprintIndex;
-    quint8 loginType;
-    bool autoFinger;
-    bool winlogin;
-    bool sendEnter;
+    QString password;     // Testuale (con {ENTER} ecc.)
+    QByteArray rawPassword; // Byte encoded (placeholder 0x80..0x87 + ASCII)
+    quint8 fingerprintIndex = 0;
+    quint8 loginType = 0;
+    bool autoFinger = false;
+    bool winlogin = false;
+    bool sendEnter = false;
 };
-
 
 class DeviceInfo;
 
@@ -75,7 +78,6 @@ signals:
     Q_SIGNAL void serviceReady();
     Q_SIGNAL void batteryLevelChanged();
 
-
 public slots:
     void getUserList();
     void disconnectService();
@@ -102,6 +104,7 @@ private:
     void writeCustomCharacteristic(const QByteArray &data);
 
     UserEntry parseUserEntry(const QByteArray &data);
+    QByteArray buildUserPayload(quint8 cmd, quint8 index, const UserEntry &entry);
 
     void batteryServiceStateChanged(QLowEnergyService::ServiceState s);
     void updateBatteryLevel(const QLowEnergyCharacteristic &c, const QByteArray &value);
@@ -128,10 +131,8 @@ private:
     QBluetoothUuid m_batteryService_uuid = QBluetoothUuid::ServiceClassUuid::BatteryService;
     QBluetoothUuid m_batteryCharacteristic = QBluetoothUuid::CharacteristicType::BatteryLevel;
 
-
-    QMap<int, UserEntry> m_userList;    
+    QMap<int, UserEntry> m_userList;
     int m_currentUserIndex = 0;
-
 };
 
 #endif // DEVICEHANDLER_H

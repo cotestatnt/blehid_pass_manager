@@ -19,7 +19,7 @@ HEADERS += \
     devicefinder.h \
     devicehandler.h \
     bluetoothbaseclass.h \
-    placeholderparser.h
+    placeholderencoder.h
 
 SOURCES += main.cpp \
     connectionhandler.cpp \
@@ -27,7 +27,7 @@ SOURCES += main.cpp \
     devicefinder.cpp \
     devicehandler.cpp \
     bluetoothbaseclass.cpp \
-    placeholderparser.cpp
+    placeholderencoder.cpp
 
 qml_resources.files = \
     qmldir \
