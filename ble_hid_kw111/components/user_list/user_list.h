@@ -41,9 +41,6 @@ int userdb_decrypt_password(const uint8_t* encrypted, size_t len, char* out_plai
 void userdb_load();
 void userdb_save();
 
-
-// int userdb_add(const char* label, const uint8_t* password_enc, size_t enc_len);
-// int userdb_update(int index, const char* new_label, const char* new_password);
 int userdb_remove(int index);
 int userdb_add(user_entry_t* user);
 void userdb_edit(int index, user_entry_t* user);
@@ -52,7 +49,6 @@ void userdb_increment_usage(int index);
 void userdb_sort_by_usage();
 
 // Test data initialization
-// void userdb_init_test_data();
 void user_print(user_entry_t* user);
 void userdb_dump();
 void userdb_clear();

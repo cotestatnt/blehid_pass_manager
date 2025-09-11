@@ -7,7 +7,7 @@
 
 #include "hid_dev.h"
 #include "hid_device_ble.h"
-#include "buttons.h"
+#include "buzzer.h"
 
 #if CONFIG_IDF_TARGET_ESP32S3
 #include "hid_device_usb.h"

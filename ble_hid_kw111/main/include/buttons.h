@@ -14,11 +14,6 @@ extern "C" {
 void enter_deep_sleep();
 void button_task(void *pvParameters);
 
-// Buzzer feedback helpers
-void buzzer_feedback_success();
-void buzzer_feedback_fail();
-void buzzer_feedback_noauth();
-void buzzer_feedback_lift();
 
 #ifdef __cplusplus
 }

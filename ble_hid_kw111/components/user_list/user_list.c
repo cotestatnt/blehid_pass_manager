@@ -13,12 +13,12 @@
 #include "hid_device_prf.h"
 #include "user_list.h"
 #include "display_oled.h"
+#include "buzzer.h"
 
 
 user_entry_t user_list[MAX_USERS];  // Lista degli account
 size_t user_count = 0;              // Numero totale degli account memorizzati
 int user_index = -1;                // Indice dell'account attualmente selezionato
-
 
 #define NVS_NAMESPACE "userdb"
 #define NVS_KEY "users"
@@ -26,9 +26,6 @@ int user_index = -1;                // Indice dell'account attualmente seleziona
 uint8_t decrypt_key[16];
 
 static const char *TAG = "USER_DB";
-
-
-void send_ble_message(const char* message, uint8_t type);
 
 // Derives a secure 128-bit key from eFuse HMAC_KEY0
 esp_err_t get_device_key_hmac(uint8_t out_key[16]) {
@@ -147,6 +144,7 @@ int userdb_add(user_entry_t* user) {
     userdb_save();
     userdb_load();
     display_oled_post_info("User added");
+    buzzer_feedback_success();
     ESP_LOGI(TAG, "User added: %s", user->label);
     userdb_dump();
     return user_count;
@@ -162,6 +160,7 @@ void userdb_edit(int index, user_entry_t* user){
     userdb_save();
     userdb_load();
     display_oled_post_info("User update");
+    buzzer_feedback_success();
     ESP_LOGI(TAG, "User updated: %s", user->label);    
 }
 
@@ -178,6 +177,7 @@ int userdb_remove(int index) {
     userdb_save();
     userdb_load(); 
     display_oled_post_info("User removed");
+    buzzer_feedback_success();
     ESP_LOGI(TAG, "User removed at index: %d", index);    
     return 0;
 }
@@ -221,6 +221,7 @@ void userdb_clear() {
     nvs_close(handle);
     ESP_LOGI("userdb", "Database utenti cancellato");
     display_oled_post_info("DB cleared!");
+    buzzer_feedback_success();
 }
 
 
@@ -298,26 +299,26 @@ void send_authenticated(bool auth) {
 }
 
 
-void send_ble_message(const char* message, uint8_t type) {
-    user_mgmt_payload_t payload = {0};
-    payload.cmd = 0xAA;  // Command to send a generic message
-    payload.index = type; // 0x00 Info, 0x01 Warning, 0x02 Error
+// void send_ble_message(const char* message, uint8_t type) {
+//     user_mgmt_payload_t payload = {0};
+//     payload.cmd = 0xAA;  // Command to send a generic message
+//     payload.index = type; // 0x00 Info, 0x01 Warning, 0x02 Error
 
-    strncpy(payload.data, message, sizeof(payload.data) - 1);        
-    ESP_LOGI(TAG, "[%s] Message: %s", type ? "error": "info", (char*) payload.data);
+//     strncpy(payload.data, message, sizeof(payload.data) - 1);        
+//     ESP_LOGI(TAG, "[%s] Message: %s", type ? "error": "info", (char*) payload.data);
 
-    esp_ble_gatts_send_indicate(
-        hidd_le_env.gatt_if,
-        user_mgmt_conn_id,
-        user_mgmt_handle[USER_MGMT_IDX_VAL],
-        sizeof(payload),
-        (uint8_t *)&payload,
-        true
-    );
+//     esp_ble_gatts_send_indicate(
+//         hidd_le_env.gatt_if,
+//         user_mgmt_conn_id,
+//         user_mgmt_handle[USER_MGMT_IDX_VAL],
+//         sizeof(payload),
+//         (uint8_t *)&payload,
+//         true
+//     );
 
-    ESP_LOGI(TAG, "gatt_if: %d, conn_id: %d, handle: %d\n",
-             hidd_le_env.gatt_if, user_mgmt_conn_id, user_mgmt_handle[USER_MGMT_IDX_VAL]);
-}
+//     ESP_LOGI(TAG, "gatt_if: %d, conn_id: %d, handle: %d\n",
+//              hidd_le_env.gatt_if, user_mgmt_conn_id, user_mgmt_handle[USER_MGMT_IDX_VAL]);
+// }
 
 void send_db_cleared() {
     user_mgmt_payload_t payload = {0};
@@ -325,6 +326,8 @@ void send_db_cleared() {
     payload.index = 0;   // Doesn't make sense in this context, but needed to maintain structure
 
     strcpy(payload.data, "User DB cleared");
+    buzzer_feedback_long();
+    display_oled_post_info("DB cleared");
 
     esp_ble_gatts_send_indicate(
         hidd_le_env.gatt_if,

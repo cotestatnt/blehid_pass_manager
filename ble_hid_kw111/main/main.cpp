@@ -13,7 +13,6 @@
 #include "nvs_flash.h"
 #include "driver/gpio.h"
 
-
 // Local components and includes
 #include "config.h"
 #include "battery.h"
@@ -23,6 +22,7 @@
 #include "display_oled.h"
 #include "hid_device_prf.h"
 #include "hid_device_ble.h"
+#include "buzzer.h"
 
 #if CONFIG_IDF_TARGET_ESP32S3
 #include "hid_device_usb.h"
@@ -76,6 +76,9 @@ extern "C" void app_main(void) {
         // Start the battery level BLE notification task
         start_battery_notify_task();
     }
+
+    // Initialize buzzer component
+    buzzer_init();
 
     // Start buttons task
     ESP_LOGI(TAG, "Starting button task...");
@@ -156,6 +159,6 @@ extern "C" void app_main(void) {
         #if CONFIG_IDF_TARGET_ESP32S3
         display_oled_set_usb_initialized(usb_available && usb_needed);
         #endif
-        vTaskDelay(pdMS_TO_TICKS(1000));
+        vTaskDelay(pdMS_TO_TICKS(10000));
     }
 }
