@@ -36,6 +36,9 @@
 #include "display_oled.h"
 #include "user_list.h"
 
+// --- PLACEHOLDER SUPPORT ----------------------------------------------------
+#include "password_placeholders.h"
+
 
 #define HID_DEMO_TAG        "HID BLE"
 #define HIDD_DEVICE_NAME    "BLE PwdMan"
@@ -327,54 +330,75 @@ void ble_send_key_combination(uint8_t modifiers, uint8_t key)
     ble_send_hid_key(keycode);
 }
 
+static void ble_handle_placeholder(uint8_t ph) {
+    switch (ph) {
+        case PW_PH_ENTER:
+            ble_send_key_combination(KEYBOARD_MODIFIER_NONE, HID_KEY_ENTER); break;
+        case PW_PH_TAB:
+            ble_send_key_combination(KEYBOARD_MODIFIER_NONE, HID_KEY_TAB); break;
+        case PW_PH_ESC:
+            ble_send_key_combination(KEYBOARD_MODIFIER_NONE, HID_KEY_ESCAPE); break;
+        case PW_PH_BACKSPACE:
+            ble_send_key_combination(KEYBOARD_MODIFIER_NONE, HID_KEY_BACKSPACE); break;
+        case PW_PH_DELAY_500MS:
+            vTaskDelay(pdMS_TO_TICKS(500)); break;
+        case PW_PH_DELAY_1000MS:
+            vTaskDelay(pdMS_TO_TICKS(1000)); break;
+        case PW_PH_CTRL_ALT_DEL:
+            ble_send_key_combination(HID_MODIFIER_LEFT_CTRL | HID_MODIFIER_LEFT_ALT, HID_KEY_DELETE); break;
+        case PW_PH_SHIFT_TAB:
+            ble_send_key_combination(HID_MODIFIER_LEFT_SHIFT, HID_KEY_TAB); break;
+        default:
+            break; // Non gestito (futuro)
+    }
+}
 
 void ble_send_string(const char* str) {
-  size_t i = 0;
-  while (str[i]) {    
-    wint_t wc = (wint_t)str[i];
+    size_t i = 0;
+    while (str[i]) {
+        uint8_t b = (uint8_t)str[i];
+        if (PW_IS_PLACEHOLDER(b)) { // Gestione placeholder 0x80-0x8F
+            ble_handle_placeholder(b);
+            i++;
+            continue;
+        }
 
-    // Single-byte character      
-    if ((wc & 0x80) == 0) {          
-        ble_send_char(wc);            
-        i += 1;
-        // Skip to next character
-        continue; 
+        wint_t wc = (wint_t)b;
+        // ASCII semplice
+        if ((wc & 0x80) == 0) {
+            ble_send_char(wc);
+            i++;
+            continue;
+        }
+
+        // Multi-byte UTF-8 (accenti) – logica precedente
+        int len = 1;
+        int pos = i;
+        uint32_t codepoint = 0;
+        if ((wc & 0xE0) == 0xC0) len = 2;
+        else if ((wc & 0xF0) == 0xE0) len = 3;
+        else if ((wc & 0xF8) == 0xF0) len = 4;
+        for (int j = 0; j < len; ++j) {
+            codepoint = (codepoint << 8) | (unsigned char)str[pos + j];
+            i++;
+        }
+        uint8_t keycode[8] = {0};
+        switch (codepoint) {
+            case 'à': keycode[0] = KEYBOARD_MODIFIER_NONE;        keycode[2] = 0x34; break;
+            case 'è': keycode[0] = KEYBOARD_MODIFIER_NONE;        keycode[2] = 0x2F; break;
+            case 'é': keycode[0] = KEYBOARD_MODIFIER_LEFTSHIFT;   keycode[2] = 0x2F; break;
+            case 'ì': keycode[0] = KEYBOARD_MODIFIER_NONE;        keycode[2] = 0x2E; break;
+            case 'ò': keycode[0] = KEYBOARD_MODIFIER_NONE;        keycode[2] = 0x33; break;
+            case 'ù': keycode[0] = KEYBOARD_MODIFIER_NONE;        keycode[2] = 0x31; break;
+            case '€': keycode[0] = KEYBOARD_MODIFIER_RIGHTALT;    keycode[2] = 0x08; break;
+            case '£': keycode[0] = KEYBOARD_MODIFIER_LEFTSHIFT;   keycode[2] = 0x20; break;
+            case 'ç': keycode[0] = KEYBOARD_MODIFIER_LEFTSHIFT;   keycode[2] = 0x33; break;
+            case '§': keycode[0] = KEYBOARD_MODIFIER_LEFTSHIFT;   keycode[2] = 0x31; break;
+            case '°': keycode[0] = KEYBOARD_MODIFIER_LEFTSHIFT;   keycode[2] = 0x34; break;
+            default: break; // ignora se non riconosciuto
+        }
+        ble_send_hid_key(keycode);
     }
-
-    // Multi-byte UTF-8 character
-    int len = 1;
-    int pos = i;
-    uint32_t codepoint = 0;
-
-    if ((wc & 0xE0) == 0xC0) len = 2;
-    else if ((wc & 0xF0) == 0xE0) len = 3;
-    else if ((wc & 0xF8) == 0xF0) len = 4;
-
-    for (int j = 0; j < len; ++j) {  
-        codepoint = (codepoint << 8) | (unsigned char)str[pos + j];
-        i += 1;
-    }    
-    // printf("codepoint: %lX: \n",  codepoint);
-
-    // Convert codepoint to UTF-8 and handle special characters
-    uint8_t keycode[8] = {0};
-
-    switch (codepoint) {    
-        case 'à': keycode[0] = KEYBOARD_MODIFIER_NONE;        keycode[2] = 0x34; break;
-        case 'è': keycode[0] = KEYBOARD_MODIFIER_NONE;        keycode[2] = 0x2F; break;
-        case 'é': keycode[0] = KEYBOARD_MODIFIER_LEFTSHIFT;   keycode[2] = 0x2F; break;
-        case 'ì': keycode[0] = KEYBOARD_MODIFIER_NONE;        keycode[2] = 0x2E; break;
-        case 'ò': keycode[0] = KEYBOARD_MODIFIER_NONE;        keycode[2] = 0x33; break;
-        case 'ù': keycode[0] = KEYBOARD_MODIFIER_NONE;        keycode[2] = 0x31; break;
-
-        case '€': keycode[0] = KEYBOARD_MODIFIER_RIGHTALT;    keycode[2] = 0x08; break; 
-        case '£': keycode[0] = KEYBOARD_MODIFIER_LEFTSHIFT;   keycode[2] = 0x20; break;
-        case 'ç': keycode[0] = KEYBOARD_MODIFIER_LEFTSHIFT;   keycode[2] = 0x33; break;
-        case '§': keycode[0] = KEYBOARD_MODIFIER_LEFTSHIFT;   keycode[2] = 0x31; break;
-        case '°': keycode[0] = KEYBOARD_MODIFIER_LEFTSHIFT;   keycode[2] = 0x34; break;
-    }
-    ble_send_hid_key(keycode);
-  }
 }
 
 esp_err_t ble_device_init(void)

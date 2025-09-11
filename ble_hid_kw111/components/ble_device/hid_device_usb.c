@@ -10,8 +10,13 @@
 #include "freertos/task.h"
 #include "tinyusb.h"
 
+
 #include "class/hid/hid_device.h"
+#include "hid_device_usb.h"
 #include "hid_dev.h"
+
+// --- PLACEHOLDER SUPPORT (USB) ----------------------------------------------
+#include "password_placeholders.h"
 
 
 static const char *TAG = "USB HID";
@@ -157,54 +162,44 @@ void usb_send_char(wint_t chr)
 }
 
 
+
+
 void usb_send_string(const char* str) {
-  size_t i = 0;
-  while (str[i]) {    
-    wint_t wc = (wint_t)str[i];
-
-    // Single-byte character      
-    if ((wc & 0x80) == 0) {          
-        usb_send_char(wc);            
-        i += 1;
-        // Skip to next character
-        continue; 
+    size_t i = 0;
+    while (str[i]) {
+        uint8_t b = (uint8_t)str[i];
+        if (PW_IS_PLACEHOLDER(b)) {
+            usb_handle_placeholder(b);
+            i++;
+            continue;
+        }
+        wint_t wc = (wint_t)b;
+        if ((wc & 0x80) == 0) { // ASCII semplice
+            usb_send_char(wc);
+            i++;
+            continue;
+        }
+        // Multi-byte UTF-8
+        int len = 1; int pos = i; uint32_t codepoint = 0;
+        if ((wc & 0xE0) == 0xC0) len = 2; else if ((wc & 0xF0) == 0xE0) len = 3; else if ((wc & 0xF8) == 0xF0) len = 4;
+        for (int j = 0; j < len; ++j) { codepoint = (codepoint << 8) | (unsigned char)str[pos + j]; i++; }
+        uint8_t keycode[6] = {0}; uint8_t modifier = 0;
+        switch (codepoint) {
+            case 'à': modifier = KEYBOARD_MODIFIER_NONE;        keycode[1] = 0x34; break;
+            case 'è': modifier = KEYBOARD_MODIFIER_NONE;        keycode[1] = 0x2F; break;
+            case 'é': modifier = KEYBOARD_MODIFIER_LEFTSHIFT;   keycode[1] = 0x2F; break;
+            case 'ì': modifier = KEYBOARD_MODIFIER_NONE;        keycode[1] = 0x2E; break;
+            case 'ò': modifier = KEYBOARD_MODIFIER_NONE;        keycode[1] = 0x33; break;
+            case 'ù': modifier = KEYBOARD_MODIFIER_NONE;        keycode[1] = 0x31; break;
+            case '€': modifier = KEYBOARD_MODIFIER_RIGHTALT;    keycode[1] = 0x08; break;
+            case '£': modifier = KEYBOARD_MODIFIER_LEFTSHIFT;   keycode[1] = 0x20; break;
+            case 'ç': modifier = KEYBOARD_MODIFIER_LEFTSHIFT;   keycode[1] = 0x33; break;
+            case '§': modifier = KEYBOARD_MODIFIER_LEFTSHIFT;   keycode[1] = 0x31; break;
+            case '°': modifier = KEYBOARD_MODIFIER_LEFTSHIFT;   keycode[1] = 0x34; break;
+            default: break;
+        }
+        usb_send_hid_key(modifier, keycode);
     }
-
-    // Multi-byte UTF-8 character
-    int len = 1;
-    int pos = i;
-    uint32_t codepoint = 0;
-
-    if ((wc & 0xE0) == 0xC0) len = 2;
-    else if ((wc & 0xF0) == 0xE0) len = 3;
-    else if ((wc & 0xF8) == 0xF0) len = 4;
-
-    for (int j = 0; j < len; ++j) {  
-        codepoint = (codepoint << 8) | (unsigned char)str[pos + j];
-        i += 1;
-    }    
-    // printf("codepoint: %lX: \n",  codepoint);
-
-    // Convert codepoint to UTF-8 and handle special characters
-    uint8_t keycode[6] = {0};
-    uint8_t modifier   = 0;
-
-    switch (codepoint) {    
-        case 'à': modifier = KEYBOARD_MODIFIER_NONE;        keycode[1] = 0x34; break;
-        case 'è': modifier = KEYBOARD_MODIFIER_NONE;        keycode[1] = 0x2F; break;
-        case 'é': modifier = KEYBOARD_MODIFIER_LEFTSHIFT;   keycode[1] = 0x2F; break;
-        case 'ì': modifier = KEYBOARD_MODIFIER_NONE;        keycode[1] = 0x2E; break;
-        case 'ò': modifier = KEYBOARD_MODIFIER_NONE;        keycode[1] = 0x33; break;
-        case 'ù': modifier = KEYBOARD_MODIFIER_NONE;        keycode[1] = 0x31; break;
-
-        case '€': modifier = KEYBOARD_MODIFIER_RIGHTALT;    keycode[1] = 0x08; break; 
-        case '£': modifier = KEYBOARD_MODIFIER_LEFTSHIFT;   keycode[1] = 0x20; break;
-        case 'ç': modifier = KEYBOARD_MODIFIER_LEFTSHIFT;   keycode[1] = 0x33; break; 
-        case '§': modifier = KEYBOARD_MODIFIER_LEFTSHIFT;   keycode[1] = 0x31; break; 
-        case '°': modifier = KEYBOARD_MODIFIER_LEFTSHIFT;   keycode[1] = 0x34; break;         
-    }    
-    usb_send_hid_key(modifier, keycode);
-  }
 }
 
 void usb_send_key_combination(uint8_t modifiers, uint8_t key)
@@ -213,6 +208,26 @@ void usb_send_key_combination(uint8_t modifiers, uint8_t key)
     keycode[1] = key;       
     usb_send_hid_key(modifiers, keycode);
 }
+
+void usb_handle_placeholder(uint8_t ph) {
+    switch (ph) {
+        case PW_PH_ENTER:
+            usb_send_key_combination(KEYBOARD_MODIFIER_NONE, HID_KEY_ENTER); break;
+        case PW_PH_TAB:
+            usb_send_key_combination(KEYBOARD_MODIFIER_NONE, HID_KEY_TAB); break;
+        case PW_PH_ESC:
+            usb_send_key_combination(KEYBOARD_MODIFIER_NONE, HID_KEY_ESCAPE); break;
+        case PW_PH_BACKSPACE:
+            usb_send_key_combination(KEYBOARD_MODIFIER_NONE, HID_KEY_BACKSPACE); break;
+
+        case PW_PH_CTRL_ALT_DEL:
+            usb_send_key_combination(HID_MODIFIER_LEFT_CTRL | HID_MODIFIER_LEFT_ALT, HID_KEY_DELETE); break;
+        case PW_PH_SHIFT_TAB:
+            usb_send_key_combination(HID_MODIFIER_LEFT_SHIFT, HID_KEY_TAB); break;
+        default: break; // future use
+    }
+}
+
 
 
 esp_err_t usb_device_init(void)
