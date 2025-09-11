@@ -432,6 +432,29 @@ void fingerprint_task(void *pvParameters) {
                             #endif
                         }
 
+                        if (user.sendEnter) {
+                            ESP_LOGI(TAG, "Sending ENTER key");
+                            // Send an ENTER key
+                            switch (user.login_type)  {
+                                case 0:  // BLE only
+                                    ble_send_key_combination(KEYBOARD_MODIFIER_NONE, HID_KEY_ENTER);
+                                    break;
+                                
+                                #if CONFIG_IDF_TARGET_ESP32S3
+                                case 1:  // USB only
+                                    usb_send_key_combination(KEYBOARD_MODIFIER_NONE, HID_KEY_ENTER);
+                                    break;
+                                case 2:  // Both
+                                    if (usb_available) {
+                                        usb_send_key_combination(KEYBOARD_MODIFIER_NONE, HID_KEY_ENTER);
+                                    } else {
+                                        ble_send_key_combination(KEYBOARD_MODIFIER_NONE, HID_KEY_ENTER);
+                                    }
+                                    break;
+                                #endif
+                            }
+                        }
+
                         userdb_increment_usage(user_index);                        
                         display_oled_post_info("Finger ID: %02d", finger_index);
                         user_index = -1;

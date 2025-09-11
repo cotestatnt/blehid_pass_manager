@@ -10,7 +10,7 @@ GridLayout {
     property alias username: username
     property alias password: password
     property alias winlogin: winlogin
-    property alias sendEnter sendEnter
+    property alias sendEnter: sendEnter
     property alias autoFinger: autoFinger
     property alias fingerprintIndex: fingerprintIndex
     property alias loginType: loginType

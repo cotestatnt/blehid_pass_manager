@@ -29,6 +29,7 @@ Page {
                     cleanUserObject.username = users[i].username;
                     cleanUserObject.password = users[i].password;
                     cleanUserObject.winlogin = users[i].winlogin;
+                    cleanUserObject.sendEnter = users[i].sendEnter;
                     cleanUserObject.autoFinger = users[i].autoFinger;
                     cleanUserObject.fingerprintIndex = users[i].fingerprintIndex;
                     cleanUserObject.loginType = users[i].loginType;
