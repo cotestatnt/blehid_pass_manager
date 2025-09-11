@@ -45,7 +45,7 @@ GridLayout {
 
     TextField {
         id: password
-        placeholderText: qsTr("Enter password or placeholders, e.g. mypwd{ENTER}")
+        placeholderText: qsTr("Enter password or placeholders (mypwd{ENTER})")
         echoMode: TextInput.Password
         Layout.fillWidth: true
         Layout.minimumWidth: grid.minimumInputSize
