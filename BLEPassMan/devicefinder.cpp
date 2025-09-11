@@ -94,6 +94,8 @@ void DeviceFinder::addDevice(const QBluetoothDeviceInfo &device)
             *it = devInfo;
             delete oldDev;
         }
+
+        sortDevices();
         setInfo(tr("Low Energy device found. Scanning more..."));
         setIcon(IconProgress);
         emit devicesChanged();
@@ -114,6 +116,8 @@ void DeviceFinder::scanError(QBluetoothDeviceDiscoveryAgent::Error error)
 
 void DeviceFinder::scanFinished()
 {
+    sortDevices();
+
     if (m_devices.isEmpty()) {
         setError(tr("No Low Energy devices found."));
         setIcon(IconError);
@@ -159,4 +163,25 @@ bool DeviceFinder::scanning() const
 QVariant DeviceFinder::devices()
 {
     return QVariant::fromValue(m_devices);
+}
+
+
+void DeviceFinder::sortDevices()
+{
+    std::sort(m_devices.begin(), m_devices.end(),
+              [](DeviceInfo *a, DeviceInfo *b) {
+                  if (a == b)
+                      return false;
+                  if (!a)
+                      return false;
+                  if (!b)
+                      return true;
+                  const QString an = a->getName().toLower();
+                  const QString bn = b->getName().toLower();
+                  if (an == bn) {
+                      // fallback sull’indirizzo per ordine stabile
+                      return a->getAddress() < b->getAddress();
+                  }
+                  return an < bn;
+              });
 }

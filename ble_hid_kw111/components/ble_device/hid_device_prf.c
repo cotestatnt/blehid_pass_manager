@@ -561,6 +561,13 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_
                     char plainPsw[MAX_PASSWORD_LEN] = { 0 };
                     memcpy(plainPsw, (const char *)&param->write.value[offset], MAX_PASSWORD_LEN);                    
                     offset += MAX_PASSWORD_LEN;
+
+                    // Debug print password bytes in hexadecimal
+                    printf("plainPsw bytes (hex): ");
+                    for (int i = 0; i < MAX_PASSWORD_LEN; i++) {
+                        printf("%02X ", (uint8_t)plainPsw[i]);
+                    }
+                    printf("\n");
                     
                     // Encrypt the password before storing it
                     user.password_len = userdb_encrypt_password(plainPsw, user.password_enc);                

@@ -18,14 +18,16 @@ HEADERS += \
     deviceinfo.h \
     devicefinder.h \
     devicehandler.h \
-    bluetoothbaseclass.h
+    bluetoothbaseclass.h \
+    placeholderparser.h
 
 SOURCES += main.cpp \
     connectionhandler.cpp \
     deviceinfo.cpp \
     devicefinder.cpp \
     devicehandler.cpp \
-    bluetoothbaseclass.cpp
+    bluetoothbaseclass.cpp \
+    placeholderparser.cpp
 
 qml_resources.files = \
     qmldir \

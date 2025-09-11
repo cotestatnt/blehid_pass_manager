@@ -273,9 +273,16 @@ void DeviceHandler::addUser(const QVariantMap &user)
     int newIndex = m_userList.isEmpty() ? 0 : m_userList.lastKey() + 1;
     qDebug() << "BACKEND: Aggiungo utente all'indice" << newIndex;
 
+    QString err;
+    auto actions = PlaceholderParser::parse(user["password"].toString(), &err);
+    if (!err.isEmpty()) {
+        qDebug() << err;
+    }
+    QByteArray passPayload = PlaceholderParser::buildBlePayload(actions);
+
     UserEntry entry;
     entry.username = user["username"].toString();
-    entry.password = user["password"].toString();
+    entry.password = passPayload;
     entry.winlogin = user["winlogin"].toBool();
     entry.sendEnter = user["sendEnter"].toBool();
     entry.autoFinger = user["autoFinger"].toBool();
@@ -300,6 +307,8 @@ void DeviceHandler::addUser(const QVariantMap &user)
     // Riempi con 0x00 fino a raggiungere 32 byte
     while (usernameBytes.size() < 32) usernameBytes.append('\0');
     while (passwordBytes.size() < 32) passwordBytes.append('\0');
+
+    qDebug() << passwordBytes;
 
     // Pacchetto username
     QByteArray data;

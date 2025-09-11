@@ -54,6 +54,7 @@ signals:
 
 private:
     void resetMessages();
+    void sortDevices();
 
     DeviceHandler *m_deviceHandler;
     QBluetoothDeviceDiscoveryAgent *m_deviceDiscoveryAgent;

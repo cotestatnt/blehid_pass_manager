@@ -20,7 +20,6 @@ GridLayout {
     rows: 3
     columns: 2
 
-
     Label {
         text: qsTr("Username")
         Layout.alignment: Qt.AlignLeft | Qt.AlignBaseline
@@ -34,7 +33,6 @@ GridLayout {
         placeholderText: qsTr("Enter username")
     }
 
-
     Label {
         text: qsTr("Password")
         Layout.alignment: Qt.AlignLeft | Qt.AlignBaseline
@@ -42,16 +40,45 @@ GridLayout {
 
     TextField {
         id: password
-        placeholderText: qsTr("Enter password")
+        placeholderText: qsTr("Enter password or placeholders, e.g. mypwd{ENTER}")
         echoMode: TextInput.Password
         Layout.fillWidth: true
         Layout.minimumWidth: grid.minimumInputSize
         Layout.alignment: Qt.AlignLeft | Qt.AlignBaseline
+
+        // spazio per il "pulsante" custom
+        rightPadding: eyeButton.width + 8
+
+        // Pulsante custom (nessun ToolButton => niente background grigio)
+        Item {
+            id: eyeButton
+            width: 26
+            height: 26
+            anchors.right: parent.right
+            anchors.verticalCenter: parent.verticalCenter
+
+            // Testo/emoji come icona
+            Text {
+                id: eyeGlyph
+                anchors.centerIn: parent
+                text: password.echoMode === TextInput.Password ? "👁" : "🙈"
+                font.pixelSize: 16
+            }
+
+            // Area cliccabile
+            MouseArea {
+                anchors.fill: parent
+                hoverEnabled: false   // niente hover
+                onClicked: {
+                    password.echoMode = (password.echoMode === TextInput.Password) ? TextInput.Normal : TextInput.Password
+                }
+                // (Opzionale) feedback tattile/sonoro disabilitato, se implementato altrove
+            }
+        }
     }
 
     Label {
         text: qsTr("Login type")
-
     }
     ComboBox {
         id: loginType

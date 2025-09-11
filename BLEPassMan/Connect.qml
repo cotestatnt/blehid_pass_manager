@@ -38,8 +38,7 @@ Page {
         id: viewContainer
         anchors.top: viewCaption.bottom
         // only BlueZ platform has address type selection
-        anchors.bottom: connectPage.connectionHandler.requiresAddressType ? addressTypeButton.top
-                                                                          : searchButton.top
+        anchors.bottom: connectPage.connectionHandler.requiresAddressType ? addressTypeButton.top : searchButton.top
         anchors.bottomMargin: Settings.fieldMargin
         anchors.horizontalCenter: parent.horizontalCenter
         width: parent.width - Settings.fieldMargin * 2

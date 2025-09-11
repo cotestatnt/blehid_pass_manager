@@ -5,6 +5,7 @@
 #define DEVICEHANDLER_H
 
 #include "bluetoothbaseclass.h"
+#include "placeholderparser.h"
 
 #include <QLowEnergyController>
 #include <QLowEnergyService>
