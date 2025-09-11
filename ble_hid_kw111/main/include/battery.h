@@ -25,10 +25,8 @@ esp_err_t init_power_monitoring_adc(void);
 // USB detection tramite USB Serial JTAG
 bool is_usb_connected_simple();
 
-// Lettura batteria
-int get_battery_percentage(bool log);
 // Lettura batteria in millivolt
-int get_battery_voltage_mv(bool log);
+int get_battery_voltage_mv();
 
 // Avvia il task di notifica BLE del livello batteria
 void start_battery_notify_task(void);

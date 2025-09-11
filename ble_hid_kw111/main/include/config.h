@@ -63,7 +63,6 @@
     #define FP_UART_PORT         UART_NUM_1
     #define BUZZER_GPIO          10
 
-
     #define BUTTON_UP            12
     #define BUTTON_DOWN          4
 
@@ -80,7 +79,7 @@
     #define VBAT_GPIO            11  
     #define BATTERY_ADC_CHANNEL ADC_CHANNEL_0
     #define ADC_UNIT            ADC_UNIT_2    
-    #define VBAT_ADC_OFFSET_MV   100    // Offset sul pin in mV
+    #define VBAT_ADC_OFFSET_MV   330    // Offset sul pin in mV
 
 #elif ESP_BOARD == ESP32S3_TEST
     #define FP_UART_PORT         UART_NUM_1

@@ -44,12 +44,17 @@ static float s_batt_ema_mv = 0.0f;
 void battery_notify_task(void *pvParameters) {
     extern uint16_t battery_handle[]; // external declaration    
     while (1) {
-    int battery_percentage = get_battery_percentage(false);            
+        bool usb_connected = is_usb_connected_simple();
+
+        // Battery reading via 100K/100K divider - GPIO automatically from config.h    
+        int battery_voltage_mv = get_battery_voltage_mv();  
+        
+        // Conversion to percentage based on Li-Ion battery range (3.0V-4.2V): 3000 mV = 0%, 4200 mV = 100%
+        int battery_percentage = (battery_voltage_mv - 3000) * 100 / (4200 - 3000);        
         if (battery_percentage < 0) battery_percentage = 0;
         if (battery_percentage > 100) battery_percentage = 100;
 
-        if (battery_percentage >= 0) {
-            bool usb_connected = is_usb_connected_simple();
+        if (battery_percentage >= 0) {            
             // Charging when USB connected and not yet full
             display_oled_set_charging(usb_connected && battery_percentage < 98);
             display_oled_set_battery_percent(battery_percentage);
@@ -59,16 +64,19 @@ void battery_notify_task(void *pvParameters) {
                 esp_err_t err = battery_notify_level((uint8_t)battery_percentage);
                 if (err != ESP_OK) {
                     ESP_LOGW(TAG, "BAS notify failed: %s", esp_err_to_name(err));
-                } else {
-                    ESP_LOGI(TAG, "Battery level notified: %d%%", battery_percentage);
-                }
+                } 
             }
         }
-    // Debug: also send the value in mV via the custom characteristic
-        int mv = get_battery_voltage_mv(true);
-        if (mv > 0) {
-            notify_battery_mv(mv);
+
+        // Debug: also send the value in mV via the custom BLE characteristic
+        if (battery_voltage_mv > 0) {
+            notify_battery_mv(battery_voltage_mv);
         }
+
+        // Debug log
+        ESP_LOGI(TAG, "USB %s. Battery (GPIO%d): %dmV (%d%%)", 
+            usb_connected ? "connected" : "disconnected", 
+            VBAT_GPIO, battery_voltage_mv, battery_percentage);
         vTaskDelay(pdMS_TO_TICKS(10000)); // 30 seconds
     }
 }
@@ -89,8 +97,7 @@ bool adc_calibration_init(adc_unit_t unit, adc_channel_t channel, adc_atten_t at
     bool calibrated = false;
 
 #if ADC_CALI_SCHEME_CURVE_FITTING_SUPPORTED
-    if (!calibrated) {
-        ESP_LOGI(TAG, "calibration scheme version is %s", "Curve Fitting");
+    if (!calibrated) {        
         adc_cali_curve_fitting_config_t cali_config = {
             .unit_id = unit,
             .chan = channel,
@@ -101,12 +108,12 @@ bool adc_calibration_init(adc_unit_t unit, adc_channel_t channel, adc_atten_t at
         if (ret == ESP_OK) {
             calibrated = true;
         }
+        ESP_LOGI(TAG, "Set calibration scheme version to %s: %s", "Curve Fitting", calibrated ? "Success" : "Failed");
     }
 #endif
 
 #if ADC_CALI_SCHEME_LINE_FITTING_SUPPORTED
-    if (!calibrated) {
-        ESP_LOGI(TAG, "calibration scheme version is %s", "Line Fitting");
+    if (!calibrated) {        
         adc_cali_line_fitting_config_t cali_config = {
             .unit_id = unit,
             .atten = atten,
@@ -116,6 +123,7 @@ bool adc_calibration_init(adc_unit_t unit, adc_channel_t channel, adc_atten_t at
         if (ret == ESP_OK) {
             calibrated = true;
         }
+        ESP_LOGI(TAG, "Set calibration scheme version to %s: %s", "Line Fitting", calibrated ? "Success" : "Failed");
     }
 #endif
 
@@ -175,7 +183,7 @@ bool is_usb_connected_simple() {
     bool usb_connected = usb_serial_jtag_is_connected();
     s_last_res = usb_connected;
     s_last_ts = now;
-    ESP_LOGI(TAG, "USB %s", usb_connected ? "CONNECTED" : "DISCONNECTED");
+    // ESP_LOGI(TAG, "USB %s", usb_connected ? "CONNECTED" : "DISCONNECTED");
     return usb_connected;
 #else    
     return get_battery_percentage(false) > 100; // Heuristic: >100% means external power (USB) connected
@@ -185,7 +193,7 @@ bool is_usb_connected_simple() {
 
 
 // Returns the battery voltage in mV using the same pipeline as get_battery_percentage
-int get_battery_voltage_mv(bool log) {
+int get_battery_voltage_mv() {
     if (adc_handle == NULL) {
         return -1;
     }
@@ -217,10 +225,6 @@ int get_battery_voltage_mv(bool log) {
     }
 
     int battery_voltage_mv = (int)(s_batt_ema_mv + 0.5f);
-    if (log) {
-        ESP_LOGI(TAG, "Battery (GPIO%d): Inst=%dmV, EMA=%dmV (alpha=%.2f)",
-                 VBAT_GPIO, measured_batt_mv, battery_voltage_mv, (double)alpha);
-    }
     return battery_voltage_mv;
 }
 
@@ -247,17 +251,4 @@ void notify_battery_mv(int mv) {
     if (err != ESP_OK) {
         ESP_LOGW(TAG, "notify_battery_mv failed: %s", esp_err_to_name(err));
     }
-}
-
-
-// Battery reading via 100K/100K divider - GPIO automatically from config.h
-int get_battery_percentage(bool log) {
-    int battery_voltage_mv = get_battery_voltage_mv(false);  
-    
-    // Conversion to percentage based on Li-Ion battery range (3.0V-4.2V): 3000 mV = 0%, 4200 mV = 100%
-    int percentage = (battery_voltage_mv - 3000) * 100 / (4200 - 3000);
-    if (log) {
-        ESP_LOGI(TAG, "Battery level %d%%", percentage);
-    }
-    return percentage;
 }
