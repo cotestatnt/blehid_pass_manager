@@ -15,5 +15,7 @@
         <file>info.wav</file>
         <file>pop.wav</file>
         <file>trash.svg</file>
+        <file>eye.png</file>
+        <file>no-eye.png</file>
     </qresource>
 </RCC>

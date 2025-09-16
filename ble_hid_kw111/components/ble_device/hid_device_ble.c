@@ -37,6 +37,7 @@
 #include "user_list.h"
 
 // --- PLACEHOLDER SUPPORT ----------------------------------------------------
+#include "buttons.h"
 #include "password_placeholders.h"
 
 
@@ -348,6 +349,8 @@ static void ble_handle_placeholder(uint8_t ph) {
             ble_send_key_combination(HID_MODIFIER_LEFT_CTRL | HID_MODIFIER_LEFT_ALT, HID_KEY_DELETE); break;
         case PW_PH_SHIFT_TAB:
             ble_send_key_combination(HID_MODIFIER_LEFT_SHIFT, HID_KEY_TAB); break;
+        case PW_PH_SLEEP:
+            enter_deep_sleep(); break;
         default:
             break; // Non gestito (futuro)
     }

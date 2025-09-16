@@ -186,7 +186,11 @@ bool is_usb_connected_simple() {
     // ESP_LOGI(TAG, "USB %s", usb_connected ? "CONNECTED" : "DISCONNECTED");
     return usb_connected;
 #else    
-    return get_battery_percentage(false) > 100; // Heuristic: >100% means external power (USB) connected
+    // Battery reading via 100K/100K divider - GPIO automatically from config.h    
+    int battery_voltage_mv = get_battery_voltage_mv();  
+    // Conversion to percentage based on Li-Ion battery range (3.0V-4.2V): 3000 mV = 0%, 4200 mV = 100%
+    int battery_percentage = (battery_voltage_mv - 3000) * 100 / (4200 - 3000);        
+    return battery_percentage > 100; // Heuristic: >100% means external power (USB) connected
 #endif
 }
 

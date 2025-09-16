@@ -9,6 +9,7 @@ static constexpr char PW_PH_DELAY_500MS  = char(0x84);
 static constexpr char PW_PH_DELAY_1000MS = char(0x85);
 static constexpr char PW_PH_CTRL_ALT_DEL = char(0x86);
 static constexpr char PW_PH_SHIFT_TAB    = char(0x87);
+static constexpr char PW_PH_SLEEP        = char(0x88);
 
 QHash<QString, char> PlaceholderEncoder::s_tokenToByte;
 QHash<char, QString> PlaceholderEncoder::s_byteToToken;
@@ -26,7 +27,8 @@ void PlaceholderEncoder::initMaps() {
         {"DELAY:500",    PW_PH_DELAY_500MS},
         {"DELAY:1000",   PW_PH_DELAY_1000MS},
         {"CTRL+ALT+DEL", PW_PH_CTRL_ALT_DEL},
-        {"SHIFT+TAB",    PW_PH_SHIFT_TAB}
+        {"SHIFT+TAB",    PW_PH_SHIFT_TAB},
+        {"SLEEP",        PW_PH_SLEEP}
     };
     for (auto &e : entries) {
         QString key = QString::fromLatin1(e.name).toUpper();

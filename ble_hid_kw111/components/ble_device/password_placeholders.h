@@ -12,6 +12,7 @@
 #define PW_PH_DELAY_1000MS   0x85  // Pausa 1000 ms
 #define PW_PH_CTRL_ALT_DEL   0x86  // Sequenza Ctrl+Alt+Del
 #define PW_PH_SHIFT_TAB      0x87  // Shift+Tab
+#define PW_PH_SLEEP          0x88  // Deep sleep
 // 0x88-0x8F liberi per azioni future (ALT+TAB ecc.)
 
 // Utility macro per riconoscere rapidamente placeholder

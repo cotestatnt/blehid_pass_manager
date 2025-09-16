@@ -3,6 +3,7 @@
 
 ; Deploy command
 ; windeployqt.exe --release --qmldir C:\Cloud\blehid_pass_manager\BLEPassMan --dir C:\Cloud\blehid_pass_manager\deploy C:\Cloud\blehid_pass_manager\BLEPassMan\build\Desktop_Qt_6_9_1_MSVC2022_64bit-Release\release\ble-passman.exe
+; windeployqt.exe --release --qmldir C:\Cloud\blehid_pass_manager\BLEPassMan --dir C:\Cloud\blehid_pass_manager\deploy ble-passman.exe
 ; windeployqt.exe --release --qmldir D:\Dropbox\blehid_pass_manager\BLEPassMan ble-passman.exe
 
 

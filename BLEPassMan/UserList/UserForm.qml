@@ -60,10 +60,20 @@ GridLayout {
             height: 26
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
-            Text {
+            // Text {
+            //     anchors.centerIn: parent
+            //     text: password.echoMode === TextInput.Password ? "👁" : "🙈"
+            //     font.pixelSize: 16
+            //     color: grid.textColor
+            // }
+
+
+            Image {
                 anchors.centerIn: parent
-                text: password.echoMode === TextInput.Password ? "👁" : "🙈"
+                source: password.echoMode === TextInput.Password ? "qrc:/images/eye.png" : "qrc:/images/no-eye.png"
+                width: 20; height: 20
             }
+
             MouseArea {
                 anchors.fill: parent
                 onClicked: password.echoMode =
@@ -81,11 +91,20 @@ GridLayout {
             anchors.verticalCenter: eyeButton.verticalCenter
             anchors.right: eyeButton.left
             anchors.rightMargin: 4
+
+            // Rectangle {
+            //     anchors.fill: parent
+            //     radius: 4
+            //     color: Qt.alpha(grid.accentColor, helpButton.hovered ? 0.35 : 0.22)
+            //     border.color: grid.accentColor
+            // }
+
             Text {
                 anchors.centerIn: parent
                 text: "?"
                 font.bold: true
                 font.pixelSize: 14
+                color: grid.textColor
             }
 
             property bool hovered: false
@@ -213,7 +232,8 @@ GridLayout {
                             { code: "{DELAY:500}",    desc: "Pause 500 ms" },
                             { code: "{DELAY:1000}",   desc: "Pause 1000 ms" },
                             { code: "{CTRL+ALT+DEL}", desc: "Ctrl + Alt + Canc (login Windows)" },
-                            { code: "{SHIFT+TAB}",    desc: "Shift + Tab" }
+                            { code: "{SHIFT+TAB}",    desc: "Shift + Tab" },
+                            { code: "{SLEEP}",        desc: "Sleep after" }
                         ]
                         delegate: Row {
                             spacing: 8
