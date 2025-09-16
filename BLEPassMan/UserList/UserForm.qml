@@ -172,7 +172,7 @@ GridLayout {
 
     Dialog {
         id: placeholderDialog
-        title: qsTr("Placeholder disponibili")
+        title: qsTr("Available placeholders")
         modal: true
 
         property int dialogContentWidth: 460
@@ -215,14 +215,14 @@ GridLayout {
 
                     Repeater {
                         model: [
-                            { code: "{ENTER}",        desc: "Invia Enter" },
-                            { code: "{TAB}",          desc: "Invia Tab" },
-                            { code: "{ESC}",          desc: "Invia Escape" },
-                            { code: "{BACKSPACE}",    desc: "Invia Backspace (alias {BKSP})" },
-                            { code: "{DELAY:500}",    desc: "Pausa 500 ms" },
-                            { code: "{DELAY:1000}",   desc: "Pausa 1000 ms" },
+                            { code: "{ENTER}",        desc: "Enter" },
+                            { code: "{TAB}",          desc: "Tab" },
+                            { code: "{ESC}",          desc: "Escape" },
+                            { code: "{BACKSPACE}",    desc: "Backspace (alias {BKSP})" },
+                            { code: "{DELAY:500}",    desc: "Pause 500 ms" },
+                            { code: "{DELAY:1000}",   desc: "Pause 1000 ms" },
                             { code: "{CTRL+ALT+DEL}", desc: "Ctrl + Alt + Canc (login Windows)" },
-                            { code: "{SHIFT+TAB}",    desc: "Shift + Tab (naviga indietro)" }
+                            { code: "{SHIFT+TAB}",    desc: "Shift + Tab" }
                         ]
                         delegate: Row {
                             spacing: 8
@@ -252,7 +252,7 @@ GridLayout {
                     }
 
                     Text {
-                        text: qsTr("Esempio: ") + "<b>Abc{ENTER}{DELAY:1000}{CTRL+ALT+DEL}X</b>"
+                        text: qsTr("Example: ") + "<b>admin{TAB}{DELAY:1000}123456{ENTER}</b>"
                         wrapMode: Text.Wrap
                         width: parent.width
                         color: grid.textColor
@@ -260,7 +260,7 @@ GridLayout {
                     }
 
                     Text {
-                        text: qsTr("Per scrivere una graffa letterale usa: {{ per { e }} per }")
+                        text: qsTr("To write a literal brace, use: {{ for { and }} for }")
                         wrapMode: Text.Wrap
                         width: parent.width
                         font.italic: true
@@ -268,7 +268,7 @@ GridLayout {
                     }
 
                     Text {
-                        text: qsTr("Solo i delay 500 e 1000 ms sono supportati.")
+                        text: qsTr("Only 500 e 1000 ms delay are supported.")
                         wrapMode: Text.Wrap
                         width: parent.width
                         color: "#ff6666"
