@@ -399,7 +399,7 @@ UserEntry DeviceHandler::parseUserEntry(const QByteArray &data)
     offset += MAX_LABEL_LEN;
 
     // Username: togliere null finali
-    int labelLen = strnlen(labelBytes.constData(), MAX_LABEL_LEN);
+    size_t labelLen = strnlen(labelBytes.constData(), MAX_LABEL_LEN);
     entry.username = QString::fromUtf8(labelBytes.constData(), labelLen);
     entry.username = entry.username.trimmed();
 

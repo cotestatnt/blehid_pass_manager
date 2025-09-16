@@ -16,15 +16,18 @@ GridLayout {
     property alias loginType: loginType
     property int loginTypeIndex: -1
     property int minimumInputSize: 120
-    property color textColor: "white"
+    property color labelColor: "white"
+    property color textColor: "black"
     property color accentColor: "#ffb347"
 
     rows: 3
     columns: 2
+    columnSpacing: 5
+    rowSpacing: 2
 
     Label {
         text: qsTr("Username")
-        color: grid.textColor
+        color: grid.labelColor
         Layout.alignment: Qt.AlignLeft | Qt.AlignBaseline
     }
 
@@ -34,12 +37,11 @@ GridLayout {
         Layout.minimumWidth: grid.minimumInputSize
         Layout.alignment: Qt.AlignLeft | Qt.AlignBaseline
         placeholderText: qsTr("Enter username")
-        color: grid.textColor
     }
 
     Label {
         text: qsTr("Password")
-        color: grid.textColor
+        color: grid.labelColor
         Layout.alignment: Qt.AlignLeft | Qt.AlignBaseline
     }
 
@@ -50,10 +52,6 @@ GridLayout {
         Layout.fillWidth: true
         Layout.minimumWidth: grid.minimumInputSize
         Layout.alignment: Qt.AlignLeft | Qt.AlignBaseline
-        font.family: "Monospace"
-        color: grid.textColor
-        selectionColor: accentColor
-        selectedTextColor: "#000"
         rightPadding: eyeButton.width + (helpButton.visible ? helpButton.width + 4 : 0) + 8
 
         Item {
@@ -65,8 +63,6 @@ GridLayout {
             Text {
                 anchors.centerIn: parent
                 text: password.echoMode === TextInput.Password ? "👁" : "🙈"
-                font.pixelSize: 16
-                color: grid.textColor
             }
             MouseArea {
                 anchors.fill: parent
@@ -85,20 +81,11 @@ GridLayout {
             anchors.verticalCenter: eyeButton.verticalCenter
             anchors.right: eyeButton.left
             anchors.rightMargin: 4
-
-            Rectangle {
-                anchors.fill: parent
-                radius: 4
-                color: Qt.alpha(grid.accentColor, helpButton.hovered ? 0.35 : 0.22)
-                border.color: grid.accentColor
-            }
-
             Text {
                 anchors.centerIn: parent
                 text: "?"
                 font.bold: true
                 font.pixelSize: 14
-                color: grid.textColor
             }
 
             property bool hovered: false
@@ -116,58 +103,62 @@ GridLayout {
 
     Label {
         text: qsTr("Login type")
-        color: grid.textColor
+        color: grid.labelColor        
     }
     ComboBox {
         id: loginType
         model: ["BLE", "USB", "Both"]
         onAccepted: loginTypeIndex = loginType.currentIndex
-        palette.text: grid.textColor
+        palette.text: grid.labelColor        
     }
 
     Label {
         text: qsTr("CTRL+ALT+DEL")
-        color: grid.textColor
-        Layout.alignment: Qt.AlignLeft | Qt.AlignBaseline
+        color: grid.labelColor
+        Layout.alignment: Qt.AlignLeft | Qt.AlignBaseline        
     }
     CheckBox {
         id: winlogin
         checked: false
-        contentItem: Text { text: parent.text; visible: false }
+        contentItem: Text { text: parent.text; visible: false }   
+        Layout.leftMargin: 5
     }
 
     Label {
         text: qsTr("Send ENTER key")
-        color: grid.textColor
+        color: grid.labelColor
         Layout.alignment: Qt.AlignLeft | Qt.AlignBaseline
+        visible: false
     }
     CheckBox {
         id: sendEnter
         checked: false
         contentItem: Text { text: parent.text; visible: false }
+        visible: false
     }
 
     Label {
         text: qsTr("Magic finger")
-        color: grid.textColor
+        color: grid.labelColor
         Layout.alignment: Qt.AlignLeft | Qt.AlignBaseline
     }
     CheckBox {
         id: autoFinger
         checked: false
         contentItem: Text { text: parent.text; visible: false }
+        Layout.leftMargin: 5
     }
 
     Label {
         text: qsTr("Fingerprint ID")
         visible: autoFinger.checked
-        color: grid.textColor
+        color: grid.labelColor
     }
     ComboBox {
         id: fingerprintIndex
         model: [-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
         visible: autoFinger.checked
-        palette.text: grid.textColor
+        palette.text: grid.labelColor
     }
 
     Dialog {
@@ -238,7 +229,7 @@ GridLayout {
                             Text {
                                 text: modelData.desc
                                 wrapMode: Text.Wrap
-                                color: grid.textColor
+                                color: grid.labelColor
                                 width: parent.width - 140 - 8
                             }
                         }
@@ -255,7 +246,7 @@ GridLayout {
                         text: qsTr("Example: ") + "<b>admin{TAB}{DELAY:1000}123456{ENTER}</b>"
                         wrapMode: Text.Wrap
                         width: parent.width
-                        color: grid.textColor
+                        color: grid.labelColor
                         textFormat: Text.RichText
                     }
 
@@ -264,7 +255,7 @@ GridLayout {
                         wrapMode: Text.Wrap
                         width: parent.width
                         font.italic: true
-                        color: grid.textColor
+                        color: grid.labelColor
                     }
 
                     Text {
