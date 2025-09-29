@@ -10,14 +10,14 @@
 #define ESP32S3_SUPERMINI 2
 #define ESP32S3_TEST      3
 
-#define ESP_BOARD ESP32S3_SUPERMINI
+#define ESP_BOARD ESP32C3_SUPERMINI
 
 // OLED Display configuration
 #define OLED_96x16   1
 #define OLED_128x32  2
 
 // Configure the OLED display type here
-#define OLED_TYPE OLED_96x16
+#define OLED_TYPE OLED_128x32
 
 #if ESP_BOARD == ESP32C3_TOI
     
@@ -56,7 +56,7 @@
     #define BATTERY_ADC_CHANNEL  ADC_CHANNEL_4
     #define ADC_UNIT             ADC_UNIT_1
 
-     // Offset sul pin in mV (dovuto alla caduta di tensione sul diodo schottky)
+    // Offset sul pin in mV (dovuto alla caduta di tensione sul diodo schottky)
     #define VBAT_ADC_OFFSET_MV   284     
 
 #elif ESP_BOARD == ESP32S3_SUPERMINI
