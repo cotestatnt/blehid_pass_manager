@@ -10,14 +10,14 @@
 #define ESP32S3_SUPERMINI 2
 #define ESP32S3_TEST      3
 
-#define ESP_BOARD ESP32C3_SUPERMINI
+#define ESP_BOARD ESP32S3_SUPERMINI
 
 // OLED Display configuration
 #define OLED_96x16   1
 #define OLED_128x32  2
 
 // Configure the OLED display type here
-#define OLED_TYPE OLED_128x32
+#define OLED_TYPE OLED_96x16
 
 #if ESP_BOARD == ESP32C3_TOI
     

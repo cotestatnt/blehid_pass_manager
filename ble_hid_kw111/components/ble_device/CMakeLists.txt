@@ -5,7 +5,7 @@ set(_srcs
     "hid_device_prf.c"
 )
 
-set(_requires esp_hid user_list main)
+set(_requires esp_hid user_list main display_oled)
 
 if(IDF_TARGET STREQUAL "esp32s3")
     list(APPEND _srcs "hid_device_usb.c")

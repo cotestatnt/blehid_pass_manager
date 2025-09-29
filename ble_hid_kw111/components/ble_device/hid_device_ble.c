@@ -38,6 +38,7 @@
 
 // --- PLACEHOLDER SUPPORT ----------------------------------------------------
 #include "buttons.h"
+#include "display_oled.h"
 #include "password_placeholders.h"
 
 
@@ -350,6 +351,7 @@ static void ble_handle_placeholder(uint8_t ph) {
         case PW_PH_SHIFT_TAB:
             ble_send_key_combination(HID_MODIFIER_LEFT_SHIFT, HID_KEY_TAB); break;
         case PW_PH_SLEEP:
+            display_oled_deinit();
             enter_deep_sleep(); break;
         default:
             break; // Non gestito (futuro)
