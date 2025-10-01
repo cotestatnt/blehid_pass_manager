@@ -218,7 +218,8 @@ GridLayout {
                     y: 0
                     // Larghezza controllata senza riferimenti circolari
                     width: contentWrapper.width
-                    padding: 16
+                    padding: 10
+                    topPadding: 60
 
                     // NOTA: Text usa width = parent.width per wrapping stabile
                     Component.onCompleted: {} // evita modifiche dinamiche post-layout
@@ -233,10 +234,11 @@ GridLayout {
                             { code: "{DELAY:1000}",   desc: "Pause 1000 ms" },
                             { code: "{CTRL+ALT+DEL}", desc: "Ctrl + Alt + Canc (login Windows)" },
                             { code: "{SHIFT+TAB}",    desc: "Shift + Tab" },
-                            { code: "{SLEEP}",        desc: "Sleep after" }
+                            { code: "{SLEEP}",        desc: "Sleep after" },
+                            { code: "",               desc: "" }
                         ]
                         delegate: Row {
-                            spacing: 8
+                            spacing: 4
                             width: parent.width
                             Text {
                                 text: modelData.code
@@ -256,37 +258,45 @@ GridLayout {
                     }
 
                     Rectangle {
-                        width: parent.width
-                        height: 1
+                        width: parent.width - 30
+                        height: 90
                         color: "#666"
-                        opacity: 0.35
+                        opacity: 0.55
+
+                        Column {
+                            spacing: 10
+                            width: contentWrapper.width
+                            padding: 10
+
+                            Text {
+                                text: qsTr("Example: ") + "<b>admin{TAB}{DELAY:1000}123456{ENTER}</b>"
+                                wrapMode: Text.Wrap
+                                width: parent.width
+                                color: grid.labelColor
+                                textFormat: Text.RichText
+                            }
+
+                            Text {
+                                text: qsTr("To write a literal brace, use: {{ for { and }} for }")
+                                wrapMode: Text.Wrap
+                                width: parent.width
+                                font.italic: true
+                                color: grid.labelColor
+                            }
+
+                            Text {
+                                text: qsTr("Only 500 e 1000 ms delay are supported.")
+                                wrapMode: Text.Wrap
+                                width: parent.width
+                                color: "#ff6666"
+                            }
+                        }
                     }
 
-                    Text {
-                        text: qsTr("Example: ") + "<b>admin{TAB}{DELAY:1000}123456{ENTER}</b>"
-                        wrapMode: Text.Wrap
-                        width: parent.width
-                        color: grid.labelColor
-                        textFormat: Text.RichText
-                    }
 
-                    Text {
-                        text: qsTr("To write a literal brace, use: {{ for { and }} for }")
-                        wrapMode: Text.Wrap
-                        width: parent.width
-                        font.italic: true
-                        color: grid.labelColor
-                    }
-
-                    Text {
-                        text: qsTr("Only 500 e 1000 ms delay are supported.")
-                        wrapMode: Text.Wrap
-                        width: parent.width
-                        color: "#ff6666"
-                    }
 
                     // Spaziatore finale per aria
-                    Item { width: parent.width; height: 8 }
+                    // Item { width: parent.width; height: 8 }
                 }
             }
         }

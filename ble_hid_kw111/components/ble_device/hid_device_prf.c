@@ -124,6 +124,9 @@ int user_list_index = 0;
 uint16_t battery_handle[BAS_IDX_NB];
 int battery_conn_id = -1;
 static uint16_t battery_ccc_bits = 0; // bit0=Notify, bit1=Indicate
+// Track HID Keyboard Input Report CCCD and connection for readiness checks
+static uint16_t hid_kbd_ccc_bits = 0; // bit0=Notify
+static int hid_kbd_conn_id = -1;
 
 ////////////////////////////////////////////////////////////////////
 
@@ -460,6 +463,9 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_
     // Track connection for Battery Service notifications
     battery_conn_id = (int)param->connect.conn_id;
     battery_ccc_bits = 0;
+    // Track connection for HID keyboard CCCD as well
+    hid_kbd_conn_id = (int)param->connect.conn_id;
+    hid_kbd_ccc_bits = 0;
         if (hidd_le_env.hidd_cb != NULL)
         {
             (hidd_le_env.hidd_cb)(ESP_HIDD_EVENT_BLE_CONNECT, &cb_param);
@@ -475,12 +481,28 @@ void esp_hidd_prf_cb_hdl(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,esp_
     // Reset Battery Service connection state
     battery_conn_id = -1;
     battery_ccc_bits = 0;
+    // Reset HID keyboard CCCD state
+    hid_kbd_conn_id = -1;
+    hid_kbd_ccc_bits = 0;
         hidd_clcb_dealloc(param->disconnect.conn_id);
         break;
     }
     case ESP_GATTS_CLOSE_EVT:
         break;
     case ESP_GATTS_WRITE_EVT:
+        // Handle HID Keyboard Input Report CCCD writes
+        if (hidd_le_env.hidd_inst.att_tbl[HIDD_LE_IDX_REPORT_KEY_IN_CCC] != 0 &&
+            param->write.handle == hidd_le_env.hidd_inst.att_tbl[HIDD_LE_IDX_REPORT_KEY_IN_CCC])
+        {
+            uint16_t ccc = 0;
+            if (param->write.len >= 2) {
+                ccc = param->write.value[0] | ((uint16_t)param->write.value[1] << 8);
+            }
+            hid_kbd_ccc_bits = ccc;
+            hid_kbd_conn_id = (int)param->write.conn_id;
+            ESP_LOGI(TAG, "HID KBD CCCD write: conn_id=%u ccc=0x%04X -> notif %s",
+                     param->write.conn_id, ccc, (ccc & 0x0001) ? "ON" : "OFF");
+        }
     {
         esp_hidd_cb_param_t cb_param = {0};
         // Handle Battery Level CCCD writes
@@ -774,6 +796,12 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
             }
         }
     }    
+}
+
+// Public helper to know if keyboard notifications are enabled on current connection
+bool hid_is_keyboard_notify_enabled(void)
+{
+    return (hid_kbd_conn_id >= 0) && ((hid_kbd_ccc_bits & 0x0001) != 0);
 }
 
 

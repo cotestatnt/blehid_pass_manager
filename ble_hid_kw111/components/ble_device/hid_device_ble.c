@@ -304,6 +304,11 @@ uint8_t const ble_conv_table[128][2] =  { HID_IT_IT_ASCII_TO_KEYCODE };
 
 // Invia una sequenza HID: pressione e rilascio
 static void ble_send_hid_key(uint8_t keycode[8]) {
+    if (!ble_is_connected() || !hid_is_keyboard_notify_enabled()) {
+        ESP_LOGW(HID_DEMO_TAG, "BLE not ready for HID send (conn=%d, cccd=%d)",
+                 (int)ble_is_connected(), (int)hid_is_keyboard_notify_enabled());
+        return;
+    }
     // HID report: [modifier, reserved, key1, key2, key3, key4, key5, key6]
     // Send key press
     esp_hidd_send_keyboard_value(hid_conn_id, keycode[0], &keycode[2], 1);
@@ -351,8 +356,16 @@ static void ble_handle_placeholder(uint8_t ph) {
         case PW_PH_SHIFT_TAB:
             ble_send_key_combination(HID_MODIFIER_LEFT_SHIFT, HID_KEY_TAB); break;
         case PW_PH_SLEEP:
-            display_oled_deinit();
-            enter_deep_sleep(); break;
+            // Go to sleep only if data was actually delivered recently or BLE is ready.
+            // If BLE is disconnected, don't sleep; show warning to user.
+            if (!ble_is_connected() || !hid_is_keyboard_notify_enabled()) {
+                ESP_LOGW(HID_DEMO_TAG, "Sleep placeholder ignored: BLE not connected/ready");
+                display_oled_post_error("BLE not connected");
+            } else {
+                display_oled_deinit();
+                enter_deep_sleep();
+            }
+            break;
         default:
             break; // Non gestito (futuro)
     }
@@ -495,6 +508,11 @@ bool ble_is_connected(void)
         }
     }
     return has_remote_addr;
+}
+
+bool ble_can_send(void)
+{
+    return ble_is_connected() && hid_is_keyboard_notify_enabled();
 }
 
 

@@ -372,15 +372,22 @@ void fingerprint_task(void *pvParameters) {
                     }                
                 }
                 
+                // If user selected BLE or BOTH, ensure BLE link is ready before attempting to send
+                bool ble_ready = ble_can_send();
+
                 // Index selected with buttons or magic finder, let's check if is a windows login (CTRL+ALT+DEL)
                 user_entry_t user = user_list[user_index];
                 if (user_index != -1 && user.winlogin) {  // CTRL+ALT+DELETE
                     ESP_LOGI(TAG, "Sending CTRL+ALT+DEL combination for user %s...", user.label);
                     switch (user.login_type)  {
                         case 0:  // BLE only
-                            ESP_LOGI(TAG, "Sending via BLE: modifiers=0x%02X, key=0x%02X", 
-                                     HID_MODIFIER_LEFT_CTRL | HID_MODIFIER_LEFT_ALT, 0x4C);
-                            ble_send_key_combination(HID_MODIFIER_LEFT_CTRL | HID_MODIFIER_LEFT_ALT, 0x4C);
+                            if (ble_ready) {
+                                ESP_LOGI(TAG, "Sending via BLE: modifiers=0x%02X, key=0x%02X", 
+                                         HID_MODIFIER_LEFT_CTRL | HID_MODIFIER_LEFT_ALT, 0x4C);
+                                ble_send_key_combination(HID_MODIFIER_LEFT_CTRL | HID_MODIFIER_LEFT_ALT, 0x4C);
+                            } else {
+                                display_oled_post_error("BLE not connected");
+                            }
                             break;
                         
                         #if CONFIG_IDF_TARGET_ESP32S3
@@ -394,10 +401,12 @@ void fingerprint_task(void *pvParameters) {
                                 ESP_LOGI(TAG, "Sending via USB (both mode): modifiers=0x%02X, key=0x%02X", 
                                          HID_MODIFIER_LEFT_CTRL | HID_MODIFIER_LEFT_ALT, 0x4C);
                                 usb_send_key_combination(HID_MODIFIER_LEFT_CTRL | HID_MODIFIER_LEFT_ALT, 0x4C);
-                            } else {
+                            } else if (ble_ready) {
                                 ESP_LOGI(TAG, "Sending via BLE (both mode): modifiers=0x%02X, key=0x%02X", 
                                          HID_MODIFIER_LEFT_CTRL | HID_MODIFIER_LEFT_ALT, 0x4C);
                                 ble_send_key_combination(HID_MODIFIER_LEFT_CTRL | HID_MODIFIER_LEFT_ALT, 0x4C);
+                            } else {
+                                display_oled_post_error("BLE not connected");
                             }
                             break;
                         #endif
@@ -415,7 +424,11 @@ void fingerprint_task(void *pvParameters) {
                     if (userdb_decrypt_password(encoded, len, plain) == 0) {                        
                         switch (user.login_type)  {
                             case 0:  // BLE only
-                                ble_send_string(plain);
+                                if (ble_ready) {
+                                    ble_send_string(plain);
+                                } else {
+                                    display_oled_post_error("BLE not connected");
+                                }
                                 break;
                             
                             #if CONFIG_IDF_TARGET_ESP32S3
@@ -425,8 +438,10 @@ void fingerprint_task(void *pvParameters) {
                             case 2:  // Both
                                 if (usb_available) {
                                     usb_send_string(plain);
-                                } else {
+                                } else if (ble_ready) {
                                     ble_send_string(plain);
+                                } else {
+                                    display_oled_post_error("BLE not connected");
                                 }
                                 break;
                             #endif
@@ -437,7 +452,11 @@ void fingerprint_task(void *pvParameters) {
                             // Send an ENTER key
                             switch (user.login_type)  {
                                 case 0:  // BLE only
-                                    ble_send_key_combination(KEYBOARD_MODIFIER_NONE, HID_KEY_ENTER);
+                                    if (ble_ready) {
+                                        ble_send_key_combination(KEYBOARD_MODIFIER_NONE, HID_KEY_ENTER);
+                                    } else {
+                                        display_oled_post_error("BLE not connected");
+                                    }
                                     break;
                                 
                                 #if CONFIG_IDF_TARGET_ESP32S3
@@ -447,8 +466,10 @@ void fingerprint_task(void *pvParameters) {
                                 case 2:  // Both
                                     if (usb_available) {
                                         usb_send_key_combination(KEYBOARD_MODIFIER_NONE, HID_KEY_ENTER);
-                                    } else {
+                                    } else if (ble_ready) {
                                         ble_send_key_combination(KEYBOARD_MODIFIER_NONE, HID_KEY_ENTER);
+                                    } else {
+                                        display_oled_post_error("BLE not connected");
                                     }
                                     break;
                                 #endif

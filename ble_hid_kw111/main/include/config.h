@@ -13,11 +13,23 @@
 #define ESP_BOARD ESP32S3_SUPERMINI
 
 // OLED Display configuration
+#define I2C_BUS_PORT  0
+#define LCD_PIXEL_CLOCK_HZ    (400 * 1000)
+#define I2C_HW_ADDR           0x3C
 #define OLED_96x16   1
 #define OLED_128x32  2
 
 // Configure the OLED display type here
 #define OLED_TYPE OLED_96x16
+
+#if OLED_TYPE == OLED_96x16
+#define LCD_H_RES 96
+#define LCD_V_RES 16
+#else
+#define LCD_H_RES 128
+#define LCD_V_RES 32
+#endif
+
 
 #if ESP_BOARD == ESP32C3_TOI
     
@@ -134,21 +146,5 @@
     #define PULLDOWN_TYPE GPIO_PULLDOWN_DISABLE
     #define ACTIVE_LEVEL 0 // R503 touch is active low
 #endif
-
-
-#define I2C_BUS_PORT  0
-#define LCD_PIXEL_CLOCK_HZ    (400 * 1000)
-#define I2C_HW_ADDR           0x3C
-
-
-
-#if OLED_TYPE == OLED_96x16
-#define LCD_H_RES 96
-#define LCD_V_RES 16
-#else
-#define LCD_H_RES 128
-#define LCD_V_RES 32
-#endif
-
 
 #endif // CONFIG_H

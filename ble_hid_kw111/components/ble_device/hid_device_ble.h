@@ -20,6 +20,8 @@ void ble_send_key_combination(uint8_t modifiers, uint8_t key);
 void ble_send_string(const char* str);
 
 bool ble_is_connected(void);
+// True if connected and HID keyboard notifications are enabled on CCCD
+bool ble_can_send(void);
 
 esp_err_t ble_force_disconnect(void);
 esp_err_t ble_force_disconnect_and_clear(void);  // New function for forced cleanup

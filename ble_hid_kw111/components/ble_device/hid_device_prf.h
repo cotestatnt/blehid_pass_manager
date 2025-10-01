@@ -27,6 +27,10 @@ enum
 esp_err_t battery_set_level(uint8_t battery_percentage);
 esp_err_t battery_notify_level(uint8_t battery_percentage);
 
+// Returns true if the HID Keyboard Input Report CCCD has notifications enabled
+// and there is an active connection suitable for sending key reports.
+bool hid_is_keyboard_notify_enabled(void);
+
 // Expose Battery Service handles and connection id so other modules can check availability
 extern uint16_t battery_handle[BAS_IDX_NB];
 extern int battery_conn_id;
