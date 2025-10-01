@@ -373,7 +373,7 @@ void fingerprint_task(void *pvParameters) {
                 }
                 
                 // If user selected BLE or BOTH, ensure BLE link is ready before attempting to send
-                bool ble_ready = ble_can_send();
+                bool ble_ready = ble_is_connected();
 
                 // Index selected with buttons or magic finder, let's check if is a windows login (CTRL+ALT+DEL)
                 user_entry_t user = user_list[user_index];

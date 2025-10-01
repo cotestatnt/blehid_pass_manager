@@ -165,8 +165,7 @@ static void hidd_event_callback(esp_hidd_cb_event_t event, esp_hidd_cb_param_t *
             
             // Check if the connecting device is blacklisted
             if (is_device_blacklisted(param->connect.remote_bda)) {
-                ESP_LOGW(HID_DEMO_TAG, "Rejecting connection from blacklisted device: "ESP_BD_ADDR_STR"", 
-                         ESP_BD_ADDR_HEX(param->connect.remote_bda));
+                ESP_LOGW(HID_DEMO_TAG, "Rejecting connection from blacklisted device: "ESP_BD_ADDR_STR"", ESP_BD_ADDR_HEX(param->connect.remote_bda));
                 // Immediately disconnect the blacklisted device
                 esp_ble_gap_disconnect(param->connect.remote_bda);
                 break;
@@ -225,8 +224,7 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
         case ESP_GAP_BLE_SEC_REQ_EVT:
             /* Check if device is blacklisted before accepting security request */
             if (is_device_blacklisted(param->ble_security.ble_req.bd_addr)) {
-                ESP_LOGW(HID_DEMO_TAG, "Rejecting security request from blacklisted device: "ESP_BD_ADDR_STR"", 
-                         ESP_BD_ADDR_HEX(param->ble_security.ble_req.bd_addr));
+                ESP_LOGW(HID_DEMO_TAG, "Rejecting security request from blacklisted device: "ESP_BD_ADDR_STR"", ESP_BD_ADDR_HEX(param->ble_security.ble_req.bd_addr));
                 esp_ble_gap_security_rsp(param->ble_security.ble_req.bd_addr, false);
                 break;
             }
@@ -303,12 +301,7 @@ bool ble_userlist_is_authenticated() {
 uint8_t const ble_conv_table[128][2] =  { HID_IT_IT_ASCII_TO_KEYCODE };
 
 // Invia una sequenza HID: pressione e rilascio
-static void ble_send_hid_key(uint8_t keycode[8]) {
-    if (!ble_is_connected() || !hid_is_keyboard_notify_enabled()) {
-        ESP_LOGW(HID_DEMO_TAG, "BLE not ready for HID send (conn=%d, cccd=%d)",
-                 (int)ble_is_connected(), (int)hid_is_keyboard_notify_enabled());
-        return;
-    }
+static void ble_send_hid_key(uint8_t keycode[8]) {    
     // HID report: [modifier, reserved, key1, key2, key3, key4, key5, key6]
     // Send key press
     esp_hidd_send_keyboard_value(hid_conn_id, keycode[0], &keycode[2], 1);
@@ -358,7 +351,7 @@ static void ble_handle_placeholder(uint8_t ph) {
         case PW_PH_SLEEP:
             // Go to sleep only if data was actually delivered recently or BLE is ready.
             // If BLE is disconnected, don't sleep; show warning to user.
-            if (!ble_is_connected() || !hid_is_keyboard_notify_enabled()) {
+            if (!ble_is_connected()) {
                 ESP_LOGW(HID_DEMO_TAG, "Sleep placeholder ignored: BLE not connected/ready");
                 display_oled_post_error("BLE not connected");
             } else {
@@ -510,10 +503,7 @@ bool ble_is_connected(void)
     return has_remote_addr;
 }
 
-bool ble_can_send(void)
-{
-    return ble_is_connected() && hid_is_keyboard_notify_enabled();
-}
+
 
 
 esp_err_t ble_force_disconnect(void)
